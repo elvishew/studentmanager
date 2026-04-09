@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/widgets/session_edit_dialog.dart';
 
 /// 课时详情页
 class SessionDetailPage extends ConsumerStatefulWidget {
@@ -163,6 +164,41 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
     }
   }
 
+  /// 显示编辑课时对话框
+  Future<void> _showEditSessionDialog() async {
+    if (_session == null) return;
+
+    final result = await showSessionEditDialog(
+      context,
+      session: _session!,
+    );
+
+    if (result != null && mounted) {
+      final notifier = ref.read(sessionNotifierProvider.notifier);
+      final success = await notifier.updateSession(
+        sessionId: widget.sessionId,
+        scheduledTime: result['scheduledTime'] as DateTime?,
+        status: result['status'] as SessionStatus?,
+      );
+
+      if (mounted) {
+        if (success) {
+          await _loadSession();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('课时已更新')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('更新失败'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   /// 上移训练块
   Future<void> _moveUpTrainingBlock(TrainingBlock block) async {
     if (block.sortOrder > 0) {
@@ -211,6 +247,12 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
       appBar: AppBar(
         title: Text('第 ${_session!.sessionNumber} 节课'),
         actions: [
+          // 编辑按钮
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: _showEditSessionDialog,
+            tooltip: '编辑课时',
+          ),
           // 删除按钮
           IconButton(
             icon: const Icon(Icons.delete_outline),

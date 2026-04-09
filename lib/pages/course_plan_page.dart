@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/widgets/session_action_dialogs.dart';
 import 'session_detail_page.dart';
 
 /// 课程规划页
@@ -207,7 +208,31 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               ),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 预约按钮
+            _buildActionButton(
+              icon: Icons.event_available_outlined,
+              tooltip: '预约时间',
+              onTap: () => _handleSchedule(session),
+            ),
+            // 完成按钮
+            _buildActionButton(
+              icon: Icons.check_circle_outline,
+              tooltip: '标记完成',
+              onTap: () => _handleComplete(session, displayNumber),
+            ),
+            // 跳过按钮
+            _buildActionButton(
+              icon: Icons.skip_next_outlined,
+              tooltip: '跳过',
+              onTap: () => _handleSkip(session, displayNumber),
+            ),
+            // 详情箭头
+            const Icon(Icons.chevron_right),
+          ],
+        ),
         onTap: () => _navigateToSessionDetail(session.id),
       ),
     );
@@ -321,5 +346,110 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   /// 格式化日期时间
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.month}月${dateTime.day}日 ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// 构建快捷操作按钮
+  Widget _buildActionButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: IconButton(
+        icon: Icon(icon, size: 20),
+        tooltip: tooltip,
+        onPressed: onTap,
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
+
+  /// 预约时间
+  Future<void> _handleSchedule(Session session) async {
+    final scheduledTime = await selectDateTime(context);
+    if (scheduledTime == null) return;
+
+    final notifier = ref.read(sessionNotifierProvider.notifier);
+    final success = await notifier.updateSession(
+      sessionId: session.id,
+      scheduledTime: scheduledTime,
+    );
+
+    if (mounted) {
+      _showResultSnackBar(success, '预约时间已设置');
+    }
+  }
+
+  /// 标记完成
+  Future<void> _handleComplete(Session session, int displayNumber) async {
+    // 验证：必须先预约
+    if (session.scheduledTime == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('请先预约上课时间'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    // 确认对话框
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: '标记为已完成',
+      content: '确定要将第$displayNumber节课标记为已完成吗？',
+      confirmText: '确认',
+    );
+
+    if (confirmed != true) return;
+
+    // 更新状态
+    final notifier = ref.read(sessionNotifierProvider.notifier);
+    final success = await notifier.updateSession(
+      sessionId: session.id,
+      status: SessionStatus.completed,
+    );
+
+    if (mounted) {
+      _showResultSnackBar(success, '已标记为完成');
+    }
+  }
+
+  /// 跳过课时
+  Future<void> _handleSkip(Session session, int displayNumber) async {
+    // 确认对话框
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: '标记为已跳过',
+      content: '确定要将第$displayNumber节课标记为已跳过吗？',
+      confirmText: '确认',
+    );
+
+    if (confirmed != true) return;
+
+    // 更新状态
+    final notifier = ref.read(sessionNotifierProvider.notifier);
+    final success = await notifier.updateSession(
+      sessionId: session.id,
+      status: SessionStatus.skipped,
+    );
+
+    if (mounted) {
+      _showResultSnackBar(success, '已标记为跳过');
+    }
+  }
+
+  /// 显示操作结果
+  void _showResultSnackBar(bool success, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? message : '操作失败，请重试'),
+        backgroundColor: success ? Colors.green : Colors.red,
+      ),
+    );
   }
 }
