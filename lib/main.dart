@@ -1,122 +1,271 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'pages/student_list_page.dart';
+import 'providers/student_provider.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化数据库
+  final database = await _initDatabase();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(database),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+/// 初始化数据库
+Future<Database> _initDatabase() async {
+  final dbPath = await getDatabasesPath();
+  final path = join(dbPath, 'student_manager.db');
+
+  // 删除旧数据库（开发阶段可选）
+  // await deleteDatabase(path);
+
+  final database = await openDatabase(
+    path,
+    version: 1,
+    onCreate: (db, version) async {
+      await db.execute('PRAGMA foreign_keys = ON');
+
+      // 创建学员表
+      await db.execute('''
+        CREATE TABLE students (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          gender TEXT,
+          contact TEXT NOT NULL,
+          notes TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // 创建课程规划表
+      await db.execute('''
+        CREATE TABLE course_plans (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER NOT NULL,
+          goal TEXT NOT NULL,
+          blueprint TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // 创建课时表
+      await db.execute('''
+        CREATE TABLE sessions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          course_plan_id INTEGER NOT NULL,
+          session_number INTEGER NOT NULL,
+          scheduled_time TEXT,
+          status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'skipped')),
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (course_plan_id) REFERENCES course_plans(id) ON DELETE CASCADE,
+          UNIQUE(course_plan_id, session_number)
+        )
+      ''');
+
+      // 创建训练块表
+      await db.execute('''
+        CREATE TABLE training_blocks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          session_id INTEGER NOT NULL,
+          action_id INTEGER,
+          equipment_id INTEGER,
+          tool_id INTEGER,
+          reps TEXT,
+          sets TEXT,
+          duration TEXT,
+          intensity TEXT,
+          notes TEXT,
+          is_custom INTEGER NOT NULL DEFAULT 0,
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // 创建动作表
+      await db.execute('''
+        CREATE TABLE actions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // 创建器械表
+      await db.execute('''
+        CREATE TABLE equipments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // 创建工具表
+      await db.execute('''
+        CREATE TABLE tools (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // 创建课程目标默认配置表
+      await db.execute('''
+        CREATE TABLE goal_configs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          goal TEXT NOT NULL UNIQUE,
+          blueprint TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // 创建默认配置课时模板表
+      await db.execute('''
+        CREATE TABLE goal_config_sessions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          goal_config_id INTEGER NOT NULL,
+          session_number INTEGER NOT NULL,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (goal_config_id) REFERENCES goal_configs(id) ON DELETE CASCADE,
+          UNIQUE(goal_config_id, session_number)
+        )
+      ''');
+
+      // 创建默认配置训练块模板表
+      await db.execute('''
+        CREATE TABLE goal_config_training_blocks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          goal_config_session_id INTEGER NOT NULL,
+          action_id INTEGER,
+          equipment_id INTEGER,
+          tool_id INTEGER,
+          reps TEXT,
+          sets TEXT,
+          duration TEXT,
+          intensity TEXT,
+          notes TEXT,
+          is_custom INTEGER NOT NULL DEFAULT 0,
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (goal_config_session_id) REFERENCES goal_config_sessions(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // 创建索引
+      await db.execute('CREATE INDEX idx_sessions_course_plan ON sessions(course_plan_id)');
+      await db.execute('CREATE INDEX idx_training_blocks_session ON training_blocks(session_id)');
+      await db.execute('CREATE INDEX idx_course_plans_student ON course_plans(student_id)');
+      await db.execute('CREATE INDEX idx_goal_config_sessions_config ON goal_config_sessions(goal_config_id)');
+      await db.execute('CREATE INDEX idx_goal_config_training_blocks_session ON goal_config_training_blocks(goal_config_session_id)');
+      await db.execute('CREATE INDEX idx_sessions_status ON sessions(status)');
+      await db.execute('CREATE INDEX idx_sessions_scheduled_time ON sessions(scheduled_time)');
+
+      // 插入初始数据
+      await _insertInitialData(db);
+    },
+  );
+
+  return database;
+}
+
+/// 插入初始数据
+Future<void> _insertInitialData(Database db) async {
+  // 插入默认动作
+  await db.insert('actions', {'name': '宽蹲'});
+  await db.insert('actions', {'name': '侧弓步蹲'});
+  await db.insert('actions', {'name': '侧蹬腿'});
+  await db.insert('actions', {'name': '站姿弓步（一）'});
+  await db.insert('actions', {'name': '站姿弓步（二）'});
+  await db.insert('actions', {'name': '站姿弓步（三）'});
+
+  // 插入默认器械
+  await db.insert('equipments', {'name': '核心床（Reformer）'});
+  await db.insert('equipments', {'name': '凯迪拉克床（Cadillac）'});
+  await db.insert('equipments', {'name': '稳踏椅（Chair）'});
+  await db.insert('equipments', {'name': '梯桶（Ladder Barrel）'});
+  await db.insert('equipments', {'name': 'ARC'});
+
+  // 插入默认工具
+  await db.insert('tools', {'name': '盒子'});
+  await db.insert('tools', {'name': '小球'});
+  await db.insert('tools', {'name': '弹力带'});
+  await db.insert('tools', {'name': '普拉提环'});
+  await db.insert('tools', {'name': '泡沫轴'});
+  await db.insert('tools', {'name': '瑜伽砖'});
+
+  // 插入示例学员数据（用于测试）
+  await db.insert('students', {
+    'name': '张三',
+    'gender': '女',
+    'contact': '13800138000',
+    'notes': '产后2个月，需要修复',
+  });
+
+  await db.insert('students', {
+    'name': '李四',
+    'gender': '女',
+    'contact': '13900139000',
+    'notes': '肩颈不适',
+  });
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '普拉提学员管理系统',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        cardTheme: CardTheme(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          filled: true,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
       ),
+      themeMode: ThemeMode.system,
+      home: const StudentListPage(),
     );
   }
 }
