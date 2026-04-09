@@ -504,9 +504,9 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
 
     if (mounted) {
       setState(() {
-        _actions = actions.map((e) => {'id': e['id'], 'name': e['name']}.toList();
-        _equipments = equipments.map((e) => {'id': e['id'], 'name': e['name']}.toList();
-        _tools = tools.map((e) => {'id': e['id'], 'name': e['name']}.toList();
+        _actions = actions.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+        _equipments = equipments.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+        _tools = tools.map((e) => {'id': e['id'], 'name': e['name']}).toList();
       });
     }
   }
@@ -523,14 +523,14 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
     if (blocks.isNotEmpty && mounted) {
       final block = blocks.first;
       setState(() {
-        _selectedActionId = block['action_id'];
-        _selectedEquipmentId = block['equipment_id'];
-        _selectedToolId = block['tool_id'];
-        _repsController.text = block['reps'] ?? '';
-        _setsController.text = block['sets'] ?? '';
-        _durationController.text = block['duration'] ?? '';
-        _intensityController.text = block['intensity'] ?? '';
-        _notesController.text = block['notes'] ?? '';
+        _selectedActionId = block['action_id'] as int?;
+        _selectedEquipmentId = block['equipment_id'] as int?;
+        _selectedToolId = block['tool_id'] as int?;
+        _repsController.text = (block['reps'] ?? '') as String;
+        _setsController.text = (block['sets'] ?? '') as String;
+        _durationController.text = (block['duration'] ?? '') as String;
+        _intensityController.text = (block['intensity'] ?? '') as String;
+        _notesController.text = (block['notes'] ?? '') as String;
         _isCustom = (block['is_custom'] ?? 0) == 1;
       });
     }
@@ -641,10 +641,10 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
                 labelText: '动作',
                 border: OutlineInputBorder(),
               ),
-              items: _actions.map((action) {
-                return DropdownMenuItem(
-                  value: action['id'],
-                  child: Text(action['name']),
+              items: _actions.map<DropdownMenuItem<int>>((action) {
+                return DropdownMenuItem<int>(
+                  value: action['id'] as int,
+                  child: Text(action['name'] as String),
                 );
               }).toList(),
               onChanged: (value) {
@@ -662,10 +662,10 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
                 labelText: '器械',
                 border: OutlineInputBorder(),
               ),
-              items: _equipments.map((equipment) {
-                return DropdownMenuItem(
-                  value: equipment['id'],
-                  child: Text(equipment['name']),
+              items: _equipments.map<DropdownMenuItem<int>>((equipment) {
+                return DropdownMenuItem<int>(
+                  value: equipment['id'] as int,
+                  child: Text(equipment['name'] as String),
                 );
               }).toList(),
               onChanged: (value) {
@@ -683,10 +683,10 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
                 labelText: '工具',
                 border: OutlineInputBorder(),
               ),
-              items: _tools.map((tool) {
-                return DropdownMenuItem(
-                  value: tool['id'],
-                  child: Text(tool['name']),
+              items: _tools.map<DropdownMenuItem<int>>((tool) {
+                return DropdownMenuItem<int>(
+                  value: tool['id'] as int,
+                  child: Text(tool['name'] as String),
                 );
               }).toList(),
               onChanged: (value) {

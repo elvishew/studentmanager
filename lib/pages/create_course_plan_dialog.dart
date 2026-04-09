@@ -28,7 +28,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
       _isCreating = true;
     });
 
-    final notifier = ref.read(coursePlanNotifierProvider);
+    final notifier = ref.read(coursePlanNotifierProvider.notifier);
     final coursePlanId = await notifier.create(
       studentId: widget.studentId,
       goal: _selectedGoal!.value,

@@ -21,6 +21,8 @@ class StudentState with _$StudentState {
 /// 学员数据模型
 @freezed
 class Student with _$Student {
+  const Student._();
+
   const factory Student({
     required int id,
     required String name,
@@ -77,6 +79,8 @@ class CoursePlanState with _$CoursePlanState {
 /// 课程规划数据模型
 @freezed
 class CoursePlan with _$CoursePlan {
+  const CoursePlan._();
+
   const factory CoursePlan({
     required int id,
     required int studentId,
@@ -140,6 +144,8 @@ class SessionState with _$SessionState {
 /// 课时数据模型
 @freezed
 class Session with _$Session {
+  const Session._();
+
   const factory Session({
     required int id,
     required int coursePlanId,
@@ -211,6 +217,8 @@ enum SessionStatus {
 
 @freezed
 class TrainingBlock with _$TrainingBlock {
+  const TrainingBlock._();
+
   const factory TrainingBlock({
     required int id,
     required int sessionId,
@@ -279,6 +287,8 @@ class TrainingBlock with _$TrainingBlock {
 /// 动作
 @freezed
 class Action with _$Action {
+  const Action._();
+
   const factory Action({
     required int id,
     required String name,
@@ -308,6 +318,8 @@ class Action with _$Action {
 /// 器械
 @freezed
 class Equipment with _$Equipment {
+  const Equipment._();
+
   const factory Equipment({
     required int id,
     required String name,
@@ -337,6 +349,8 @@ class Equipment with _$Equipment {
 /// 工具
 @freezed
 class Tool with _$Tool {
+  const Tool._();
+
   const factory Tool({
     required int id,
     required String name,
@@ -431,7 +445,4 @@ enum CourseGoal {
         return null;
     }
   }
-
-  /// 所有选项列表
-  static List<CourseGoal> get values => CourseGoal.values;
 }

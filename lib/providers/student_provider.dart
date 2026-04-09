@@ -57,19 +57,24 @@ class StudentNotifier extends _$StudentNotifier {
   /// ============================================
 
   void search(String query) {
-    final currentState = state;
-    if (currentState is! _StudentData) return;
+    state.when(
+      initial: () => state = const StudentState.initial(),
+      loading: () => state = const StudentState.loading(),
+      error: (error, stackTrace) => state = StudentState.error(error, stackTrace),
+      data: (students, filteredStudents, searchQuery) {
+        final newSearchQuery = query.toLowerCase();
+        final filtered = students.where((student) {
+          return student.name.toLowerCase().contains(newSearchQuery) ||
+              (student.contact?.toLowerCase().contains(newSearchQuery) ?? false) ||
+              (student.notes?.toLowerCase().contains(newSearchQuery) ?? false);
+        }).toList();
 
-    final searchQuery = query.toLowerCase();
-    final filtered = currentState.students.where((student) {
-      return student.name.toLowerCase().contains(searchQuery) ||
-          (student.contact?.toLowerCase().contains(searchQuery) ?? false) ||
-          (student.notes?.toLowerCase().contains(searchQuery) ?? false);
-    }).toList();
-
-    state = currentState.copyWith(
-      filteredStudents: filtered,
-      searchQuery: query,
+        state = StudentState.data(
+          students: students,
+          filteredStudents: filtered,
+          searchQuery: query,
+        );
+      },
     );
   }
 
@@ -159,16 +164,21 @@ class StudentNotifier extends _$StudentNotifier {
 
       if (count > 0) {
         // 从状态中移除（乐观更新）
-        final currentState = state;
-        if (currentState is _StudentData) {
-          final updatedStudents = currentState.students.where((s) => s.id != id).toList();
-          final updatedFiltered = currentState.filteredStudents.where((s) => s.id != id).toList();
+        state.when(
+          initial: () => state = const StudentState.initial(),
+          loading: () => state = const StudentState.loading(),
+          error: (error, stackTrace) => state = StudentState.error(error, stackTrace),
+          data: (students, filteredStudents, searchQuery) {
+            final updatedStudents = students.where((s) => s.id != id).toList();
+            final updatedFiltered = filteredStudents.where((s) => s.id != id).toList();
 
-          state = currentState.copyWith(
-            students: updatedStudents,
-            filteredStudents: updatedFiltered,
-          );
-        }
+            state = StudentState.data(
+              students: updatedStudents,
+              filteredStudents: updatedFiltered,
+              searchQuery: searchQuery,
+            );
+          },
+        );
         return true;
       }
 
@@ -220,7 +230,7 @@ class StudentNotifier extends _$StudentNotifier {
 int studentCount(StudentCountRef ref) {
   final studentState = ref.watch(studentNotifierProvider);
   return studentState.maybeWhen(
-    data: (students) => students.students.length,
+    data: (students, filteredStudents, searchQuery) => students.length,
     orElse: () => 0,
   );
 }

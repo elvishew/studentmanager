@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'states.dart';
 import 'student_provider.dart';
-import 'course_plan_repository.dart';
+import '../database/course_plan_repository.dart';
 
 part 'course_plan_provider.g.dart';
 
@@ -149,21 +149,29 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
       if (count > 0) {
         // 更新状态中的数据
-        final currentState = state;
-        if (currentState is _CoursePlanData) {
-          final updatedPlans = currentState.coursePlans.map((plan) {
-            if (plan.id == id) {
-              return plan.copyWith(
-                goal: goal ?? plan.goal,
-                blueprint: blueprint ?? plan.blueprint,
-                updatedAt: DateTime.now(),
-              );
-            }
-            return plan;
-          }).toList();
+        state.when(
+          initial: () => state = const CoursePlanState.initial(),
+          loading: () => state = const CoursePlanState.loading(),
+          error: (error, stackTrace) => state = CoursePlanState.error(error, stackTrace),
+          data: (coursePlans, selectedCoursePlan, selectedStudentId) {
+            final updatedPlans = coursePlans.map((plan) {
+              if (plan.id == id) {
+                return plan.copyWith(
+                  goal: goal ?? plan.goal,
+                  blueprint: blueprint ?? plan.blueprint,
+                  updatedAt: DateTime.now(),
+                );
+              }
+              return plan;
+            }).toList();
 
-          state = currentState.copyWith(coursePlans: updatedPlans);
-        }
+            state = CoursePlanState.data(
+              coursePlans: updatedPlans,
+              selectedCoursePlan: selectedCoursePlan,
+              selectedStudentId: selectedStudentId,
+            );
+          },
+        );
 
         return true;
       }
@@ -189,17 +197,22 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
       if (count > 0) {
         // 从状态中移除
-        final currentState = state;
-        if (currentState is _CoursePlanData) {
-          final updatedPlans = currentState.coursePlans.where((p) => p.id != id).toList();
+        state.when(
+          initial: () => state = const CoursePlanState.initial(),
+          loading: () => state = const CoursePlanState.loading(),
+          error: (error, stackTrace) => state = CoursePlanState.error(error, stackTrace),
+          data: (coursePlans, selectedCoursePlan, selectedStudentId) {
+            final updatedPlans = coursePlans.where((p) => p.id != id).toList();
 
-          state = currentState.copyWith(
-            coursePlans: updatedPlans,
-            selectedCoursePlan: currentState.selectedCoursePlan?.id == id
-                ? null
-                : currentState.selectedCoursePlan,
-          );
-        }
+            state = CoursePlanState.data(
+              coursePlans: updatedPlans,
+              selectedCoursePlan: selectedCoursePlan?.id == id
+                  ? null
+                  : selectedCoursePlan,
+              selectedStudentId: selectedStudentId,
+            );
+          },
+        );
 
         return true;
       }
@@ -216,20 +229,32 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
   /// ============================================
 
   void selectCoursePlan(int? id) {
-    final currentState = state;
-    if (currentState is! _CoursePlanData) return;
+    state.when(
+      initial: () => state = const CoursePlanState.initial(),
+      loading: () => state = const CoursePlanState.loading(),
+      error: (error, stackTrace) => state = CoursePlanState.error(error, stackTrace),
+      data: (coursePlans, selectedCoursePlan, selectedStudentId) {
+        if (id == null) {
+          state = CoursePlanState.data(
+            coursePlans: coursePlans,
+            selectedCoursePlan: null,
+            selectedStudentId: selectedStudentId,
+          );
+          return;
+        }
 
-    if (id == null) {
-      state = currentState.copyWith(selectedCoursePlan: null);
-      return;
-    }
+        final selected = coursePlans.firstWhere(
+          (plan) => plan.id == id,
+          orElse: () => throw ArgumentError('Course plan not found: $id'),
+        );
 
-    final selected = currentState.coursePlans.firstWhere(
-      (plan) => plan.id == id,
-      orElse: () => throw ArgumentError('Course plan not found: $id'),
+        state = CoursePlanState.data(
+          coursePlans: coursePlans,
+          selectedCoursePlan: selected,
+          selectedStudentId: selectedStudentId,
+        );
+      },
     );
-
-    state = currentState.copyWith(selectedCoursePlan: selected);
   }
 
   /// ============================================

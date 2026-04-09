@@ -2,8 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'states.dart';
 import 'student_provider.dart';
-import 'session_repository.dart';
-import 'training_block_repository.dart';
+import '../database/session_repository.dart';
+import '../database/training_block_repository.dart';
 
 part 'session_provider.g.dart';
 
@@ -165,30 +165,35 @@ class SessionNotifier extends _$SessionNotifier {
 
       if (count > 0) {
         // 乐观更新状态
-        final currentState = state;
-        if (currentState is _SessionData) {
-          final updatedSessions = currentState.sessions.map((s) {
-            if (s.id == sessionId) {
-              return s.copyWith(
-                scheduledTime: scheduledTime ?? s.scheduledTime,
-                status: status ?? s.status,
-                updatedAt: DateTime.now(),
-              );
+        state.when(
+          initial: () => state = const SessionState.initial(),
+          loading: () => state = const SessionState.loading(),
+          error: (error, stackTrace) => state = SessionState.error(error, stackTrace),
+          data: (sessions, selectedSession, coursePlanId) {
+            final updatedSessions = sessions.map((s) {
+              if (s.id == sessionId) {
+                return s.copyWith(
+                  scheduledTime: scheduledTime ?? s.scheduledTime,
+                  status: status ?? s.status,
+                  updatedAt: DateTime.now(),
+                );
+              }
+              return s;
+            }).toList();
+
+            // 如果更新的是选中的课时，也更新选中状态
+            Session? updatedSelected = selectedSession;
+            if (selectedSession?.id == sessionId) {
+              updatedSelected = updatedSessions.firstWhere((s) => s.id == sessionId);
             }
-            return s;
-          }).toList();
 
-          // 如果更新的是选中的课时，也更新选中状态
-          Session? updatedSelected = currentState.selectedSession;
-          if (currentState.selectedSession?.id == sessionId) {
-            updatedSelected = updatedSessions.firstWhere((s) => s.id == sessionId);
-          }
-
-          state = currentState.copyWith(
-            sessions: updatedSessions,
-            selectedSession: updatedSelected,
-          );
-        }
+            state = SessionState.data(
+              sessions: updatedSessions,
+              selectedSession: updatedSelected,
+              coursePlanId: coursePlanId,
+            );
+          },
+        );
 
         return true;
       }
@@ -215,10 +220,16 @@ class SessionNotifier extends _$SessionNotifier {
       );
 
       // 重新加载
-      final currentState = state;
-      if (currentState is _SessionData) {
-        await fetchByCoursePlanId(currentState.coursePlanId!);
-      }
+      state.when(
+        initial: () => state = const SessionState.initial(),
+        loading: () => state = const SessionState.loading(),
+        error: (error, stackTrace) => state = SessionState.error(error, stackTrace),
+        data: (sessions, selectedSession, coursePlanId) async {
+          if (coursePlanId != null) {
+            await fetchByCoursePlanId(coursePlanId);
+          }
+        },
+      );
 
       return true;
     } catch (e, stackTrace) {
@@ -240,17 +251,22 @@ class SessionNotifier extends _$SessionNotifier {
       );
 
       // 从状态中移除
-      final currentState = state;
-      if (currentState is _SessionData) {
-        final updatedSessions = currentState.sessions.where((s) => s.id != sessionId).toList();
+      state.when(
+        initial: () => state = const SessionState.initial(),
+        loading: () => state = const SessionState.loading(),
+        error: (error, stackTrace) => state = SessionState.error(error, stackTrace),
+        data: (sessions, selectedSession, coursePlanId) {
+          final updatedSessions = sessions.where((s) => s.id != sessionId).toList();
 
-        state = currentState.copyWith(
-          sessions: updatedSessions,
-          selectedSession: currentState.selectedSession?.id == sessionId
-              ? null
-              : currentState.selectedSession,
-        );
-      }
+          state = SessionState.data(
+            sessions: updatedSessions,
+            selectedSession: selectedSession?.id == sessionId
+                ? null
+                : selectedSession,
+            coursePlanId: coursePlanId,
+          );
+        },
+      );
 
       return true;
     } catch (e, stackTrace) {
@@ -264,20 +280,32 @@ class SessionNotifier extends _$SessionNotifier {
   /// ============================================
 
   void selectSession(int? id) {
-    final currentState = state;
-    if (currentState is! _SessionData) return;
+    state.when(
+      initial: () => state = const SessionState.initial(),
+      loading: () => state = const SessionState.loading(),
+      error: (error, stackTrace) => state = SessionState.error(error, stackTrace),
+      data: (sessions, selectedSession, coursePlanId) {
+        if (id == null) {
+          state = SessionState.data(
+            sessions: sessions,
+            selectedSession: null,
+            coursePlanId: coursePlanId,
+          );
+          return;
+        }
 
-    if (id == null) {
-      state = currentState.copyWith(selectedSession: null);
-      return;
-    }
+        final selected = sessions.firstWhere(
+          (session) => session.id == id,
+          orElse: () => throw ArgumentError('Session not found: $id'),
+        );
 
-    final selected = currentState.sessions.firstWhere(
-      (session) => session.id == id,
-      orElse: () => throw ArgumentError('Session not found: $id'),
+        state = SessionState.data(
+          sessions: sessions,
+          selectedSession: selected,
+          coursePlanId: coursePlanId,
+        );
+      },
     );
-
-    state = currentState.copyWith(selectedSession: selected);
   }
 
   /// ============================================
@@ -474,4 +502,89 @@ class SessionStatistics {
     required this.skipped,
     required this.completionRate,
   });
+}
+
+/// ============================================
+/// TrainingBlockNotifier Provider
+/// ============================================
+
+@riverpod
+class TrainingBlockNotifier extends _$TrainingBlockNotifier {
+  late final TrainingBlockRepository _repository;
+
+  @override
+  dynamic build() {
+    _repository = ref.watch(trainingBlockRepositoryProvider);
+    return null;
+  }
+
+  /// 添加训练块
+  Future<int?> addTrainingBlock({
+    required int sessionId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    required bool isCustom,
+  }) async {
+    return await _repository.addTrainingBlock(
+      sessionId: sessionId,
+      actionId: actionId,
+      equipmentId: equipmentId,
+      toolId: toolId,
+      reps: reps,
+      sets: sets,
+      duration: duration,
+      intensity: intensity,
+      notes: notes,
+      isCustom: isCustom,
+    );
+  }
+
+  /// 更新训练块
+  Future<void> updateTrainingBlock({
+    required int blockId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    bool? isCustom,
+  }) async {
+    await _repository.updateTrainingBlock(
+      blockId: blockId,
+      actionId: actionId,
+      equipmentId: equipmentId,
+      toolId: toolId,
+      reps: reps,
+      sets: sets,
+      duration: duration,
+      intensity: intensity,
+      notes: notes,
+      isCustom: isCustom,
+    );
+  }
+
+  /// 删除训练块
+  Future<void> deleteTrainingBlock({required int blockId}) async {
+    await _repository.deleteTrainingBlock(blockId: blockId);
+  }
+
+  /// 重新排序训练块
+  Future<void> reorderTrainingBlock({
+    required int blockId,
+    required int newSortOrder,
+  }) async {
+    await _repository.reorderTrainingBlock(
+      blockId: blockId,
+      newSortOrder: newSortOrder,
+    );
+  }
 }

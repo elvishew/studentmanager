@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
+import 'package:student_manager/providers/states.dart';
 import 'student_detail_page.dart';
 
 /// ============================================
