@@ -103,6 +103,66 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
     }
   }
 
+  /// 显示删除课时确认对话框
+  Future<void> _showDeleteSessionDialog() async {
+    if (_session == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+        title: const Text('删除课时'),
+        content: Text(
+          '确定要删除「第${_session!.sessionNumber}节课」吗？\n\n'
+          '删除后将同时删除该课时的所有训练记录，此操作不可恢复。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('确认删除'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _deleteSession();
+    }
+  }
+
+  /// 删除课时
+  Future<void> _deleteSession() async {
+    try {
+      final notifier = ref.read(sessionNotifierProvider.notifier);
+      final success = await notifier.deleteSession(sessionId: widget.sessionId);
+
+      if (success && mounted) {
+        // 返回上一页并显示提示
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('课时已删除')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('删除失败：$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   /// 上移训练块
   Future<void> _moveUpTrainingBlock(TrainingBlock block) async {
     if (block.sortOrder > 0) {
@@ -150,6 +210,15 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('第 ${_session!.sessionNumber} 节课'),
+        actions: [
+          // 删除按钮
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            color: Colors.red,
+            onPressed: () => _showDeleteSessionDialog(),
+            tooltip: '删除课时',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

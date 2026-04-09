@@ -151,47 +151,121 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final session = sessions[index];
-          return _buildSessionTile(session);
+          return _buildSessionTile(index, session);
         },
       ),
     );
   }
 
-  /// 构建课时列表项
-  Widget _buildSessionTile(Session session) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: _getStatusColor(session.status),
-        child: Text(
-          '${session.sessionNumber}',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+  /// 构建课时列表项（带滑动删除功能）
+  Widget _buildSessionTile(int index, Session session) {
+    // 使用索引+1作为显示序号，这样删除课后序号会自动调整
+    final displayNumber = index + 1;
+
+    return Dismissible(
+      key: Key('session_${session.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(Icons.delete, color: Colors.white, size: 32),
+      ),
+      confirmDismiss: (direction) async {
+        return await _showDeleteSessionDialog(session, displayNumber);
+      },
+      onDismissed: (direction) {
+        // 删除逻辑在对话框确认后执行，这里不需要额外操作
+      },
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: _getStatusColor(session.status),
+          child: Text(
+            '$displayNumber',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        title: Text(
+          '第 $displayNumber 节课',
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 状态标签
+            _buildStatusLabel(session.status),
+            // 上课时间
+            if (session.scheduledTime != null)
+              Text(
+                _formatDateTime(session.scheduledTime!),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+          ],
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _navigateToSessionDetail(session.id),
       ),
-      title: Text(
-        '第 ${session.sessionNumber} 节课',
-        style: const TextStyle(fontWeight: FontWeight.w500),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 状态标签
-          _buildStatusLabel(session.status),
-          // 上课时间
-          if (session.scheduledTime != null)
-            Text(
-              _formatDateTime(session.scheduledTime!),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
+    );
+  }
+
+  /// 显示删除课时确认对话框
+  Future<bool?> _showDeleteSessionDialog(Session session, int displayNumber) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+        title: const Text('删除课时'),
+        content: Text(
+          '确定要删除「第$displayNumber节课」吗？\n\n'
+          '删除后将同时删除该课时的所有训练记录，此操作不可恢复。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context, true);
+              await _deleteSession(session.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
+            child: const Text('确认删除'),
+          ),
         ],
       ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => _navigateToSessionDetail(session.id),
     );
+  }
+
+  /// 删除课时
+  Future<void> _deleteSession(int sessionId) async {
+    try {
+      final notifier = ref.read(sessionNotifierProvider.notifier);
+      final success = await notifier.deleteSession(sessionId: sessionId);
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('课时已删除')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('删除失败：$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   /// 构建状态标签

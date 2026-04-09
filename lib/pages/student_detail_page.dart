@@ -303,7 +303,20 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             ),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 删除按钮
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              color: Colors.red,
+              onPressed: () => _showDeleteCoursePlanDialog(coursePlan),
+              tooltip: '删除课程规划',
+            ),
+            // 进入详情箭头
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -315,6 +328,61 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
         },
       ),
     );
+  }
+
+  /// 显示删除课程规划确认对话框
+  Future<void> _showDeleteCoursePlanDialog(CoursePlan coursePlan) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+        title: const Text('删除课程规划'),
+        content: Text(
+          '确定要删除「${coursePlan.goal}」吗？\n\n'
+          '删除后将同时删除该规划下的所有课时和训练记录，此操作不可恢复。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deleteCoursePlan(coursePlan.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('确认删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 删除课程规划
+  Future<void> _deleteCoursePlan(int coursePlanId) async {
+    try {
+      final notifier = ref.read(coursePlanNotifierProvider.notifier);
+      final success = await notifier.delete(coursePlanId);
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('课程规划已删除')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('删除失败：$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   /// 空状态
