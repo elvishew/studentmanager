@@ -101,11 +101,17 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
   Future<int?> create({
     required int studentId,
     required String goal,
+    int sessionCount = 12,
+    String? customBlueprint,
+    bool useTemplate = true,
   }) async {
     try {
       final coursePlanId = await _repository.createCoursePlan(
         studentId: studentId,
         goal: goal,
+        sessionCount: sessionCount,
+        customBlueprint: customBlueprint,
+        useTemplate: useTemplate,
       );
 
       // 重新加载当前学员的课程规划

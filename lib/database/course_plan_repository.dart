@@ -1,109 +1,158 @@
 import 'package:sqflite/sqflite.dart';
 
+/// 目标模板信息
+class GoalTemplateInfo {
+  final String? blueprint;
+  final int availableSessionCount;
+
+  const GoalTemplateInfo({
+    this.blueprint,
+    required this.availableSessionCount,
+  });
+}
+
 /// 课程规划仓库
 class CoursePlanRepository {
   final Database database;
 
   CoursePlanRepository({required this.database});
 
+  /// 检测目标是否有模板数据
+  ///
+  /// [goal] 课程目标
+  ///
+  /// 返回模板信息，如果未找到模板则返回 null
+  Future<GoalTemplateInfo?> checkGoalTemplate(String goal) async {
+    final List<Map<String, dynamic>> goalConfigs = await database.query(
+      'goal_configs',
+      where: 'goal = ?',
+      whereArgs: [goal],
+    );
+
+    if (goalConfigs.isEmpty) return null;
+
+    final goalConfig = goalConfigs.first;
+    final goalConfigId = goalConfig['id'] as int;
+
+    // 查询最大课时数
+    final List<Map<String, dynamic>> sessions = await database.query(
+      'goal_config_sessions',
+      where: 'goal_config_id = ?',
+      whereArgs: [goalConfigId],
+      columns: ['session_number'],
+      orderBy: 'session_number DESC',
+      limit: 1,
+    );
+
+    final maxSessions = sessions.isEmpty ? 0 : sessions.first['session_number'] as int;
+
+    return GoalTemplateInfo(
+      blueprint: goalConfig['blueprint'] as String?,
+      availableSessionCount: maxSessions,
+  );
+  }
+
   /// 创建课程规划
   ///
   /// [studentId] 学员ID
   /// [goal] 课程目标（如 "产后修复"、"肩颈理疗" 等）
+  /// [sessionCount] 课时数量（默认12节）
+  /// [customBlueprint] 自定义蓝图描述（可选）
+  /// [useTemplate] 是否使用模板数据（默认true）
   ///
   /// 返回新创建的课程规划ID
   Future<int> createCoursePlan({
     required int studentId,
     required String goal,
+    int sessionCount = 12,
+    String? customBlueprint,
+    bool useTemplate = true,
   }) async {
     return await database.transaction((txn) async {
       // ============================================
-      // 第一步：创建课程规划（初始 blueprint 为空）
+      // 第一步：创建课程规划（使用传入的蓝图或初始为空）
       // ============================================
       int coursePlanId = await txn.insert(
         'course_plans',
         {
           'student_id': studentId,
           'goal': goal,
-          'blueprint': null, // 初始为空，后续从默认配置复制
+          'blueprint': customBlueprint, // 使用传入的蓝图
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         },
       );
 
       // ============================================
-      // 第二步：如果是自定义目标，直接返回（不使用默认配置）
+      // 第二步：查询该课程目标的默认配置
       // ============================================
-      if (goal == '自定义') {
-        return coursePlanId;
+      int? goalConfigId;
+      String? templateBlueprint;
+
+      if (goal != '自定义') {
+        List<Map<String, dynamic>> goalConfigs = await txn.query(
+          'goal_configs',
+          where: 'goal = ?',
+          whereArgs: [goal],
+        );
+
+        if (goalConfigs.isNotEmpty) {
+          Map<String, dynamic> goalConfig = goalConfigs.first;
+          templateBlueprint = goalConfig['blueprint'] as String?;
+          goalConfigId = goalConfig['id'] as int;
+
+          // 更新课程规划的 blueprint 字段（如果未提供自定义蓝图且模板有蓝图）
+          if (customBlueprint == null && templateBlueprint != null) {
+            await txn.update(
+              'course_plans',
+              {
+                'blueprint': templateBlueprint,
+                'updated_at': DateTime.now().toIso8601String(),
+              },
+              where: 'id = ?',
+              whereArgs: [coursePlanId],
+            );
+          }
+        }
       }
 
       // ============================================
-      // 第三步：查询该课程目标的默认配置
+      // 第三步：查询默认配置的课时模板（使用动态课时数）
       // ============================================
-      List<Map<String, dynamic>> goalConfigs = await txn.query(
-        'goal_configs',
-        where: 'goal = ?',
-        whereArgs: [goal],
-      );
+      List<Map<String, dynamic>> goalConfigSessions = [];
 
-      // 如果没有找到默认配置，直接返回（不报错，允许没有配置的目标）
-      if (goalConfigs.isEmpty) {
-        return coursePlanId;
+      if (useTemplate && goalConfigId != null) {
+        goalConfigSessions = await txn.query(
+          'goal_config_sessions',
+          where: 'goal_config_id = ? AND session_number <= ?',
+          whereArgs: [goalConfigId, sessionCount],
+          orderBy: 'session_number ASC',
+        );
       }
 
-      Map<String, dynamic> goalConfig = goalConfigs.first;
-      String? blueprint = goalConfig['blueprint'] as String?;
-      int goalConfigId = goalConfig['id'] as int;
+      // ============================================
+      // 第四步：创建课时
+      // ============================================
 
-      // ============================================
-      // 第四步：更新课程规划的 blueprint 字段
-      // ============================================
-      await txn.update(
-        'course_plans',
-        {
-          'blueprint': blueprint,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        where: 'id = ?',
-        whereArgs: [coursePlanId],
-      );
-
-      // ============================================
-      // 第五步：查询默认配置的前12节课模板
-      // ============================================
-      List<Map<String, dynamic>> goalConfigSessions = await txn.query(
-        'goal_config_sessions',
-        where: 'goal_config_id = ? AND session_number <= 12',
-        whereArgs: [goalConfigId],
-        orderBy: 'session_number ASC',
-      );
-
-      // ============================================
-      // 第六步：为每一节课创建 session 和 training_blocks
-      // ============================================
+      // 4.1 从模板创建有内容的课时
       for (Map<String, dynamic> goalConfigSession in goalConfigSessions) {
         int sessionNumber = goalConfigSession['session_number'] as int;
         int goalConfigSessionId = goalConfigSession['id'] as int;
 
-        // ----------------------------------------
-        // 6.1 创建课时
-        // ----------------------------------------
+        // 创建课时
         int sessionId = await txn.insert(
           'sessions',
           {
             'course_plan_id': coursePlanId,
             'session_number': sessionNumber,
-            'scheduled_time': null, // 初始未排课
-            'status': 'pending', // 初始状态为未开始
+            'scheduled_time': null,
+            'status': 'pending',
             'created_at': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
           },
         );
 
-        // ----------------------------------------
-        // 6.2 查询该节课模板的所有训练块
-        // ----------------------------------------
+        // 查询该节课模板的所有训练块
         List<Map<String, dynamic>> goalConfigBlocks = await txn.query(
           'goal_config_training_blocks',
           where: 'goal_config_session_id = ?',
@@ -111,9 +160,7 @@ class CoursePlanRepository {
           orderBy: 'sort_order ASC',
         );
 
-        // ----------------------------------------
-        // 6.3 复制训练块到新课时
-        // ----------------------------------------
+        // 复制训练块到新课时
         for (Map<String, dynamic> goalConfigBlock in goalConfigBlocks) {
           await txn.insert(
             'training_blocks',
@@ -134,6 +181,22 @@ class CoursePlanRepository {
             },
           );
         }
+      }
+
+      // 4.2 创建剩余的空课时（如果模板课时数少于请求的课时数）
+      int templateSessionCount = goalConfigSessions.length;
+      for (int i = templateSessionCount + 1; i <= sessionCount; i++) {
+        await txn.insert(
+          'sessions',
+          {
+            'course_plan_id': coursePlanId,
+            'session_number': i,
+            'scheduled_time': null,
+            'status': 'pending',
+            'created_at': DateTime.now().toIso8601String(),
+            'updated_at': DateTime.now().toIso8601String(),
+          },
+        );
       }
 
       // ============================================
@@ -160,6 +223,9 @@ class CoursePlanRepository {
           txn: txn,
           studentId: studentId,
           goal: goal,
+          sessionCount: plan['session_count'] as int? ?? 12,
+          customBlueprint: plan['blueprint'] as String?,
+          useTemplate: plan['use_template'] as bool? ?? true,
         );
 
         coursePlanIds.add(coursePlanId);
@@ -174,6 +240,9 @@ class CoursePlanRepository {
     required Transaction txn,
     required int studentId,
     required String goal,
+    int sessionCount = 12,
+    String? customBlueprint,
+    bool useTemplate = true,
   }) async {
     // 创建课程规划
     int coursePlanId = await txn.insert(
@@ -181,52 +250,56 @@ class CoursePlanRepository {
       {
         'student_id': studentId,
         'goal': goal,
-        'blueprint': null,
+        'blueprint': customBlueprint,
         'created_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       },
     );
 
-    // 自定义目标直接返回
-    if (goal == '自定义') {
-      return coursePlanId;
-    }
-
     // 查询默认配置
-    List<Map<String, dynamic>> goalConfigs = await txn.query(
-      'goal_configs',
-      where: 'goal = ?',
-      whereArgs: [goal],
-    );
+    int? goalConfigId;
+    String? templateBlueprint;
 
-    if (goalConfigs.isEmpty) {
-      return coursePlanId;
+    if (goal != '自定义') {
+      List<Map<String, dynamic>> goalConfigs = await txn.query(
+        'goal_configs',
+        where: 'goal = ?',
+        whereArgs: [goal],
+      );
+
+      if (goalConfigs.isNotEmpty) {
+        Map<String, dynamic> goalConfig = goalConfigs.first;
+        templateBlueprint = goalConfig['blueprint'] as String?;
+        goalConfigId = goalConfig['id'] as int;
+
+        // 更新蓝图（如果未提供自定义蓝图）
+        if (customBlueprint == null && templateBlueprint != null) {
+          await txn.update(
+            'course_plans',
+            {
+              'blueprint': templateBlueprint,
+              'updated_at': DateTime.now().toIso8601String(),
+            },
+            where: 'id = ?',
+            whereArgs: [coursePlanId],
+          );
+        }
+      }
     }
 
-    Map<String, dynamic> goalConfig = goalConfigs.first;
-    String? blueprint = goalConfig['blueprint'] as String?;
-    int goalConfigId = goalConfig['id'] as int;
+    // 查询课时模板（使用动态课时数）
+    List<Map<String, dynamic>> goalConfigSessions = [];
 
-    // 更新蓝图
-    await txn.update(
-      'course_plans',
-      {
-        'blueprint': blueprint,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      where: 'id = ?',
-      whereArgs: [coursePlanId],
-    );
+    if (useTemplate && goalConfigId != null) {
+      goalConfigSessions = await txn.query(
+        'goal_config_sessions',
+        where: 'goal_config_id = ? AND session_number <= ?',
+        whereArgs: [goalConfigId, sessionCount],
+        orderBy: 'session_number ASC',
+      );
+    }
 
-    // 查询前12节课模板
-    List<Map<String, dynamic>> goalConfigSessions = await txn.query(
-      'goal_config_sessions',
-      where: 'goal_config_id = ? AND session_number <= 12',
-      whereArgs: [goalConfigId],
-      orderBy: 'session_number ASC',
-    );
-
-    // 创建课时和训练块
+    // 从模板创建有内容的课时
     for (Map<String, dynamic> goalConfigSession in goalConfigSessions) {
       int sessionNumber = goalConfigSession['session_number'] as int;
       int goalConfigSessionId = goalConfigSession['id'] as int;
@@ -273,6 +346,22 @@ class CoursePlanRepository {
           },
         );
       }
+    }
+
+    // 创建剩余的空课时
+    int templateSessionCount = goalConfigSessions.length;
+    for (int i = templateSessionCount + 1; i <= sessionCount; i++) {
+      await txn.insert(
+        'sessions',
+        {
+          'course_plan_id': coursePlanId,
+          'session_number': i,
+          'scheduled_time': null,
+          'status': 'pending',
+          'created_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+      );
     }
 
     return coursePlanId;
