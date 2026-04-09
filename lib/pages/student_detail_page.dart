@@ -4,6 +4,7 @@ import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'create_course_plan_dialog.dart';
+import 'course_plan_page.dart';
 
 /// 学员详情页
 class StudentDetailPage extends ConsumerStatefulWidget {
@@ -304,7 +305,13 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          // TODO: 跳转到课程规划详情页
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => CoursePlanPage(
+                coursePlanId: coursePlan.id,
+              ),
+            ),
+          );
         },
       ),
     );
