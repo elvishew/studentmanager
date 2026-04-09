@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'create_course_plan_dialog.dart';
 
 /// 学员详情页
 class StudentDetailPage extends ConsumerStatefulWidget {
@@ -43,24 +44,10 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 显示新建课程规划对话框
   Future<void> _showCreateCoursePlanDialog() async {
-    final selectedGoal = await showDialog<CourseGoal>(
-      context: context,
-      builder: (context) => const _SelectGoalDialog(),
+    await showCreateCoursePlanDialog(
+      context,
+      studentId: widget.studentId,
     );
-
-    if (selectedGoal != null && mounted) {
-      final notifier = ref.read(coursePlanNotifierProvider.notifier);
-      final coursePlanId = await notifier.create(
-        studentId: widget.studentId,
-        goal: selectedGoal.value,
-      );
-
-      if (coursePlanId != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课程规划已创建')),
-        );
-      }
-    }
   }
 
   @override
@@ -433,55 +420,5 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
     if (rate >= 1.0) return Colors.green;
     if (rate >= 0.5) return Colors.orange;
     return Colors.grey;
-  }
-}
-
-/// 选择课程目标对话框
-class _SelectGoalDialog extends StatelessWidget {
-  const _SelectGoalDialog();
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('选择课程目标'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: CourseGoal.values.length,
-          itemBuilder: (context, index) {
-            final goal = CourseGoal.values[index];
-            return ListTile(
-              leading: Icon(_getGoalIcon(goal)),
-              title: Text(goal.label),
-              onTap: () => Navigator.of(context).pop(goal),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  static IconData _getGoalIcon(CourseGoal goal) {
-    switch (goal) {
-      case CourseGoal.postpartum:
-        return Icons.pregnant_woman;
-      case CourseGoal.neckShoulder:
-        return Icons.accessibility_new;
-      case CourseGoal.backShoulder:
-        return Icons.rowing;
-      case CourseGoal.backPain:
-        return Icons.healing;
-      case CourseGoal.waistAbs:
-        return Icons.monitor_heart;
-      case CourseGoal.fullBody:
-        return Icons.fitness_center;
-      case CourseGoal.gluteLeg:
-        return Icons.directions_run;
-      case CourseGoal.kneePain:
-        return Icons.airline_seat_recline_extra;
-      case CourseGoal.custom:
-        return Icons.event_note;
-    }
   }
 }
