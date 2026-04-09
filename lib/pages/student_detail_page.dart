@@ -324,7 +324,10 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                 coursePlanId: coursePlan.id,
               ),
             ),
-          );
+          ).then((_) {
+            // 返回时刷新课程规划数据
+            ref.read(coursePlanNotifierProvider.notifier).fetchByStudentId(widget.studentId);
+          });
         },
       ),
     );
