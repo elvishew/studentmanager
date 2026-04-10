@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'action_list_page.dart';
+import 'item_list_page.dart';
+import 'item_form_page.dart';
+import '../providers/item_provider.dart';
 
 /// ============================================
 /// 系统设置主页
@@ -25,14 +28,12 @@ class SettingsPage extends StatelessWidget {
           _buildListTile(
             icon: Icons.fitness_center,
             title: '器械管理',
-            trailing: '即将推出',
-            onTap: () => _showComingSoon(context, '器械管理'),
+            onTap: () => _navigateTo(context, _buildEquipmentListPage()),
           ),
           _buildListTile(
             icon: Icons.build,
             title: '工具管理',
-            trailing: '即将推出',
-            onTap: () => _showComingSoon(context, '工具管理'),
+            onTap: () => _navigateTo(context, _buildToolListPage()),
           ),
           const SizedBox(height: 24),
           _buildSectionHeader('应用信息'),
@@ -42,6 +43,40 @@ class SettingsPage extends StatelessWidget {
             trailing: 'v1.0.0',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEquipmentListPage() {
+    return BasicItemListPage(
+      title: '器械管理',
+      icon: Icons.fitness_center,
+      searchHint: '搜索器械名称...',
+      notifierProvider: equipmentNotifierProvider,
+      formPageBuilder: (itemId) => BasicItemFormPage(
+        itemId: itemId,
+        title: '器械',
+        fieldLabel: '器械名称',
+        fieldHint: '请输入器械名称',
+        duplicateHint: '该器械名称已存在',
+        tableName: 'equipments',
+      ),
+    );
+  }
+
+  Widget _buildToolListPage() {
+    return BasicItemListPage(
+      title: '工具管理',
+      icon: Icons.build,
+      searchHint: '搜索工具名称...',
+      notifierProvider: toolNotifierProvider,
+      formPageBuilder: (itemId) => BasicItemFormPage(
+        itemId: itemId,
+        title: '工具',
+        fieldLabel: '工具名称',
+        fieldHint: '请输入工具名称',
+        duplicateHint: '该工具名称已存在',
+        tableName: 'tools',
       ),
     );
   }
@@ -63,21 +98,12 @@ class SettingsPage extends StatelessWidget {
   Widget _buildListTile({
     required IconData icon,
     required String title,
-    String? trailing,
     required VoidCallback onTap,
   }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      trailing: trailing != null
-          ? Text(
-              trailing,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[400],
-              ),
-            )
-          : const Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }
@@ -103,23 +129,6 @@ class SettingsPage extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => page,
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.upcoming_outlined, size: 48),
-        title: const Text('即将推出'),
-        content: Text('$feature功能正在开发中，敬请期待！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('我知道了'),
-          ),
-        ],
       ),
     );
   }

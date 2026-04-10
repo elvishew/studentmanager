@@ -347,7 +347,9 @@ class SessionNotifier extends _$SessionNotifier {
           a.name as action_name,
           a.is_deprecated as action_deprecated,
           e.name as equipment_name,
-          t.name as tool_name
+          e.is_deprecated as equipment_deprecated,
+          t.name as tool_name,
+          t.is_deprecated as tool_deprecated
         FROM training_blocks tb
         LEFT JOIN actions a ON tb.action_id = a.id
         LEFT JOIN equipments e ON tb.equipment_id = e.id
@@ -372,6 +374,7 @@ class SessionNotifier extends _$SessionNotifier {
               ? Equipment(
                   id: map['equipment_id'] as int? ?? 0,
                   name: map['equipment_name'] as String,
+                  isDeprecated: (map['equipment_deprecated'] as int? ?? 0) == 1,
                   createdAt: block.createdAt,
                   updatedAt: block.updatedAt,
                 )
@@ -380,6 +383,7 @@ class SessionNotifier extends _$SessionNotifier {
               ? Tool(
                   id: map['tool_id'] as int? ?? 0,
                   name: map['tool_name'] as String,
+                  isDeprecated: (map['tool_deprecated'] as int? ?? 0) == 1,
                   createdAt: block.createdAt,
                   updatedAt: block.updatedAt,
                 )

@@ -4700,6 +4700,7 @@ abstract class _ActionError implements ActionState {
 mixin _$Equipment {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  bool get isDeprecated => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -4715,7 +4716,13 @@ abstract class $EquipmentCopyWith<$Res> {
   factory $EquipmentCopyWith(Equipment value, $Res Function(Equipment) then) =
       _$EquipmentCopyWithImpl<$Res, Equipment>;
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -4735,6 +4742,7 @@ class _$EquipmentCopyWithImpl<$Res, $Val extends Equipment>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -4748,6 +4756,10 @@ class _$EquipmentCopyWithImpl<$Res, $Val extends Equipment>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            isDeprecated: null == isDeprecated
+                ? _value.isDeprecated
+                : isDeprecated // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -4771,7 +4783,13 @@ abstract class _$$EquipmentImplCopyWith<$Res>
   ) = __$$EquipmentImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -4790,6 +4808,7 @@ class __$$EquipmentImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -4803,6 +4822,10 @@ class __$$EquipmentImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        isDeprecated: null == isDeprecated
+            ? _value.isDeprecated
+            : isDeprecated // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -4822,6 +4845,7 @@ class _$EquipmentImpl extends _Equipment {
   const _$EquipmentImpl({
     required this.id,
     required this.name,
+    required this.isDeprecated,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -4831,13 +4855,15 @@ class _$EquipmentImpl extends _Equipment {
   @override
   final String name;
   @override
+  final bool isDeprecated;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Equipment(id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Equipment(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -4847,6 +4873,8 @@ class _$EquipmentImpl extends _Equipment {
             other is _$EquipmentImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.isDeprecated, isDeprecated) ||
+                other.isDeprecated == isDeprecated) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -4854,7 +4882,8 @@ class _$EquipmentImpl extends _Equipment {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
 
   /// Create a copy of Equipment
   /// with the given fields replaced by the non-null parameter values.
@@ -4869,6 +4898,7 @@ abstract class _Equipment extends Equipment {
   const factory _Equipment({
     required final int id,
     required final String name,
+    required final bool isDeprecated,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$EquipmentImpl;
@@ -4878,6 +4908,8 @@ abstract class _Equipment extends Equipment {
   int get id;
   @override
   String get name;
+  @override
+  bool get isDeprecated;
   @override
   DateTime get createdAt;
   @override
@@ -4895,6 +4927,7 @@ abstract class _Equipment extends Equipment {
 mixin _$Tool {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  bool get isDeprecated => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -4909,7 +4942,13 @@ abstract class $ToolCopyWith<$Res> {
   factory $ToolCopyWith(Tool value, $Res Function(Tool) then) =
       _$ToolCopyWithImpl<$Res, Tool>;
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -4929,6 +4968,7 @@ class _$ToolCopyWithImpl<$Res, $Val extends Tool>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -4942,6 +4982,10 @@ class _$ToolCopyWithImpl<$Res, $Val extends Tool>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            isDeprecated: null == isDeprecated
+                ? _value.isDeprecated
+                : isDeprecated // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -4964,7 +5008,13 @@ abstract class _$$ToolImplCopyWith<$Res> implements $ToolCopyWith<$Res> {
   ) = __$$ToolImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -4981,6 +5031,7 @@ class __$$ToolImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -4994,6 +5045,10 @@ class __$$ToolImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        isDeprecated: null == isDeprecated
+            ? _value.isDeprecated
+            : isDeprecated // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -5013,6 +5068,7 @@ class _$ToolImpl extends _Tool {
   const _$ToolImpl({
     required this.id,
     required this.name,
+    required this.isDeprecated,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -5022,13 +5078,15 @@ class _$ToolImpl extends _Tool {
   @override
   final String name;
   @override
+  final bool isDeprecated;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Tool(id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Tool(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -5038,6 +5096,8 @@ class _$ToolImpl extends _Tool {
             other is _$ToolImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.isDeprecated, isDeprecated) ||
+                other.isDeprecated == isDeprecated) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -5045,7 +5105,8 @@ class _$ToolImpl extends _Tool {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
 
   /// Create a copy of Tool
   /// with the given fields replaced by the non-null parameter values.
@@ -5060,6 +5121,7 @@ abstract class _Tool extends Tool {
   const factory _Tool({
     required final int id,
     required final String name,
+    required final bool isDeprecated,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$ToolImpl;
@@ -5069,6 +5131,8 @@ abstract class _Tool extends Tool {
   int get id;
   @override
   String get name;
+  @override
+  bool get isDeprecated;
   @override
   DateTime get createdAt;
   @override

@@ -153,7 +153,7 @@ final sessionStatisticsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionStatisticsRef = AutoDisposeProviderRef<SessionStatistics>;
-String _$sessionNotifierHash() => r'550ab9f90258a991750d9f0d84ad35410446872f';
+String _$sessionNotifierHash() => r'145fe0896db904d116fe30a8ad187fe917e31194';
 
 /// ============================================
 /// Session Notifier

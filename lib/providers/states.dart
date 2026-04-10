@@ -338,6 +338,7 @@ class Equipment with _$Equipment {
   const factory Equipment({
     required int id,
     required String name,
+    required bool isDeprecated,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Equipment;
@@ -346,6 +347,7 @@ class Equipment with _$Equipment {
     return Equipment(
       id: map['id'] as int,
       name: map['name'] as String,
+      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -355,6 +357,7 @@ class Equipment with _$Equipment {
     return {
       'id': id,
       'name': name,
+      'is_deprecated': isDeprecated ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -369,6 +372,7 @@ class Tool with _$Tool {
   const factory Tool({
     required int id,
     required String name,
+    required bool isDeprecated,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Tool;
@@ -377,6 +381,7 @@ class Tool with _$Tool {
     return Tool(
       id: map['id'] as int,
       name: map['name'] as String,
+      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -386,6 +391,7 @@ class Tool with _$Tool {
     return {
       'id': id,
       'name': name,
+      'is_deprecated': isDeprecated ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
