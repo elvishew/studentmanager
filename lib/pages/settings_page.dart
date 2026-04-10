@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'action_list_page.dart';
 import 'item_list_page.dart';
 import 'item_form_page.dart';
 import '../providers/item_provider.dart';
@@ -23,7 +22,7 @@ class SettingsPage extends StatelessWidget {
           _buildListTile(
             icon: Icons.directions_run,
             title: '动作管理',
-            onTap: () => _navigateTo(context, const ActionListPage()),
+            onTap: () => _navigateTo(context, _buildActionListPage()),
           ),
           _buildListTile(
             icon: Icons.fitness_center,
@@ -43,6 +42,23 @@ class SettingsPage extends StatelessWidget {
             trailing: 'v1.0.0',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionListPage() {
+    return BasicItemListPage(
+      title: '动作管理',
+      icon: Icons.directions_run,
+      searchHint: '搜索动作名称...',
+      notifierProvider: actionNotifierProvider,
+      formPageBuilder: (itemId) => BasicItemFormPage(
+        itemId: itemId,
+        title: '动作',
+        fieldLabel: '动作名称',
+        fieldHint: '请输入动作名称',
+        duplicateHint: '该动作名称已存在',
+        tableName: 'actions',
       ),
     );
   }

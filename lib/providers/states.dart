@@ -318,18 +318,6 @@ class Action with _$Action {
   }
 }
 
-/// 动作状态
-@freezed
-class ActionState with _$ActionState {
-  const factory ActionState.initial() = _ActionInitial;
-  const factory ActionState.loading() = _ActionLoading;
-  const factory ActionState.data({
-    required List<Action> actions,
-    @Default('') String searchQuery,
-  }) = _ActionData;
-  const factory ActionState.error(Object error, StackTrace stackTrace) = _ActionError;
-}
-
 /// 器械
 @freezed
 class Equipment with _$Equipment {

@@ -167,6 +167,14 @@ class BasicItemNotifier extends StateNotifier<BasicItemState> {
 }
 
 /// Provider 工厂：为每种类型创建独立的 notifier
+final actionNotifierProvider = StateNotifierProvider.autoDispose<BasicItemNotifier, BasicItemState>((ref) {
+  final db = ref.watch(databaseProvider);
+  return BasicItemNotifier(
+    repository: ItemRepository(database: db, tableName: 'actions'),
+    foreignKey: 'action_id',
+  );
+});
+
 final equipmentNotifierProvider = StateNotifierProvider.autoDispose<BasicItemNotifier, BasicItemState>((ref) {
   final db = ref.watch(databaseProvider);
   return BasicItemNotifier(
