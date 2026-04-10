@@ -39,6 +39,18 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
   bool _isCheckingName = false;
   bool? _nameIsAvailable;
 
+  bool get _isBatchMode => widget.itemId == null && _nameController.text.contains(',');
+
+  /// 解析逗号分隔的名称列表（去空格、去重）
+  List<String> _parseNames(String text) {
+    return text
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toSet()
+        .toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -78,23 +90,35 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
     }
   }
 
-  Future<void> _checkNameAvailability(String name) async {
-    if (name.trim().isEmpty) {
+  Future<void> _checkNameAvailability(String text) async {
+    if (text.trim().isEmpty) {
       setState(() { _nameIsAvailable = null; });
       return;
     }
-    if (widget.itemId != null && name.trim() == _existingName) {
+    if (widget.itemId != null && text.trim() == _existingName) {
       setState(() { _nameIsAvailable = true; });
       return;
     }
     setState(() { _isCheckingName = true; });
     try {
-      final exists = await _repository.checkNameExists(name.trim(), excludeId: widget.itemId);
-      if (mounted) {
-        setState(() {
-          _isCheckingName = false;
-          _nameIsAvailable = !exists;
-        });
+      if (_isBatchMode) {
+        final names = _parseNames(text);
+        for (final name in names) {
+          if (await _repository.checkNameExists(name)) {
+            if (mounted) {
+              setState(() { _isCheckingName = false; _nameIsAvailable = false; });
+            }
+            return;
+          }
+        }
+        if (mounted) {
+          setState(() { _isCheckingName = false; _nameIsAvailable = true; });
+        }
+      } else {
+        final exists = await _repository.checkNameExists(text.trim(), excludeId: widget.itemId);
+        if (mounted) {
+          setState(() { _isCheckingName = false; _nameIsAvailable = !exists; });
+        }
       }
     } catch (_) {
       if (mounted) setState(() { _isCheckingName = false; _nameIsAvailable = null; });
@@ -102,6 +126,32 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
   }
 
   Widget _buildStatusHint() {
+    // 批量模式提示
+    if (_isBatchMode && _nameIsAvailable != false) {
+      final names = _parseNames(_nameController.text);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_isCheckingName)
+            Row(children: [
+              SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange)),
+              const SizedBox(width: 6),
+              const Text('正在验证...', style: TextStyle(fontSize: 12, color: Colors.orange)),
+            ])
+          else if (_nameIsAvailable == true)
+            const Row(children: [
+              Icon(Icons.check_circle, size: 14, color: Colors.green),
+              SizedBox(width: 6),
+              Text('所有名称可用', style: TextStyle(fontSize: 12, color: Colors.green)),
+            ]),
+          const SizedBox(height: 4),
+          Text(
+            '批量模式：将创建 ${names.length} 个${widget.fieldLabel}',
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+        ],
+      );
+    }
     if (_isCheckingName) {
       return Row(children: [
         SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange)),
@@ -167,24 +217,71 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final name = _nameController.text.trim();
+    final text = _nameController.text.trim();
 
-    if (widget.itemId != null && name == _existingName) {
-      await _performSave(name);
+    // 编辑模式
+    if (widget.itemId != null) {
+      if (text == _existingName) {
+        await _performSave(text);
+        return;
+      }
+      final exists = await _repository.checkNameExists(text, excludeId: widget.itemId);
+      if (exists) {
+        setState(() { _nameIsAvailable = false; });
+        HapticFeedback.mediumImpact();
+        return;
+      }
+      setState(() { _nameIsAvailable = true; });
+      await _performSave(text);
       return;
     }
 
-    final exists = await _repository.checkNameExists(name, excludeId: widget.itemId);
-    if (exists) {
-      setState(() {
-        _nameIsAvailable = false;
-      });
-      HapticFeedback.mediumImpact();
-      return;
+    // 新建模式
+    if (_isBatchMode) {
+      await _performBatchSave(_parseNames(text));
+    } else {
+      final exists = await _repository.checkNameExists(text);
+      if (exists) {
+        setState(() { _nameIsAvailable = false; });
+        HapticFeedback.mediumImpact();
+        return;
+      }
+      setState(() { _nameIsAvailable = true; });
+      await _performSave(text);
     }
+  }
 
-    setState(() { _nameIsAvailable = true; });
-    await _performSave(name);
+  Future<void> _performBatchSave(List<String> names) async {
+    setState(() { _isSaving = true; });
+    try {
+      int created = 0;
+      int skipped = 0;
+      for (final name in names) {
+        if (await _repository.checkNameExists(name)) {
+          skipped++;
+          continue;
+        }
+        final id = await _repository.create(name);
+        if (id > 0) created++;
+      }
+      if (mounted) {
+        setState(() { _isSaving = false; });
+        Navigator.of(context).pop();
+        if (mounted) {
+          final msg = skipped > 0
+              ? '已创建 $created 项，跳过 $skipped 个重复项'
+              : '已创建 $created 项';
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() { _isSaving = false; });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('批量创建失败: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   @override
@@ -231,7 +328,9 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     labelText: widget.fieldLabel,
-                    hintText: widget.fieldHint,
+                    hintText: widget.itemId == null
+                        ? '${widget.fieldHint}（多个可用英文逗号隔开）'
+                        : widget.fieldHint,
                     border: const OutlineInputBorder(),
                   ),
                   onChanged: (value) {
