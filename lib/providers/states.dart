@@ -292,6 +292,7 @@ class Action with _$Action {
   const factory Action({
     required int id,
     required String name,
+    required bool isDeprecated,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _Action;
@@ -300,6 +301,7 @@ class Action with _$Action {
     return Action(
       id: map['id'] as int,
       name: map['name'] as String,
+      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -309,10 +311,23 @@ class Action with _$Action {
     return {
       'id': id,
       'name': name,
+      'is_deprecated': isDeprecated ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
   }
+}
+
+/// 动作状态
+@freezed
+class ActionState with _$ActionState {
+  const factory ActionState.initial() = _ActionInitial;
+  const factory ActionState.loading() = _ActionLoading;
+  const factory ActionState.data({
+    required List<Action> actions,
+    @Default('') String searchQuery,
+  }) = _ActionData;
+  const factory ActionState.error(Object error, StackTrace stackTrace) = _ActionError;
 }
 
 /// 器械

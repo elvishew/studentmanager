@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
@@ -599,25 +600,88 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
   @override
   void initState() {
     super.initState();
-    _loadBasicData();
+    _loadData();
+  }
+
+  /// 加载数据（编辑模式先加载训练块，再加载基础数据）
+  Future<void> _loadData() async {
+    // 编辑模式：先加载训练块数据，拿到已选的 action/equipment/tool ID
     if (widget.blockId != null) {
-      _loadTrainingBlock();
+      await _loadTrainingBlock();
     }
+    // 再加载基础数据（会将已弃用但被引用的项补入候选列表）
+    await _loadBasicData();
   }
 
   /// 加载基础数据（动作、器械、工具）
+  /// 编辑模式下，会将已弃用但被当前训练块引用的项补入候选列表
   Future<void> _loadBasicData() async {
     final db = ref.read(databaseProvider);
 
-    final actions = await db.query('actions', orderBy: 'name ASC');
-    final equipments = await db.query('equipments', orderBy: 'name ASC');
-    final tools = await db.query('tools', orderBy: 'name ASC');
+    // 只加载未弃用的动作、器械、工具
+    final actions = await db.query(
+      'actions',
+      where: 'is_deprecated = ?',
+      whereArgs: [0],
+      orderBy: 'name ASC',
+    );
+    final equipments = await db.query(
+      'equipments',
+      where: 'is_deprecated = ?',
+      whereArgs: [0],
+      orderBy: 'name ASC',
+    );
+    final tools = await db.query(
+      'tools',
+      where: 'is_deprecated = ?',
+      whereArgs: [0],
+      orderBy: 'name ASC',
+    );
+
+    // 编辑模式：将被引用的弃用项补入列表（显示在最后并标记已弃用）
+    final actionList = actions.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+    final equipmentList = equipments.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+    final toolList = tools.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+
+    if (widget.blockId != null) {
+      await _appendDeprecatedIfNeeded(db, 'actions', _selectedActionId, actionList);
+      await _appendDeprecatedIfNeeded(db, 'equipments', _selectedEquipmentId, equipmentList);
+      await _appendDeprecatedIfNeeded(db, 'tools', _selectedToolId, toolList);
+    }
 
     if (mounted) {
       setState(() {
-        _actions = actions.map((e) => {'id': e['id'], 'name': e['name']}).toList();
-        _equipments = equipments.map((e) => {'id': e['id'], 'name': e['name']}).toList();
-        _tools = tools.map((e) => {'id': e['id'], 'name': e['name']}).toList();
+        _actions = actionList;
+        _equipments = equipmentList;
+        _tools = toolList;
+      });
+    }
+  }
+
+  /// 如果被引用的项已弃用且不在候选列表中，补入列表末尾并标记
+  Future<void> _appendDeprecatedIfNeeded(
+    Database db,
+    String table,
+    int? selectedId,
+    List<Map<String, dynamic>> items,
+  ) async {
+    if (selectedId == null) return;
+
+    final alreadyInList = items.any((e) => e['id'] == selectedId);
+    if (alreadyInList) return;
+
+    final results = await db.query(
+      table,
+      where: 'id = ?',
+      whereArgs: [selectedId],
+      limit: 1,
+    );
+
+    if (results.isNotEmpty) {
+      final item = results.first;
+      items.add({
+        'id': item['id'],
+        'name': '${item['name']}（已弃用）',
       });
     }
   }

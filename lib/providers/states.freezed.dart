@@ -3822,6 +3822,7 @@ abstract class _TrainingBlock extends TrainingBlock {
 mixin _$Action {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  bool get isDeprecated => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -3836,7 +3837,13 @@ abstract class $ActionCopyWith<$Res> {
   factory $ActionCopyWith(Action value, $Res Function(Action) then) =
       _$ActionCopyWithImpl<$Res, Action>;
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -3856,6 +3863,7 @@ class _$ActionCopyWithImpl<$Res, $Val extends Action>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -3869,6 +3877,10 @@ class _$ActionCopyWithImpl<$Res, $Val extends Action>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            isDeprecated: null == isDeprecated
+                ? _value.isDeprecated
+                : isDeprecated // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -3891,7 +3903,13 @@ abstract class _$$ActionImplCopyWith<$Res> implements $ActionCopyWith<$Res> {
   ) = __$$ActionImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name, DateTime createdAt, DateTime updatedAt});
+  $Res call({
+    int id,
+    String name,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
 }
 
 /// @nodoc
@@ -3910,6 +3928,7 @@ class __$$ActionImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isDeprecated = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -3923,6 +3942,10 @@ class __$$ActionImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        isDeprecated: null == isDeprecated
+            ? _value.isDeprecated
+            : isDeprecated // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -3942,6 +3965,7 @@ class _$ActionImpl extends _Action {
   const _$ActionImpl({
     required this.id,
     required this.name,
+    required this.isDeprecated,
     required this.createdAt,
     required this.updatedAt,
   }) : super._();
@@ -3951,13 +3975,15 @@ class _$ActionImpl extends _Action {
   @override
   final String name;
   @override
+  final bool isDeprecated;
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'Action(id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Action(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -3967,6 +3993,8 @@ class _$ActionImpl extends _Action {
             other is _$ActionImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.isDeprecated, isDeprecated) ||
+                other.isDeprecated == isDeprecated) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -3974,7 +4002,8 @@ class _$ActionImpl extends _Action {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, createdAt, updatedAt);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
 
   /// Create a copy of Action
   /// with the given fields replaced by the non-null parameter values.
@@ -3989,6 +4018,7 @@ abstract class _Action extends Action {
   const factory _Action({
     required final int id,
     required final String name,
+    required final bool isDeprecated,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$ActionImpl;
@@ -3999,6 +4029,8 @@ abstract class _Action extends Action {
   @override
   String get name;
   @override
+  bool get isDeprecated;
+  @override
   DateTime get createdAt;
   @override
   DateTime get updatedAt;
@@ -4008,6 +4040,659 @@ abstract class _Action extends Action {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ActionImplCopyWith<_$ActionImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$ActionState {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Action> actions, String searchQuery) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Action> actions, String searchQuery)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Action> actions, String searchQuery)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_ActionInitial value) initial,
+    required TResult Function(_ActionLoading value) loading,
+    required TResult Function(_ActionData value) data,
+    required TResult Function(_ActionError value) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_ActionInitial value)? initial,
+    TResult? Function(_ActionLoading value)? loading,
+    TResult? Function(_ActionData value)? data,
+    TResult? Function(_ActionError value)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_ActionInitial value)? initial,
+    TResult Function(_ActionLoading value)? loading,
+    TResult Function(_ActionData value)? data,
+    TResult Function(_ActionError value)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ActionStateCopyWith<$Res> {
+  factory $ActionStateCopyWith(
+    ActionState value,
+    $Res Function(ActionState) then,
+  ) = _$ActionStateCopyWithImpl<$Res, ActionState>;
+}
+
+/// @nodoc
+class _$ActionStateCopyWithImpl<$Res, $Val extends ActionState>
+    implements $ActionStateCopyWith<$Res> {
+  _$ActionStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+abstract class _$$ActionInitialImplCopyWith<$Res> {
+  factory _$$ActionInitialImplCopyWith(
+    _$ActionInitialImpl value,
+    $Res Function(_$ActionInitialImpl) then,
+  ) = __$$ActionInitialImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ActionInitialImplCopyWithImpl<$Res>
+    extends _$ActionStateCopyWithImpl<$Res, _$ActionInitialImpl>
+    implements _$$ActionInitialImplCopyWith<$Res> {
+  __$$ActionInitialImplCopyWithImpl(
+    _$ActionInitialImpl _value,
+    $Res Function(_$ActionInitialImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ActionInitialImpl implements _ActionInitial {
+  const _$ActionInitialImpl();
+
+  @override
+  String toString() {
+    return 'ActionState.initial()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ActionInitialImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Action> actions, String searchQuery) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return initial();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Action> actions, String searchQuery)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Action> actions, String searchQuery)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_ActionInitial value) initial,
+    required TResult Function(_ActionLoading value) loading,
+    required TResult Function(_ActionData value) data,
+    required TResult Function(_ActionError value) error,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_ActionInitial value)? initial,
+    TResult? Function(_ActionLoading value)? loading,
+    TResult? Function(_ActionData value)? data,
+    TResult? Function(_ActionError value)? error,
+  }) {
+    return initial?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_ActionInitial value)? initial,
+    TResult Function(_ActionLoading value)? loading,
+    TResult Function(_ActionData value)? data,
+    TResult Function(_ActionError value)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ActionInitial implements ActionState {
+  const factory _ActionInitial() = _$ActionInitialImpl;
+}
+
+/// @nodoc
+abstract class _$$ActionLoadingImplCopyWith<$Res> {
+  factory _$$ActionLoadingImplCopyWith(
+    _$ActionLoadingImpl value,
+    $Res Function(_$ActionLoadingImpl) then,
+  ) = __$$ActionLoadingImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$ActionLoadingImplCopyWithImpl<$Res>
+    extends _$ActionStateCopyWithImpl<$Res, _$ActionLoadingImpl>
+    implements _$$ActionLoadingImplCopyWith<$Res> {
+  __$$ActionLoadingImplCopyWithImpl(
+    _$ActionLoadingImpl _value,
+    $Res Function(_$ActionLoadingImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$ActionLoadingImpl implements _ActionLoading {
+  const _$ActionLoadingImpl();
+
+  @override
+  String toString() {
+    return 'ActionState.loading()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$ActionLoadingImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Action> actions, String searchQuery) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return loading();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Action> actions, String searchQuery)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Action> actions, String searchQuery)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_ActionInitial value) initial,
+    required TResult Function(_ActionLoading value) loading,
+    required TResult Function(_ActionData value) data,
+    required TResult Function(_ActionError value) error,
+  }) {
+    return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_ActionInitial value)? initial,
+    TResult? Function(_ActionLoading value)? loading,
+    TResult? Function(_ActionData value)? data,
+    TResult? Function(_ActionError value)? error,
+  }) {
+    return loading?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_ActionInitial value)? initial,
+    TResult Function(_ActionLoading value)? loading,
+    TResult Function(_ActionData value)? data,
+    TResult Function(_ActionError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ActionLoading implements ActionState {
+  const factory _ActionLoading() = _$ActionLoadingImpl;
+}
+
+/// @nodoc
+abstract class _$$ActionDataImplCopyWith<$Res> {
+  factory _$$ActionDataImplCopyWith(
+    _$ActionDataImpl value,
+    $Res Function(_$ActionDataImpl) then,
+  ) = __$$ActionDataImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<Action> actions, String searchQuery});
+}
+
+/// @nodoc
+class __$$ActionDataImplCopyWithImpl<$Res>
+    extends _$ActionStateCopyWithImpl<$Res, _$ActionDataImpl>
+    implements _$$ActionDataImplCopyWith<$Res> {
+  __$$ActionDataImplCopyWithImpl(
+    _$ActionDataImpl _value,
+    $Res Function(_$ActionDataImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? actions = null, Object? searchQuery = null}) {
+    return _then(
+      _$ActionDataImpl(
+        actions: null == actions
+            ? _value._actions
+            : actions // ignore: cast_nullable_to_non_nullable
+                  as List<Action>,
+        searchQuery: null == searchQuery
+            ? _value.searchQuery
+            : searchQuery // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$ActionDataImpl implements _ActionData {
+  const _$ActionDataImpl({
+    required final List<Action> actions,
+    this.searchQuery = '',
+  }) : _actions = actions;
+
+  final List<Action> _actions;
+  @override
+  List<Action> get actions {
+    if (_actions is EqualUnmodifiableListView) return _actions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_actions);
+  }
+
+  @override
+  @JsonKey()
+  final String searchQuery;
+
+  @override
+  String toString() {
+    return 'ActionState.data(actions: $actions, searchQuery: $searchQuery)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ActionDataImpl &&
+            const DeepCollectionEquality().equals(other._actions, _actions) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_actions),
+    searchQuery,
+  );
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ActionDataImplCopyWith<_$ActionDataImpl> get copyWith =>
+      __$$ActionDataImplCopyWithImpl<_$ActionDataImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Action> actions, String searchQuery) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return data(actions, searchQuery);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Action> actions, String searchQuery)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return data?.call(actions, searchQuery);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Action> actions, String searchQuery)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(actions, searchQuery);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_ActionInitial value) initial,
+    required TResult Function(_ActionLoading value) loading,
+    required TResult Function(_ActionData value) data,
+    required TResult Function(_ActionError value) error,
+  }) {
+    return data(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_ActionInitial value)? initial,
+    TResult? Function(_ActionLoading value)? loading,
+    TResult? Function(_ActionData value)? data,
+    TResult? Function(_ActionError value)? error,
+  }) {
+    return data?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_ActionInitial value)? initial,
+    TResult Function(_ActionLoading value)? loading,
+    TResult Function(_ActionData value)? data,
+    TResult Function(_ActionError value)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ActionData implements ActionState {
+  const factory _ActionData({
+    required final List<Action> actions,
+    final String searchQuery,
+  }) = _$ActionDataImpl;
+
+  List<Action> get actions;
+  String get searchQuery;
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ActionDataImplCopyWith<_$ActionDataImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$ActionErrorImplCopyWith<$Res> {
+  factory _$$ActionErrorImplCopyWith(
+    _$ActionErrorImpl value,
+    $Res Function(_$ActionErrorImpl) then,
+  ) = __$$ActionErrorImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({Object error, StackTrace stackTrace});
+}
+
+/// @nodoc
+class __$$ActionErrorImplCopyWithImpl<$Res>
+    extends _$ActionStateCopyWithImpl<$Res, _$ActionErrorImpl>
+    implements _$$ActionErrorImplCopyWith<$Res> {
+  __$$ActionErrorImplCopyWithImpl(
+    _$ActionErrorImpl _value,
+    $Res Function(_$ActionErrorImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? error = null, Object? stackTrace = null}) {
+    return _then(
+      _$ActionErrorImpl(
+        null == error ? _value.error : error,
+        null == stackTrace
+            ? _value.stackTrace
+            : stackTrace // ignore: cast_nullable_to_non_nullable
+                  as StackTrace,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$ActionErrorImpl implements _ActionError {
+  const _$ActionErrorImpl(this.error, this.stackTrace);
+
+  @override
+  final Object error;
+  @override
+  final StackTrace stackTrace;
+
+  @override
+  String toString() {
+    return 'ActionState.error(error: $error, stackTrace: $stackTrace)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ActionErrorImpl &&
+            const DeepCollectionEquality().equals(other.error, error) &&
+            (identical(other.stackTrace, stackTrace) ||
+                other.stackTrace == stackTrace));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(error),
+    stackTrace,
+  );
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ActionErrorImplCopyWith<_$ActionErrorImpl> get copyWith =>
+      __$$ActionErrorImplCopyWithImpl<_$ActionErrorImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Action> actions, String searchQuery) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return error(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Action> actions, String searchQuery)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return error?.call(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Action> actions, String searchQuery)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this.error, stackTrace);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_ActionInitial value) initial,
+    required TResult Function(_ActionLoading value) loading,
+    required TResult Function(_ActionData value) data,
+    required TResult Function(_ActionError value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_ActionInitial value)? initial,
+    TResult? Function(_ActionLoading value)? loading,
+    TResult? Function(_ActionData value)? data,
+    TResult? Function(_ActionError value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_ActionInitial value)? initial,
+    TResult Function(_ActionLoading value)? loading,
+    TResult Function(_ActionData value)? data,
+    TResult Function(_ActionError value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _ActionError implements ActionState {
+  const factory _ActionError(final Object error, final StackTrace stackTrace) =
+      _$ActionErrorImpl;
+
+  Object get error;
+  StackTrace get stackTrace;
+
+  /// Create a copy of ActionState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ActionErrorImplCopyWith<_$ActionErrorImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

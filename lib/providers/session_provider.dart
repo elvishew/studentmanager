@@ -345,6 +345,7 @@ class SessionNotifier extends _$SessionNotifier {
         SELECT
           tb.*,
           a.name as action_name,
+          a.is_deprecated as action_deprecated,
           e.name as equipment_name,
           t.name as tool_name
         FROM training_blocks tb
@@ -362,6 +363,7 @@ class SessionNotifier extends _$SessionNotifier {
               ? Action(
                   id: map['action_id'] as int? ?? 0,
                   name: map['action_name'] as String,
+                  isDeprecated: (map['action_deprecated'] as int? ?? 0) == 1,
                   createdAt: block.createdAt,
                   updatedAt: block.updatedAt,
                 )

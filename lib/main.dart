@@ -31,7 +31,7 @@ Future<Database> _initDatabase() async {
 
   final database = await openDatabase(
     path,
-    version: 1,
+    version: 2,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
@@ -183,6 +183,14 @@ Future<Database> _initDatabase() async {
 
       // 插入初始数据
       await _insertInitialData(db);
+    },
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 2) {
+        // 添加is_deprecated字段
+        await db.execute('ALTER TABLE actions ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
+        await db.execute('ALTER TABLE equipments ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
+        await db.execute('ALTER TABLE tools ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
+      }
     },
   );
 
