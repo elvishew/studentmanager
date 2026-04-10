@@ -4,6 +4,7 @@ import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/widgets/session_action_dialogs.dart';
+import 'edit_course_plan_dialog.dart';
 import 'session_detail_page.dart';
 
 /// 课程规划页
@@ -120,6 +121,19 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              const Spacer(),
+              if (_coursePlan != null)
+                SizedBox(
+                  height: 32,
+                  width: 32,
+                  child: IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    tooltip: '编辑课程规划',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    onPressed: _handleEditCoursePlan,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 4),
@@ -157,6 +171,26 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
         ],
       ),
     );
+  }
+
+  /// 编辑课程规划（目标 + 蓝图）
+  Future<void> _handleEditCoursePlan() async {
+    if (_coursePlan == null) return;
+
+    final saved = await showEditCoursePlanDialog(
+      context,
+      coursePlan: _coursePlan!,
+    );
+
+    if (saved && mounted) {
+      // 重新加载课程规划详情以刷新UI
+      await _loadCoursePlan();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('课程规划已更新')),
+        );
+      }
+    }
   }
 
   /// 构建进度统计组件
