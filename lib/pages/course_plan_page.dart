@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
-import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/widgets/session_action_dialogs.dart';
 import 'session_detail_page.dart';
@@ -20,13 +20,25 @@ class CoursePlanPage extends ConsumerStatefulWidget {
 }
 
 class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
+  CoursePlan? _coursePlan;
+
   @override
   void initState() {
     super.initState();
-    // 加载课时列表
+    // 加载课程规划详情和课时列表
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCoursePlan();
       ref.read(sessionNotifierProvider.notifier).fetchByCoursePlanId(widget.coursePlanId);
     });
+  }
+
+  Future<void> _loadCoursePlan() async {
+    final plan = await ref.read(coursePlanNotifierProvider.notifier).getDetailById(widget.coursePlanId);
+    if (plan != null && mounted) {
+      setState(() {
+        _coursePlan = plan;
+      });
+    }
   }
 
   /// 跳转到课时详情页
@@ -43,6 +55,8 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   @override
   Widget build(BuildContext context) {
     final sessionState = ref.watch(sessionNotifierProvider);
+    final stats = ref.watch(sessionStatisticsProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,13 +72,184 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               .where((session) => session.coursePlanId == widget.coursePlanId)
               .toList();
 
-          if (coursePlanSessions.isEmpty) {
-            return _buildEmptyView();
-          }
-
-          return _buildSessionList(coursePlanSessions);
+          return Column(
+            children: [
+              // 课程目标 + 蓝图信息卡片
+              _buildCourseInfoCard(theme),
+              // 进度统计
+              if (coursePlanSessions.isNotEmpty)
+                _buildProgressStats(stats, theme),
+              const Divider(height: 1),
+              // 课时列表
+              Expanded(
+                child: coursePlanSessions.isEmpty
+                    ? _buildEmptyView()
+                    : _buildSessionList(coursePlanSessions),
+              ),
+            ],
+          );
         },
       ),
+    );
+  }
+
+  /// 构建课程信息卡片（课程目标 + 蓝图）
+  Widget _buildCourseInfoCard(ThemeData theme) {
+    final goal = _coursePlan?.goal ?? '';
+    final blueprint = _coursePlan?.blueprint;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.flag_outlined,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '课程目标',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            goal.isNotEmpty ? goal : '未设置',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: goal.isNotEmpty ? null : theme.colorScheme.outline,
+            ),
+          ),
+          if (blueprint != null && blueprint.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.description_outlined,
+                  size: 16,
+                  color: theme.colorScheme.outline,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '蓝图',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              blueprint,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 构建进度统计组件
+  Widget _buildProgressStats(SessionStatistics stats, ThemeData theme) {
+    final remaining = stats.total - stats.completed - stats.skipped;
+    final percent = (stats.completionRate * 100).toInt();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        children: [
+          // 进度条
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: stats.completionRate.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '$percent%',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // 统计数字
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem(
+                theme: theme,
+                label: '总课时',
+                value: '${stats.total}',
+                color: theme.colorScheme.onSurface,
+              ),
+              _buildStatItem(
+                theme: theme,
+                label: '已完成',
+                value: '${stats.completed}',
+                color: Colors.green,
+              ),
+              _buildStatItem(
+                theme: theme,
+                label: '未开始',
+                value: '$remaining',
+                color: Colors.orange,
+              ),
+              _buildStatItem(
+                theme: theme,
+                label: '已跳过',
+                value: '${stats.skipped}',
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 构建单个统计项
+  Widget _buildStatItem({
+    required ThemeData theme,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.outline,
+          ),
+        ),
+      ],
     );
   }
 
