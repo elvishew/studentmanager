@@ -387,74 +387,11 @@ class Tool with _$Tool {
 }
 
 /// ============================================
-/// 课程目标枚举
+/// 课程目标常量
 /// ============================================
 
-enum CourseGoal {
-  postpartum('产后修复'),
-  neckShoulder('肩颈理疗'),
-  backShoulder('肩背打造'),
-  backPain('腰酸治疗'),
-  waistAbs('腰腹塑形'),
-  fullBody('全身塑形'),
-  gluteLeg('臀腿打造'),
-  kneePain('膝盖疼痛'),
-  custom('自定义');
-
-  final String label;
-
-  const CourseGoal(this.label);
-
-  /// 获取数据库存储的值
-  String get value {
-    switch (this) {
-      case CourseGoal.postpartum:
-        return '产后修复';
-      case CourseGoal.neckShoulder:
-        return '肩颈理疗';
-      case CourseGoal.backShoulder:
-        return '肩背打造';
-      case CourseGoal.backPain:
-        return '腰酸治疗';
-      case CourseGoal.waistAbs:
-        return '腰腹塑形';
-      case CourseGoal.fullBody:
-        return '全身塑形';
-      case CourseGoal.gluteLeg:
-        return '臀腿打造';
-      case CourseGoal.kneePain:
-        return '膝盖疼痛';
-      case CourseGoal.custom:
-        return '自定义';
-    }
-  }
-
-  /// 从字符串解析
-  static CourseGoal? fromValue(String value) {
-    switch (value) {
-      case '产后修复':
-        return CourseGoal.postpartum;
-      case '肩颈理疗':
-        return CourseGoal.neckShoulder;
-      case '肩背打造':
-        return CourseGoal.backShoulder;
-      case '腰酸治疗':
-        return CourseGoal.backPain;
-      case '腰腹塑形':
-        return CourseGoal.waistAbs;
-      case '全身塑形':
-        return CourseGoal.fullBody;
-      case '臀腿打造':
-        return CourseGoal.gluteLeg;
-      case '膝盖疼痛':
-        return CourseGoal.kneePain;
-      case '自定义':
-        return CourseGoal.custom;
-      default:
-        return null;
-    }
-  }
-}
+/// "自定义"目标的固定名称，用于判断特殊逻辑
+const kCustomGoalName = '自定义';
 
 /// ============================================
 /// 课程目标默认配置

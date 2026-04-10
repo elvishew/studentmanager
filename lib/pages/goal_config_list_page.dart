@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
+import 'package:student_manager/providers/item_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'goal_config_detail_page.dart';
 
@@ -24,6 +25,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(goalConfigNotifierProvider);
+    final goalsAsync = ref.watch(activeGoalsProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -35,19 +37,20 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => _buildErrorView(error),
         data: (goalConfigs) {
-          // 排除自定义目标的 8 个课程目标
-          final goals = CourseGoal.values
-              .where((g) => g != CourseGoal.custom)
-              .toList();
-
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            itemCount: goals.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final goal = goals[index];
-              final config = goalConfigs.where((c) => c.goal == goal.value).firstOrNull;
-              return _buildGoalTile(context, goal, config, theme);
+          return goalsAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => _buildErrorView(e),
+            data: (goals) {
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                itemCount: goals.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final goal = goals[index];
+                  final config = goalConfigs.where((c) => c.goal == goal.name).firstOrNull;
+                  return _buildGoalTile(context, goal.name, config, theme);
+                },
+              );
             },
           );
         },
@@ -57,7 +60,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
 
   Widget _buildGoalTile(
     BuildContext context,
-    CourseGoal goal,
+    String goalName,
     GoalConfig? config,
     ThemeData theme,
   ) {
@@ -77,7 +80,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
         ),
       ),
       title: Text(
-        goal.label,
+        goalName,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Column(
@@ -122,20 +125,19 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
         ],
       ),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () => _navigateToDetail(context, goal, config),
+      onTap: () => _navigateToDetail(context, goalName, config),
     );
   }
 
-  void _navigateToDetail(BuildContext context, CourseGoal goal, GoalConfig? config) {
+  void _navigateToDetail(BuildContext context, String goalName, GoalConfig? config) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => GoalConfigDetailPage(
-          goal: goal.label,
+          goal: goalName,
           goalConfigId: config?.id,
         ),
       ),
     ).then((_) {
-      // 返回时刷新列表
       ref.read(goalConfigNotifierProvider.notifier).fetchAll();
     });
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
+import 'package:student_manager/providers/item_provider.dart';
 import 'package:student_manager/providers/states.dart';
 
 /// 编辑课程规划弹窗
@@ -17,15 +18,14 @@ class EditCoursePlanDialog extends ConsumerStatefulWidget {
 }
 
 class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
-  late CourseGoal _selectedGoal;
+  String? _selectedGoalName;
   late TextEditingController _blueprintController;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    // 解析当前目标
-    _selectedGoal = CourseGoal.fromValue(widget.coursePlan.goal) ?? CourseGoal.custom;
+    _selectedGoalName = widget.coursePlan.goal;
     _blueprintController = TextEditingController(text: widget.coursePlan.blueprint ?? '');
   }
 
@@ -44,7 +44,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
     final notifier = ref.read(coursePlanNotifierProvider.notifier);
     final success = await notifier.update(
       id: widget.coursePlan.id,
-      goal: _selectedGoal.value,
+      goal: _selectedGoalName!,
       blueprint: _blueprintController.text.isEmpty ? null : _blueprintController.text,
     );
 
@@ -65,6 +65,8 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final goalsAsync = ref.watch(activeGoalsProvider);
+
     return AlertDialog(
       title: const Text('编辑课程规划'),
       content: SizedBox(
@@ -102,23 +104,50 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<CourseGoal>(
-              initialValue: _selectedGoal,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              items: CourseGoal.values.map((goal) {
-                return DropdownMenuItem<CourseGoal>(
-                  value: goal,
-                  child: Text(goal.label),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedGoal = value;
-                  });
+            goalsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('加载失败: $e'),
+              data: (goals) {
+                final goalNames = goals.map((g) => g.name).toSet();
+
+                // 构建下拉项：活跃目标 + "自定义"
+                final items = <DropdownMenuItem<String>>[
+                  ...goals.map((g) => DropdownMenuItem<String>(
+                        value: g.name,
+                        child: Text(g.name),
+                      )),
+                ];
+
+                // 如果当前目标已弃用/不在活跃列表中，补入下拉项
+                if (_selectedGoalName != null &&
+                    _selectedGoalName != kCustomGoalName &&
+                    !goalNames.contains(_selectedGoalName)) {
+                  items.insert(
+                    0,
+                    DropdownMenuItem<String>(
+                      value: _selectedGoalName,
+                      child: Text('$_selectedGoalName（已弃用）'),
+                    ),
+                  );
                 }
+
+                items.add(const DropdownMenuItem<String>(
+                  value: kCustomGoalName,
+                  child: Text('自定义'),
+                ));
+
+                return DropdownButtonFormField<String>(
+                  initialValue: _selectedGoalName,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  items: items,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedGoalName = value);
+                    }
+                  },
+                );
               },
             ),
             const SizedBox(height: 16),

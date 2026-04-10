@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'item_list_page.dart';
 import 'item_form_page.dart';
 import 'goal_config_list_page.dart';
+import 'goal_list_page.dart';
 import '../providers/item_provider.dart';
 
 /// ============================================
@@ -34,6 +35,11 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.build,
             title: '工具管理',
             onTap: () => _navigateTo(context, _buildToolListPage()),
+          ),
+          _buildListTile(
+            icon: Icons.flag,
+            title: '课程目标管理',
+            onTap: () => _navigateTo(context, const GoalListPage()),
           ),
           _buildListTile(
             icon: Icons.school,

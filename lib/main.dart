@@ -31,7 +31,7 @@ Future<Database> _initDatabase() async {
 
   final database = await openDatabase(
     path,
-    version: 2,
+    version: 3,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
@@ -172,6 +172,18 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
+      // 创建课程目标表
+      await db.execute('''
+        CREATE TABLE course_goals (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          is_custom INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
       // 创建索引
       await db.execute('CREATE INDEX idx_sessions_course_plan ON sessions(course_plan_id)');
       await db.execute('CREATE INDEX idx_training_blocks_session ON training_blocks(session_id)');
@@ -190,6 +202,20 @@ Future<Database> _initDatabase() async {
         await db.execute('ALTER TABLE actions ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
         await db.execute('ALTER TABLE equipments ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
         await db.execute('ALTER TABLE tools ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
+      }
+      if (oldVersion < 3) {
+        // 创建课程目标表并插入初始数据
+        await db.execute('''
+          CREATE TABLE course_goals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            is_deprecated INTEGER NOT NULL DEFAULT 0,
+            is_custom INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+          )
+        ''');
+        await _insertInitialGoals(db);
       }
     },
   );
@@ -236,6 +262,22 @@ Future<void> _insertInitialData(Database db) async {
     'contact': '13900139000',
     'notes': '肩颈不适',
   });
+
+  // 插入默认课程目标
+  await _insertInitialGoals(db);
+}
+
+/// 插入初始课程目标
+Future<void> _insertInitialGoals(Database db) async {
+  final goals = [
+    '产后修复', '肩颈理疗', '肩背打造', '腰酸治疗',
+    '腰腹塑形', '全身塑形', '臀腿打造', '膝盖疼痛',
+  ];
+  for (final name in goals) {
+    await db.insert('course_goals', {'name': name});
+  }
+  // "自定义"目标标记为 is_custom
+  await db.insert('course_goals', {'name': '自定义', 'is_custom': 1});
 }
 
 class MyApp extends StatelessWidget {
