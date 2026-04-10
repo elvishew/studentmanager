@@ -4492,3 +4492,1768 @@ abstract class _Tool extends Tool {
   _$$ToolImplCopyWith<_$ToolImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$GoalConfigState {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<GoalConfig> goalConfigs) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<GoalConfig> goalConfigs)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<GoalConfig> goalConfigs)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GoalConfigInitial value) initial,
+    required TResult Function(_GoalConfigLoading value) loading,
+    required TResult Function(_GoalConfigData value) data,
+    required TResult Function(_GoalConfigError value) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GoalConfigInitial value)? initial,
+    TResult? Function(_GoalConfigLoading value)? loading,
+    TResult? Function(_GoalConfigData value)? data,
+    TResult? Function(_GoalConfigError value)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GoalConfigInitial value)? initial,
+    TResult Function(_GoalConfigLoading value)? loading,
+    TResult Function(_GoalConfigData value)? data,
+    TResult Function(_GoalConfigError value)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GoalConfigStateCopyWith<$Res> {
+  factory $GoalConfigStateCopyWith(
+    GoalConfigState value,
+    $Res Function(GoalConfigState) then,
+  ) = _$GoalConfigStateCopyWithImpl<$Res, GoalConfigState>;
+}
+
+/// @nodoc
+class _$GoalConfigStateCopyWithImpl<$Res, $Val extends GoalConfigState>
+    implements $GoalConfigStateCopyWith<$Res> {
+  _$GoalConfigStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+abstract class _$$GoalConfigInitialImplCopyWith<$Res> {
+  factory _$$GoalConfigInitialImplCopyWith(
+    _$GoalConfigInitialImpl value,
+    $Res Function(_$GoalConfigInitialImpl) then,
+  ) = __$$GoalConfigInitialImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$GoalConfigInitialImplCopyWithImpl<$Res>
+    extends _$GoalConfigStateCopyWithImpl<$Res, _$GoalConfigInitialImpl>
+    implements _$$GoalConfigInitialImplCopyWith<$Res> {
+  __$$GoalConfigInitialImplCopyWithImpl(
+    _$GoalConfigInitialImpl _value,
+    $Res Function(_$GoalConfigInitialImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$GoalConfigInitialImpl implements _GoalConfigInitial {
+  const _$GoalConfigInitialImpl();
+
+  @override
+  String toString() {
+    return 'GoalConfigState.initial()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$GoalConfigInitialImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<GoalConfig> goalConfigs) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return initial();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<GoalConfig> goalConfigs)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<GoalConfig> goalConfigs)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GoalConfigInitial value) initial,
+    required TResult Function(_GoalConfigLoading value) loading,
+    required TResult Function(_GoalConfigData value) data,
+    required TResult Function(_GoalConfigError value) error,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GoalConfigInitial value)? initial,
+    TResult? Function(_GoalConfigLoading value)? loading,
+    TResult? Function(_GoalConfigData value)? data,
+    TResult? Function(_GoalConfigError value)? error,
+  }) {
+    return initial?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GoalConfigInitial value)? initial,
+    TResult Function(_GoalConfigLoading value)? loading,
+    TResult Function(_GoalConfigData value)? data,
+    TResult Function(_GoalConfigError value)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _GoalConfigInitial implements GoalConfigState {
+  const factory _GoalConfigInitial() = _$GoalConfigInitialImpl;
+}
+
+/// @nodoc
+abstract class _$$GoalConfigLoadingImplCopyWith<$Res> {
+  factory _$$GoalConfigLoadingImplCopyWith(
+    _$GoalConfigLoadingImpl value,
+    $Res Function(_$GoalConfigLoadingImpl) then,
+  ) = __$$GoalConfigLoadingImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$GoalConfigLoadingImplCopyWithImpl<$Res>
+    extends _$GoalConfigStateCopyWithImpl<$Res, _$GoalConfigLoadingImpl>
+    implements _$$GoalConfigLoadingImplCopyWith<$Res> {
+  __$$GoalConfigLoadingImplCopyWithImpl(
+    _$GoalConfigLoadingImpl _value,
+    $Res Function(_$GoalConfigLoadingImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$GoalConfigLoadingImpl implements _GoalConfigLoading {
+  const _$GoalConfigLoadingImpl();
+
+  @override
+  String toString() {
+    return 'GoalConfigState.loading()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$GoalConfigLoadingImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<GoalConfig> goalConfigs) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return loading();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<GoalConfig> goalConfigs)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<GoalConfig> goalConfigs)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GoalConfigInitial value) initial,
+    required TResult Function(_GoalConfigLoading value) loading,
+    required TResult Function(_GoalConfigData value) data,
+    required TResult Function(_GoalConfigError value) error,
+  }) {
+    return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GoalConfigInitial value)? initial,
+    TResult? Function(_GoalConfigLoading value)? loading,
+    TResult? Function(_GoalConfigData value)? data,
+    TResult? Function(_GoalConfigError value)? error,
+  }) {
+    return loading?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GoalConfigInitial value)? initial,
+    TResult Function(_GoalConfigLoading value)? loading,
+    TResult Function(_GoalConfigData value)? data,
+    TResult Function(_GoalConfigError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _GoalConfigLoading implements GoalConfigState {
+  const factory _GoalConfigLoading() = _$GoalConfigLoadingImpl;
+}
+
+/// @nodoc
+abstract class _$$GoalConfigDataImplCopyWith<$Res> {
+  factory _$$GoalConfigDataImplCopyWith(
+    _$GoalConfigDataImpl value,
+    $Res Function(_$GoalConfigDataImpl) then,
+  ) = __$$GoalConfigDataImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<GoalConfig> goalConfigs});
+}
+
+/// @nodoc
+class __$$GoalConfigDataImplCopyWithImpl<$Res>
+    extends _$GoalConfigStateCopyWithImpl<$Res, _$GoalConfigDataImpl>
+    implements _$$GoalConfigDataImplCopyWith<$Res> {
+  __$$GoalConfigDataImplCopyWithImpl(
+    _$GoalConfigDataImpl _value,
+    $Res Function(_$GoalConfigDataImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? goalConfigs = null}) {
+    return _then(
+      _$GoalConfigDataImpl(
+        goalConfigs: null == goalConfigs
+            ? _value._goalConfigs
+            : goalConfigs // ignore: cast_nullable_to_non_nullable
+                  as List<GoalConfig>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$GoalConfigDataImpl implements _GoalConfigData {
+  const _$GoalConfigDataImpl({required final List<GoalConfig> goalConfigs})
+    : _goalConfigs = goalConfigs;
+
+  final List<GoalConfig> _goalConfigs;
+  @override
+  List<GoalConfig> get goalConfigs {
+    if (_goalConfigs is EqualUnmodifiableListView) return _goalConfigs;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_goalConfigs);
+  }
+
+  @override
+  String toString() {
+    return 'GoalConfigState.data(goalConfigs: $goalConfigs)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GoalConfigDataImpl &&
+            const DeepCollectionEquality().equals(
+              other._goalConfigs,
+              _goalConfigs,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_goalConfigs),
+  );
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GoalConfigDataImplCopyWith<_$GoalConfigDataImpl> get copyWith =>
+      __$$GoalConfigDataImplCopyWithImpl<_$GoalConfigDataImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<GoalConfig> goalConfigs) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return data(goalConfigs);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<GoalConfig> goalConfigs)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return data?.call(goalConfigs);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<GoalConfig> goalConfigs)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(goalConfigs);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GoalConfigInitial value) initial,
+    required TResult Function(_GoalConfigLoading value) loading,
+    required TResult Function(_GoalConfigData value) data,
+    required TResult Function(_GoalConfigError value) error,
+  }) {
+    return data(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GoalConfigInitial value)? initial,
+    TResult? Function(_GoalConfigLoading value)? loading,
+    TResult? Function(_GoalConfigData value)? data,
+    TResult? Function(_GoalConfigError value)? error,
+  }) {
+    return data?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GoalConfigInitial value)? initial,
+    TResult Function(_GoalConfigLoading value)? loading,
+    TResult Function(_GoalConfigData value)? data,
+    TResult Function(_GoalConfigError value)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _GoalConfigData implements GoalConfigState {
+  const factory _GoalConfigData({required final List<GoalConfig> goalConfigs}) =
+      _$GoalConfigDataImpl;
+
+  List<GoalConfig> get goalConfigs;
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GoalConfigDataImplCopyWith<_$GoalConfigDataImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$GoalConfigErrorImplCopyWith<$Res> {
+  factory _$$GoalConfigErrorImplCopyWith(
+    _$GoalConfigErrorImpl value,
+    $Res Function(_$GoalConfigErrorImpl) then,
+  ) = __$$GoalConfigErrorImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({Object error, StackTrace stackTrace});
+}
+
+/// @nodoc
+class __$$GoalConfigErrorImplCopyWithImpl<$Res>
+    extends _$GoalConfigStateCopyWithImpl<$Res, _$GoalConfigErrorImpl>
+    implements _$$GoalConfigErrorImplCopyWith<$Res> {
+  __$$GoalConfigErrorImplCopyWithImpl(
+    _$GoalConfigErrorImpl _value,
+    $Res Function(_$GoalConfigErrorImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? error = null, Object? stackTrace = null}) {
+    return _then(
+      _$GoalConfigErrorImpl(
+        null == error ? _value.error : error,
+        null == stackTrace
+            ? _value.stackTrace
+            : stackTrace // ignore: cast_nullable_to_non_nullable
+                  as StackTrace,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$GoalConfigErrorImpl implements _GoalConfigError {
+  const _$GoalConfigErrorImpl(this.error, this.stackTrace);
+
+  @override
+  final Object error;
+  @override
+  final StackTrace stackTrace;
+
+  @override
+  String toString() {
+    return 'GoalConfigState.error(error: $error, stackTrace: $stackTrace)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GoalConfigErrorImpl &&
+            const DeepCollectionEquality().equals(other.error, error) &&
+            (identical(other.stackTrace, stackTrace) ||
+                other.stackTrace == stackTrace));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(error),
+    stackTrace,
+  );
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GoalConfigErrorImplCopyWith<_$GoalConfigErrorImpl> get copyWith =>
+      __$$GoalConfigErrorImplCopyWithImpl<_$GoalConfigErrorImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<GoalConfig> goalConfigs) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return error(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<GoalConfig> goalConfigs)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return error?.call(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<GoalConfig> goalConfigs)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this.error, stackTrace);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_GoalConfigInitial value) initial,
+    required TResult Function(_GoalConfigLoading value) loading,
+    required TResult Function(_GoalConfigData value) data,
+    required TResult Function(_GoalConfigError value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_GoalConfigInitial value)? initial,
+    TResult? Function(_GoalConfigLoading value)? loading,
+    TResult? Function(_GoalConfigData value)? data,
+    TResult? Function(_GoalConfigError value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_GoalConfigInitial value)? initial,
+    TResult Function(_GoalConfigLoading value)? loading,
+    TResult Function(_GoalConfigData value)? data,
+    TResult Function(_GoalConfigError value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _GoalConfigError implements GoalConfigState {
+  const factory _GoalConfigError(
+    final Object error,
+    final StackTrace stackTrace,
+  ) = _$GoalConfigErrorImpl;
+
+  Object get error;
+  StackTrace get stackTrace;
+
+  /// Create a copy of GoalConfigState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GoalConfigErrorImplCopyWith<_$GoalConfigErrorImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$GoalConfig {
+  int get id => throw _privateConstructorUsedError;
+  String get goal => throw _privateConstructorUsedError;
+  String? get blueprint => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  List<GoalConfigSession>? get sessions => throw _privateConstructorUsedError;
+  int get sessionCount => throw _privateConstructorUsedError;
+
+  /// Create a copy of GoalConfig
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $GoalConfigCopyWith<GoalConfig> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GoalConfigCopyWith<$Res> {
+  factory $GoalConfigCopyWith(
+    GoalConfig value,
+    $Res Function(GoalConfig) then,
+  ) = _$GoalConfigCopyWithImpl<$Res, GoalConfig>;
+  @useResult
+  $Res call({
+    int id,
+    String goal,
+    String? blueprint,
+    DateTime createdAt,
+    DateTime updatedAt,
+    List<GoalConfigSession>? sessions,
+    int sessionCount,
+  });
+}
+
+/// @nodoc
+class _$GoalConfigCopyWithImpl<$Res, $Val extends GoalConfig>
+    implements $GoalConfigCopyWith<$Res> {
+  _$GoalConfigCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GoalConfig
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goal = null,
+    Object? blueprint = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? sessions = freezed,
+    Object? sessionCount = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            goal: null == goal
+                ? _value.goal
+                : goal // ignore: cast_nullable_to_non_nullable
+                      as String,
+            blueprint: freezed == blueprint
+                ? _value.blueprint
+                : blueprint // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            sessions: freezed == sessions
+                ? _value.sessions
+                : sessions // ignore: cast_nullable_to_non_nullable
+                      as List<GoalConfigSession>?,
+            sessionCount: null == sessionCount
+                ? _value.sessionCount
+                : sessionCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$GoalConfigImplCopyWith<$Res>
+    implements $GoalConfigCopyWith<$Res> {
+  factory _$$GoalConfigImplCopyWith(
+    _$GoalConfigImpl value,
+    $Res Function(_$GoalConfigImpl) then,
+  ) = __$$GoalConfigImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    String goal,
+    String? blueprint,
+    DateTime createdAt,
+    DateTime updatedAt,
+    List<GoalConfigSession>? sessions,
+    int sessionCount,
+  });
+}
+
+/// @nodoc
+class __$$GoalConfigImplCopyWithImpl<$Res>
+    extends _$GoalConfigCopyWithImpl<$Res, _$GoalConfigImpl>
+    implements _$$GoalConfigImplCopyWith<$Res> {
+  __$$GoalConfigImplCopyWithImpl(
+    _$GoalConfigImpl _value,
+    $Res Function(_$GoalConfigImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfig
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goal = null,
+    Object? blueprint = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? sessions = freezed,
+    Object? sessionCount = null,
+  }) {
+    return _then(
+      _$GoalConfigImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        goal: null == goal
+            ? _value.goal
+            : goal // ignore: cast_nullable_to_non_nullable
+                  as String,
+        blueprint: freezed == blueprint
+            ? _value.blueprint
+            : blueprint // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        sessions: freezed == sessions
+            ? _value._sessions
+            : sessions // ignore: cast_nullable_to_non_nullable
+                  as List<GoalConfigSession>?,
+        sessionCount: null == sessionCount
+            ? _value.sessionCount
+            : sessionCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$GoalConfigImpl extends _GoalConfig {
+  const _$GoalConfigImpl({
+    required this.id,
+    required this.goal,
+    this.blueprint,
+    required this.createdAt,
+    required this.updatedAt,
+    final List<GoalConfigSession>? sessions,
+    this.sessionCount = 0,
+  }) : _sessions = sessions,
+       super._();
+
+  @override
+  final int id;
+  @override
+  final String goal;
+  @override
+  final String? blueprint;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  final List<GoalConfigSession>? _sessions;
+  @override
+  List<GoalConfigSession>? get sessions {
+    final value = _sessions;
+    if (value == null) return null;
+    if (_sessions is EqualUnmodifiableListView) return _sessions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  @JsonKey()
+  final int sessionCount;
+
+  @override
+  String toString() {
+    return 'GoalConfig(id: $id, goal: $goal, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, sessions: $sessions, sessionCount: $sessionCount)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GoalConfigImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.goal, goal) || other.goal == goal) &&
+            (identical(other.blueprint, blueprint) ||
+                other.blueprint == blueprint) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(other._sessions, _sessions) &&
+            (identical(other.sessionCount, sessionCount) ||
+                other.sessionCount == sessionCount));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    goal,
+    blueprint,
+    createdAt,
+    updatedAt,
+    const DeepCollectionEquality().hash(_sessions),
+    sessionCount,
+  );
+
+  /// Create a copy of GoalConfig
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GoalConfigImplCopyWith<_$GoalConfigImpl> get copyWith =>
+      __$$GoalConfigImplCopyWithImpl<_$GoalConfigImpl>(this, _$identity);
+}
+
+abstract class _GoalConfig extends GoalConfig {
+  const factory _GoalConfig({
+    required final int id,
+    required final String goal,
+    final String? blueprint,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final List<GoalConfigSession>? sessions,
+    final int sessionCount,
+  }) = _$GoalConfigImpl;
+  const _GoalConfig._() : super._();
+
+  @override
+  int get id;
+  @override
+  String get goal;
+  @override
+  String? get blueprint;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  List<GoalConfigSession>? get sessions;
+  @override
+  int get sessionCount;
+
+  /// Create a copy of GoalConfig
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GoalConfigImplCopyWith<_$GoalConfigImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$GoalConfigSession {
+  int get id => throw _privateConstructorUsedError;
+  int get goalConfigId => throw _privateConstructorUsedError;
+  int get sessionNumber => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  List<GoalConfigTrainingBlock>? get trainingBlocks =>
+      throw _privateConstructorUsedError;
+
+  /// Create a copy of GoalConfigSession
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $GoalConfigSessionCopyWith<GoalConfigSession> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GoalConfigSessionCopyWith<$Res> {
+  factory $GoalConfigSessionCopyWith(
+    GoalConfigSession value,
+    $Res Function(GoalConfigSession) then,
+  ) = _$GoalConfigSessionCopyWithImpl<$Res, GoalConfigSession>;
+  @useResult
+  $Res call({
+    int id,
+    int goalConfigId,
+    int sessionNumber,
+    DateTime createdAt,
+    DateTime updatedAt,
+    List<GoalConfigTrainingBlock>? trainingBlocks,
+  });
+}
+
+/// @nodoc
+class _$GoalConfigSessionCopyWithImpl<$Res, $Val extends GoalConfigSession>
+    implements $GoalConfigSessionCopyWith<$Res> {
+  _$GoalConfigSessionCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GoalConfigSession
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goalConfigId = null,
+    Object? sessionNumber = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? trainingBlocks = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            goalConfigId: null == goalConfigId
+                ? _value.goalConfigId
+                : goalConfigId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            sessionNumber: null == sessionNumber
+                ? _value.sessionNumber
+                : sessionNumber // ignore: cast_nullable_to_non_nullable
+                      as int,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            trainingBlocks: freezed == trainingBlocks
+                ? _value.trainingBlocks
+                : trainingBlocks // ignore: cast_nullable_to_non_nullable
+                      as List<GoalConfigTrainingBlock>?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$GoalConfigSessionImplCopyWith<$Res>
+    implements $GoalConfigSessionCopyWith<$Res> {
+  factory _$$GoalConfigSessionImplCopyWith(
+    _$GoalConfigSessionImpl value,
+    $Res Function(_$GoalConfigSessionImpl) then,
+  ) = __$$GoalConfigSessionImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    int goalConfigId,
+    int sessionNumber,
+    DateTime createdAt,
+    DateTime updatedAt,
+    List<GoalConfigTrainingBlock>? trainingBlocks,
+  });
+}
+
+/// @nodoc
+class __$$GoalConfigSessionImplCopyWithImpl<$Res>
+    extends _$GoalConfigSessionCopyWithImpl<$Res, _$GoalConfigSessionImpl>
+    implements _$$GoalConfigSessionImplCopyWith<$Res> {
+  __$$GoalConfigSessionImplCopyWithImpl(
+    _$GoalConfigSessionImpl _value,
+    $Res Function(_$GoalConfigSessionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigSession
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goalConfigId = null,
+    Object? sessionNumber = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? trainingBlocks = freezed,
+  }) {
+    return _then(
+      _$GoalConfigSessionImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        goalConfigId: null == goalConfigId
+            ? _value.goalConfigId
+            : goalConfigId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        sessionNumber: null == sessionNumber
+            ? _value.sessionNumber
+            : sessionNumber // ignore: cast_nullable_to_non_nullable
+                  as int,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        trainingBlocks: freezed == trainingBlocks
+            ? _value._trainingBlocks
+            : trainingBlocks // ignore: cast_nullable_to_non_nullable
+                  as List<GoalConfigTrainingBlock>?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$GoalConfigSessionImpl extends _GoalConfigSession {
+  const _$GoalConfigSessionImpl({
+    required this.id,
+    required this.goalConfigId,
+    required this.sessionNumber,
+    required this.createdAt,
+    required this.updatedAt,
+    final List<GoalConfigTrainingBlock>? trainingBlocks,
+  }) : _trainingBlocks = trainingBlocks,
+       super._();
+
+  @override
+  final int id;
+  @override
+  final int goalConfigId;
+  @override
+  final int sessionNumber;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  final List<GoalConfigTrainingBlock>? _trainingBlocks;
+  @override
+  List<GoalConfigTrainingBlock>? get trainingBlocks {
+    final value = _trainingBlocks;
+    if (value == null) return null;
+    if (_trainingBlocks is EqualUnmodifiableListView) return _trainingBlocks;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  String toString() {
+    return 'GoalConfigSession(id: $id, goalConfigId: $goalConfigId, sessionNumber: $sessionNumber, createdAt: $createdAt, updatedAt: $updatedAt, trainingBlocks: $trainingBlocks)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GoalConfigSessionImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.goalConfigId, goalConfigId) ||
+                other.goalConfigId == goalConfigId) &&
+            (identical(other.sessionNumber, sessionNumber) ||
+                other.sessionNumber == sessionNumber) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(
+              other._trainingBlocks,
+              _trainingBlocks,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    goalConfigId,
+    sessionNumber,
+    createdAt,
+    updatedAt,
+    const DeepCollectionEquality().hash(_trainingBlocks),
+  );
+
+  /// Create a copy of GoalConfigSession
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GoalConfigSessionImplCopyWith<_$GoalConfigSessionImpl> get copyWith =>
+      __$$GoalConfigSessionImplCopyWithImpl<_$GoalConfigSessionImpl>(
+        this,
+        _$identity,
+      );
+}
+
+abstract class _GoalConfigSession extends GoalConfigSession {
+  const factory _GoalConfigSession({
+    required final int id,
+    required final int goalConfigId,
+    required final int sessionNumber,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final List<GoalConfigTrainingBlock>? trainingBlocks,
+  }) = _$GoalConfigSessionImpl;
+  const _GoalConfigSession._() : super._();
+
+  @override
+  int get id;
+  @override
+  int get goalConfigId;
+  @override
+  int get sessionNumber;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  List<GoalConfigTrainingBlock>? get trainingBlocks;
+
+  /// Create a copy of GoalConfigSession
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GoalConfigSessionImplCopyWith<_$GoalConfigSessionImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$GoalConfigTrainingBlock {
+  int get id => throw _privateConstructorUsedError;
+  int get goalConfigSessionId => throw _privateConstructorUsedError;
+  int? get actionId => throw _privateConstructorUsedError;
+  int? get equipmentId => throw _privateConstructorUsedError;
+  int? get toolId => throw _privateConstructorUsedError;
+  String? get reps => throw _privateConstructorUsedError;
+  String? get sets => throw _privateConstructorUsedError;
+  String? get duration => throw _privateConstructorUsedError;
+  String? get intensity => throw _privateConstructorUsedError;
+  String? get notes => throw _privateConstructorUsedError;
+  bool get isCustom => throw _privateConstructorUsedError;
+  int get sortOrder => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  Action? get action => throw _privateConstructorUsedError;
+  Equipment? get equipment => throw _privateConstructorUsedError;
+  Tool? get tool => throw _privateConstructorUsedError;
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $GoalConfigTrainingBlockCopyWith<GoalConfigTrainingBlock> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $GoalConfigTrainingBlockCopyWith<$Res> {
+  factory $GoalConfigTrainingBlockCopyWith(
+    GoalConfigTrainingBlock value,
+    $Res Function(GoalConfigTrainingBlock) then,
+  ) = _$GoalConfigTrainingBlockCopyWithImpl<$Res, GoalConfigTrainingBlock>;
+  @useResult
+  $Res call({
+    int id,
+    int goalConfigSessionId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    bool isCustom,
+    int sortOrder,
+    DateTime createdAt,
+    DateTime updatedAt,
+    Action? action,
+    Equipment? equipment,
+    Tool? tool,
+  });
+
+  $ActionCopyWith<$Res>? get action;
+  $EquipmentCopyWith<$Res>? get equipment;
+  $ToolCopyWith<$Res>? get tool;
+}
+
+/// @nodoc
+class _$GoalConfigTrainingBlockCopyWithImpl<
+  $Res,
+  $Val extends GoalConfigTrainingBlock
+>
+    implements $GoalConfigTrainingBlockCopyWith<$Res> {
+  _$GoalConfigTrainingBlockCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goalConfigSessionId = null,
+    Object? actionId = freezed,
+    Object? equipmentId = freezed,
+    Object? toolId = freezed,
+    Object? reps = freezed,
+    Object? sets = freezed,
+    Object? duration = freezed,
+    Object? intensity = freezed,
+    Object? notes = freezed,
+    Object? isCustom = null,
+    Object? sortOrder = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? action = freezed,
+    Object? equipment = freezed,
+    Object? tool = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            goalConfigSessionId: null == goalConfigSessionId
+                ? _value.goalConfigSessionId
+                : goalConfigSessionId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            actionId: freezed == actionId
+                ? _value.actionId
+                : actionId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            equipmentId: freezed == equipmentId
+                ? _value.equipmentId
+                : equipmentId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            toolId: freezed == toolId
+                ? _value.toolId
+                : toolId // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            reps: freezed == reps
+                ? _value.reps
+                : reps // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            sets: freezed == sets
+                ? _value.sets
+                : sets // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            duration: freezed == duration
+                ? _value.duration
+                : duration // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            intensity: freezed == intensity
+                ? _value.intensity
+                : intensity // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isCustom: null == isCustom
+                ? _value.isCustom
+                : isCustom // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            sortOrder: null == sortOrder
+                ? _value.sortOrder
+                : sortOrder // ignore: cast_nullable_to_non_nullable
+                      as int,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            action: freezed == action
+                ? _value.action
+                : action // ignore: cast_nullable_to_non_nullable
+                      as Action?,
+            equipment: freezed == equipment
+                ? _value.equipment
+                : equipment // ignore: cast_nullable_to_non_nullable
+                      as Equipment?,
+            tool: freezed == tool
+                ? _value.tool
+                : tool // ignore: cast_nullable_to_non_nullable
+                      as Tool?,
+          )
+          as $Val,
+    );
+  }
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ActionCopyWith<$Res>? get action {
+    if (_value.action == null) {
+      return null;
+    }
+
+    return $ActionCopyWith<$Res>(_value.action!, (value) {
+      return _then(_value.copyWith(action: value) as $Val);
+    });
+  }
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $EquipmentCopyWith<$Res>? get equipment {
+    if (_value.equipment == null) {
+      return null;
+    }
+
+    return $EquipmentCopyWith<$Res>(_value.equipment!, (value) {
+      return _then(_value.copyWith(equipment: value) as $Val);
+    });
+  }
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ToolCopyWith<$Res>? get tool {
+    if (_value.tool == null) {
+      return null;
+    }
+
+    return $ToolCopyWith<$Res>(_value.tool!, (value) {
+      return _then(_value.copyWith(tool: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$GoalConfigTrainingBlockImplCopyWith<$Res>
+    implements $GoalConfigTrainingBlockCopyWith<$Res> {
+  factory _$$GoalConfigTrainingBlockImplCopyWith(
+    _$GoalConfigTrainingBlockImpl value,
+    $Res Function(_$GoalConfigTrainingBlockImpl) then,
+  ) = __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    int goalConfigSessionId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    bool isCustom,
+    int sortOrder,
+    DateTime createdAt,
+    DateTime updatedAt,
+    Action? action,
+    Equipment? equipment,
+    Tool? tool,
+  });
+
+  @override
+  $ActionCopyWith<$Res>? get action;
+  @override
+  $EquipmentCopyWith<$Res>? get equipment;
+  @override
+  $ToolCopyWith<$Res>? get tool;
+}
+
+/// @nodoc
+class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
+    extends
+        _$GoalConfigTrainingBlockCopyWithImpl<
+          $Res,
+          _$GoalConfigTrainingBlockImpl
+        >
+    implements _$$GoalConfigTrainingBlockImplCopyWith<$Res> {
+  __$$GoalConfigTrainingBlockImplCopyWithImpl(
+    _$GoalConfigTrainingBlockImpl _value,
+    $Res Function(_$GoalConfigTrainingBlockImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? goalConfigSessionId = null,
+    Object? actionId = freezed,
+    Object? equipmentId = freezed,
+    Object? toolId = freezed,
+    Object? reps = freezed,
+    Object? sets = freezed,
+    Object? duration = freezed,
+    Object? intensity = freezed,
+    Object? notes = freezed,
+    Object? isCustom = null,
+    Object? sortOrder = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? action = freezed,
+    Object? equipment = freezed,
+    Object? tool = freezed,
+  }) {
+    return _then(
+      _$GoalConfigTrainingBlockImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        goalConfigSessionId: null == goalConfigSessionId
+            ? _value.goalConfigSessionId
+            : goalConfigSessionId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        actionId: freezed == actionId
+            ? _value.actionId
+            : actionId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        equipmentId: freezed == equipmentId
+            ? _value.equipmentId
+            : equipmentId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        toolId: freezed == toolId
+            ? _value.toolId
+            : toolId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        reps: freezed == reps
+            ? _value.reps
+            : reps // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        sets: freezed == sets
+            ? _value.sets
+            : sets // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        duration: freezed == duration
+            ? _value.duration
+            : duration // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        intensity: freezed == intensity
+            ? _value.intensity
+            : intensity // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isCustom: null == isCustom
+            ? _value.isCustom
+            : isCustom // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        sortOrder: null == sortOrder
+            ? _value.sortOrder
+            : sortOrder // ignore: cast_nullable_to_non_nullable
+                  as int,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        action: freezed == action
+            ? _value.action
+            : action // ignore: cast_nullable_to_non_nullable
+                  as Action?,
+        equipment: freezed == equipment
+            ? _value.equipment
+            : equipment // ignore: cast_nullable_to_non_nullable
+                  as Equipment?,
+        tool: freezed == tool
+            ? _value.tool
+            : tool // ignore: cast_nullable_to_non_nullable
+                  as Tool?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
+  const _$GoalConfigTrainingBlockImpl({
+    required this.id,
+    required this.goalConfigSessionId,
+    this.actionId,
+    this.equipmentId,
+    this.toolId,
+    this.reps,
+    this.sets,
+    this.duration,
+    this.intensity,
+    this.notes,
+    required this.isCustom,
+    required this.sortOrder,
+    required this.createdAt,
+    required this.updatedAt,
+    this.action,
+    this.equipment,
+    this.tool,
+  }) : super._();
+
+  @override
+  final int id;
+  @override
+  final int goalConfigSessionId;
+  @override
+  final int? actionId;
+  @override
+  final int? equipmentId;
+  @override
+  final int? toolId;
+  @override
+  final String? reps;
+  @override
+  final String? sets;
+  @override
+  final String? duration;
+  @override
+  final String? intensity;
+  @override
+  final String? notes;
+  @override
+  final bool isCustom;
+  @override
+  final int sortOrder;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  @override
+  final Action? action;
+  @override
+  final Equipment? equipment;
+  @override
+  final Tool? tool;
+
+  @override
+  String toString() {
+    return 'GoalConfigTrainingBlock(id: $id, goalConfigSessionId: $goalConfigSessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, isCustom: $isCustom, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$GoalConfigTrainingBlockImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.goalConfigSessionId, goalConfigSessionId) ||
+                other.goalConfigSessionId == goalConfigSessionId) &&
+            (identical(other.actionId, actionId) ||
+                other.actionId == actionId) &&
+            (identical(other.equipmentId, equipmentId) ||
+                other.equipmentId == equipmentId) &&
+            (identical(other.toolId, toolId) || other.toolId == toolId) &&
+            (identical(other.reps, reps) || other.reps == reps) &&
+            (identical(other.sets, sets) || other.sets == sets) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
+            (identical(other.intensity, intensity) ||
+                other.intensity == intensity) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.isCustom, isCustom) ||
+                other.isCustom == isCustom) &&
+            (identical(other.sortOrder, sortOrder) ||
+                other.sortOrder == sortOrder) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.action, action) || other.action == action) &&
+            (identical(other.equipment, equipment) ||
+                other.equipment == equipment) &&
+            (identical(other.tool, tool) || other.tool == tool));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    goalConfigSessionId,
+    actionId,
+    equipmentId,
+    toolId,
+    reps,
+    sets,
+    duration,
+    intensity,
+    notes,
+    isCustom,
+    sortOrder,
+    createdAt,
+    updatedAt,
+    action,
+    equipment,
+    tool,
+  );
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$GoalConfigTrainingBlockImplCopyWith<_$GoalConfigTrainingBlockImpl>
+  get copyWith =>
+      __$$GoalConfigTrainingBlockImplCopyWithImpl<
+        _$GoalConfigTrainingBlockImpl
+      >(this, _$identity);
+}
+
+abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
+  const factory _GoalConfigTrainingBlock({
+    required final int id,
+    required final int goalConfigSessionId,
+    final int? actionId,
+    final int? equipmentId,
+    final int? toolId,
+    final String? reps,
+    final String? sets,
+    final String? duration,
+    final String? intensity,
+    final String? notes,
+    required final bool isCustom,
+    required final int sortOrder,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final Action? action,
+    final Equipment? equipment,
+    final Tool? tool,
+  }) = _$GoalConfigTrainingBlockImpl;
+  const _GoalConfigTrainingBlock._() : super._();
+
+  @override
+  int get id;
+  @override
+  int get goalConfigSessionId;
+  @override
+  int? get actionId;
+  @override
+  int? get equipmentId;
+  @override
+  int? get toolId;
+  @override
+  String? get reps;
+  @override
+  String? get sets;
+  @override
+  String? get duration;
+  @override
+  String? get intensity;
+  @override
+  String? get notes;
+  @override
+  bool get isCustom;
+  @override
+  int get sortOrder;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  Action? get action;
+  @override
+  Equipment? get equipment;
+  @override
+  Tool? get tool;
+
+  /// Create a copy of GoalConfigTrainingBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$GoalConfigTrainingBlockImplCopyWith<_$GoalConfigTrainingBlockImpl>
+  get copyWith => throw _privateConstructorUsedError;
+}

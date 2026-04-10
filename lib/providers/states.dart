@@ -455,3 +455,154 @@ enum CourseGoal {
     }
   }
 }
+
+/// ============================================
+/// 课程目标默认配置
+/// ============================================
+
+/// 课程目标配置状态
+@freezed
+class GoalConfigState with _$GoalConfigState {
+  const factory GoalConfigState.initial() = _GoalConfigInitial;
+  const factory GoalConfigState.loading() = _GoalConfigLoading;
+  const factory GoalConfigState.data({
+    required List<GoalConfig> goalConfigs,
+  }) = _GoalConfigData;
+  const factory GoalConfigState.error(Object error, StackTrace stackTrace) = _GoalConfigError;
+}
+
+/// 课程目标配置
+@freezed
+class GoalConfig with _$GoalConfig {
+  const GoalConfig._();
+
+  const factory GoalConfig({
+    required int id,
+    required String goal,
+    String? blueprint,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    List<GoalConfigSession>? sessions,
+    @Default(0) int sessionCount,
+  }) = _GoalConfig;
+
+  factory GoalConfig.fromMap(Map<String, dynamic> map) {
+    return GoalConfig(
+      id: map['id'] as int,
+      goal: map['goal'] as String,
+      blueprint: map['blueprint'] as String?,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+      sessionCount: map['session_count'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'goal': goal,
+      'blueprint': blueprint,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+/// 课程目标配置课时模板
+@freezed
+class GoalConfigSession with _$GoalConfigSession {
+  const GoalConfigSession._();
+
+  const factory GoalConfigSession({
+    required int id,
+    required int goalConfigId,
+    required int sessionNumber,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    List<GoalConfigTrainingBlock>? trainingBlocks,
+  }) = _GoalConfigSession;
+
+  factory GoalConfigSession.fromMap(Map<String, dynamic> map) {
+    return GoalConfigSession(
+      id: map['id'] as int,
+      goalConfigId: map['goal_config_id'] as int,
+      sessionNumber: map['session_number'] as int,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'goal_config_id': goalConfigId,
+      'session_number': sessionNumber,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+/// 课程目标配置训练块模板
+@freezed
+class GoalConfigTrainingBlock with _$GoalConfigTrainingBlock {
+  const GoalConfigTrainingBlock._();
+
+  const factory GoalConfigTrainingBlock({
+    required int id,
+    required int goalConfigSessionId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    required bool isCustom,
+    required int sortOrder,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    Action? action,
+    Equipment? equipment,
+    Tool? tool,
+  }) = _GoalConfigTrainingBlock;
+
+  factory GoalConfigTrainingBlock.fromMap(Map<String, dynamic> map) {
+    return GoalConfigTrainingBlock(
+      id: map['id'] as int,
+      goalConfigSessionId: map['goal_config_session_id'] as int,
+      actionId: map['action_id'] as int?,
+      equipmentId: map['equipment_id'] as int?,
+      toolId: map['tool_id'] as int?,
+      reps: map['reps'] as String?,
+      sets: map['sets'] as String?,
+      duration: map['duration'] as String?,
+      intensity: map['intensity'] as String?,
+      notes: map['notes'] as String?,
+      isCustom: (map['is_custom'] as int) == 1,
+      sortOrder: map['sort_order'] as int,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'goal_config_session_id': goalConfigSessionId,
+      'action_id': actionId,
+      'equipment_id': equipmentId,
+      'tool_id': toolId,
+      'reps': reps,
+      'sets': sets,
+      'duration': duration,
+      'intensity': intensity,
+      'notes': notes,
+      'is_custom': isCustom ? 1 : 0,
+      'sort_order': sortOrder,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}

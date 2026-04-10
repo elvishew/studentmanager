@@ -366,4 +366,237 @@ class CoursePlanRepository {
 
     return coursePlanId;
   }
+
+  /// ============================================
+  /// 课程目标默认配置 CRUD
+  /// ============================================
+
+  /// 获取所有课程目标配置（含课时模板数量）
+  Future<List<Map<String, dynamic>>> fetchAllGoalConfigs() async {
+    return await database.rawQuery('''
+      SELECT gc.*, COUNT(gcs.id) as session_count
+      FROM goal_configs gc
+      LEFT JOIN goal_config_sessions gcs ON gc.id = gcs.goal_config_id
+      GROUP BY gc.id
+      ORDER BY gc.id ASC
+    ''');
+  }
+
+  /// 获取课程目标配置详情（含 sessions + training blocks）
+  Future<Map<String, dynamic>?> fetchGoalConfigDetail(int id) async {
+    final configs = await database.query(
+      'goal_configs',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (configs.isEmpty) return null;
+
+    final config = Map<String, dynamic>.from(configs.first);
+
+    // 查询 sessions
+    final sessions = await database.query(
+      'goal_config_sessions',
+      where: 'goal_config_id = ?',
+      whereArgs: [id],
+      orderBy: 'session_number ASC',
+    );
+
+    config['sessions'] = await Future.wait(sessions.map((session) async {
+      final s = Map<String, dynamic>.from(session);
+
+      // 查询 training blocks（含关联的动作/器械/工具名称）
+      final blocks = await database.rawQuery('''
+        SELECT
+          tb.*,
+          a.name as action_name,
+          a.is_deprecated as action_deprecated,
+          e.name as equipment_name,
+          e.is_deprecated as equipment_deprecated,
+          t.name as tool_name,
+          t.is_deprecated as tool_deprecated
+        FROM goal_config_training_blocks tb
+        LEFT JOIN actions a ON tb.action_id = a.id
+        LEFT JOIN equipments e ON tb.equipment_id = e.id
+        LEFT JOIN tools t ON tb.tool_id = t.id
+        WHERE tb.goal_config_session_id = ?
+        ORDER BY tb.sort_order ASC
+      ''', [s['id']]);
+
+      s['training_blocks'] = blocks;
+      return s;
+    }));
+
+    return config;
+  }
+
+  /// 新增或更新课程目标配置
+  Future<int> upsertGoalConfig(String goal, String? blueprint) async {
+    final now = DateTime.now().toIso8601String();
+
+    final existing = await database.query(
+      'goal_configs',
+      where: 'goal = ?',
+      whereArgs: [goal],
+      limit: 1,
+    );
+
+    if (existing.isNotEmpty) {
+      await database.update(
+        'goal_configs',
+        {
+          'blueprint': blueprint,
+          'updated_at': now,
+        },
+        where: 'goal = ?',
+        whereArgs: [goal],
+      );
+      return existing.first['id'] as int;
+    } else {
+      return await database.insert(
+        'goal_configs',
+        {
+          'goal': goal,
+          'blueprint': blueprint,
+          'created_at': now,
+          'updated_at': now,
+        },
+      );
+    }
+  }
+
+  /// 删除课程目标配置（CASCADE 删除 sessions + blocks）
+  Future<void> deleteGoalConfig(int id) async {
+    await database.delete(
+      'goal_configs',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// 新增课时模板
+  Future<int> addGoalConfigSession(int goalConfigId, int sessionNumber) async {
+    final now = DateTime.now().toIso8601String();
+    return await database.insert(
+      'goal_config_sessions',
+      {
+        'goal_config_id': goalConfigId,
+        'session_number': sessionNumber,
+        'created_at': now,
+        'updated_at': now,
+      },
+    );
+  }
+
+  /// 删除课时模板（CASCADE 删除 blocks）
+  Future<void> deleteGoalConfigSession(int id) async {
+    await database.delete(
+      'goal_config_sessions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// 新增训练块模板
+  Future<int> addGoalConfigTrainingBlock({
+    required int goalConfigSessionId,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    bool isCustom = false,
+    int sortOrder = 0,
+  }) async {
+    final now = DateTime.now().toIso8601String();
+    return await database.insert(
+      'goal_config_training_blocks',
+      {
+        'goal_config_session_id': goalConfigSessionId,
+        'action_id': actionId,
+        'equipment_id': equipmentId,
+        'tool_id': toolId,
+        'reps': reps,
+        'sets': sets,
+        'duration': duration,
+        'intensity': intensity,
+        'notes': notes,
+        'is_custom': isCustom ? 1 : 0,
+        'sort_order': sortOrder,
+        'created_at': now,
+        'updated_at': now,
+      },
+    );
+  }
+
+  /// 更新训练块模板
+  Future<void> updateGoalConfigTrainingBlock({
+    required int id,
+    int? actionId,
+    int? equipmentId,
+    int? toolId,
+    String? reps,
+    String? sets,
+    String? duration,
+    String? intensity,
+    String? notes,
+    bool? isCustom,
+  }) async {
+    final values = <String, dynamic>{
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+    if (actionId != null) values['action_id'] = actionId;
+    if (equipmentId != null) values['equipment_id'] = equipmentId;
+    if (toolId != null) values['tool_id'] = toolId;
+    if (reps != null) values['reps'] = reps;
+    if (sets != null) values['sets'] = sets;
+    if (duration != null) values['duration'] = duration;
+    if (intensity != null) values['intensity'] = intensity;
+    if (notes != null) values['notes'] = notes;
+    if (isCustom != null) values['is_custom'] = isCustom ? 1 : 0;
+
+    await database.update(
+      'goal_config_training_blocks',
+      values,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// 删除训练块模板
+  Future<void> deleteGoalConfigTrainingBlock(int id) async {
+    await database.delete(
+      'goal_config_training_blocks',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// 调整训练块模板排序
+  Future<void> reorderGoalConfigTrainingBlock({
+    required int blockId,
+    required int newSortOrder,
+  }) async {
+    await database.update(
+      'goal_config_training_blocks',
+      {
+        'sort_order': newSortOrder,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [blockId],
+    );
+  }
+
+  /// 获取指定 session 的最大排序号
+  Future<int> getMaxSortOrder(int goalConfigSessionId) async {
+    final results = await database.rawQuery(
+      'SELECT MAX(sort_order) as max_order FROM goal_config_training_blocks WHERE goal_config_session_id = ?',
+      [goalConfigSessionId],
+    );
+    return (results.first['max_order'] as int?) ?? -1;
+  }
 }
