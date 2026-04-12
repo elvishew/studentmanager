@@ -279,84 +279,55 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
           contentPadding: EdgeInsets.zero,
         ),
         if (_useCustomDuration) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: presetDurations.map((minutes) {
-              final isSelected = _selectedDuration == minutes;
-              return ChoiceChip(
-                label: Text('$minutes分钟'),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    if (selected) {
-                      _selectedDuration = minutes;
-                      _customDurationController.clear();
-                    } else {
-                      _selectedDuration = null;
-                    }
-                  });
-                },
-              );
-            }).toList(),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<int>(
+            value: _selectedDuration,
+            decoration: const InputDecoration(
+              hintText: '选择课时时长',
+              border: OutlineInputBorder(),
+            ),
+            items: presetDurations.map((minutes) => DropdownMenuItem<int>(
+              value: minutes,
+              child: Text('$minutes 分钟'),
+            )).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedDuration = value;
+                _customDurationController.clear();
+              });
+            },
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text('自定义：'),
+              const Text('或自定义：', style: TextStyle(fontSize: 13)),
               const SizedBox(width: 8),
               SizedBox(
-                width: 100,
+                width: 80,
                 child: TextField(
                   controller: _customDurationController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     hintText: '时长',
                     border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   ),
-                  onChanged: (value) {
+                  style: const TextStyle(fontSize: 14),
+                  onChanged: (_) {
                     setState(() {
                       _selectedDuration = null;
                     });
                   },
                 ),
               ),
-              const SizedBox(width: 8),
-              const Text('分钟 (1-180)'),
+              const SizedBox(width: 6),
+              const Text('分钟 (1-180)', style: TextStyle(fontSize: 13)),
             ],
           ),
-          const SizedBox(height: 4),
-          if (_customDurationController.text.isNotEmpty)
-            Text(
-              _getDurationValidationMessage(),
-              style: TextStyle(
-                color: _getDurationValidationMessage().contains('✓')
-                    ? Colors.green
-                    : Colors.red,
-                fontSize: 12,
-              ),
-            ),
         ],
       ],
     );
-  }
-
-  String _getDurationValidationMessage() {
-    if (_selectedDuration != null) {
-      return '✓ 已选择 $_selectedDuration 分钟';
-    }
-    if (_customDurationController.text.isEmpty) {
-      return '';
-    }
-    final value = int.tryParse(_customDurationController.text);
-    if (value == null) {
-      return '请输入有效的数字';
-    }
-    if (value < 1 || value > 180) {
-      return '时长必须在 1-180 分钟之间';
-    }
-    return '✓ 自定义 $value 分钟';
   }
 }
 

@@ -18,18 +18,18 @@ class CreateCoursePlanDialog extends ConsumerStatefulWidget {
 }
 
 class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog> {
-  // 当前步骤：0=选择目标, 1=选择课时数, 2=检测模板, 3=编辑蓝图
+  // 当前步骤：0=选择参数, 1=检测模板(自动过渡), 2=编辑蓝图
   int _currentStep = 0;
 
   // 用户选择
   int? _selectedGoalId;
   String? _selectedGoalName;
-  int? _selectedSessionCount; // 预设选择
+  int? _selectedSessionCount; // Dropdown 选中的预设值
   final TextEditingController _customSessionCountController = TextEditingController();
   final TextEditingController _blueprintController = TextEditingController();
 
   // 时长相关
-  int? _selectedDuration; // 预设选中的时长
+  int? _selectedDuration; // Dropdown 选中的预设值
   final TextEditingController _customDurationController = TextEditingController();
 
   static const List<int> presetSessionCounts = [12, 24, 33, 55];
@@ -40,10 +40,12 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   bool _useTemplate = true;
   String? _templateError;
 
+  bool _isCreating = false;
+
   @override
   void initState() {
     super.initState();
-    _selectedDuration = 60; // 默认60分钟
+    _selectedDuration = 60; // 默认选中60分钟
   }
 
   @override
@@ -65,7 +67,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
         return value;
       }
     }
-    return 60; // 默认值
+    return 60;
   }
 
   /// 获取实际课时数
@@ -82,11 +84,16 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     return null;
   }
 
+  /// 步骤1是否可以下一步
+  bool get _canProceedFromStep0 {
+    return _selectedGoalId != null && _actualSessionCount != null;
+  }
+
   /// 检测模板数据
   Future<void> _checkTemplate() async {
     if (_selectedGoalId == null) {
       setState(() {
-        _currentStep = 3;
+        _currentStep = 2;
       });
       return;
     }
@@ -109,9 +116,8 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
           _templateError = '模板仅有 ${templateInfo.availableSessionCount} 节课，超出部分为空课时';
         }
 
-        _currentStep = 3;
+        _currentStep = 2;
 
-        // 预填充蓝图
         if (_useTemplate && templateInfo?.blueprint != null) {
           _blueprintController.text = templateInfo!.blueprint!;
         }
@@ -120,7 +126,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
       setState(() {
         _templateError = '检测模板失败: $e';
         _useTemplate = false;
-        _currentStep = 3;
+        _currentStep = 2;
       });
     }
   }
@@ -149,15 +155,13 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
       });
 
       if (coursePlanId != null) {
-        Navigator.of(context).pop(true); // 返回 true 表示成功
+        Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('课程规划已创建 ($sessionCount节课)')),
         );
       }
     }
   }
-
-  bool _isCreating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +178,11 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   String _getTitle() {
     switch (_currentStep) {
       case 0:
-        return '创建课程规划 (1/4)';
+        return '创建课程规划 (1/3)';
       case 1:
-        return '选择课时数量 (2/4)';
+        return '检测模板数据 (2/3)';
       case 2:
-        return '检测模板数据 (3/4)';
-      case 3:
-        return '编辑蓝图 (4/4)';
+        return '编辑蓝图 (3/3)';
       default:
         return '创建课程规划';
     }
@@ -189,150 +191,189 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   Widget _buildContent() {
     switch (_currentStep) {
       case 0:
-        return _buildGoalSelection();
+        return _buildParamsSelection();
       case 1:
-        return _buildSessionCountSelection();
-      case 2:
         return _buildTemplateChecking();
-      case 3:
+      case 2:
         return _buildBlueprintEditing();
       default:
         return const SizedBox.shrink();
     }
   }
 
-  /// 步骤1: 选择课程目标
-  Widget _buildGoalSelection() {
-    final goalsAsync = ref.watch(activeGoalsProvider);
+  // ============================================
+  // 步骤 1/3: 选择参数（Dropdown + 自定义输入）
+  // ============================================
 
-    return goalsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => const Text('加载目标失败'),
-      data: (goals) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('请选择课程目标'),
-            const SizedBox(height: 16),
-            ...goals.map((goal) {
-              final isSelected = _selectedGoalId == goal.id;
-              return ListTile(
-                leading: Radio<int>(
-                  value: goal.id,
-                  groupValue: _selectedGoalId,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGoalId = value;
-                      _selectedGoalName = goal.name;
-                    });
-                  },
-                ),
-                title: Text(goal.name),
-                onTap: () {
-                  setState(() {
-                    _selectedGoalId = goal.id;
-                    _selectedGoalName = goal.name;
-                  });
-                },
-                selected: isSelected,
-              );
-            }),
-          ],
-        );
-      },
-    );
-  }
-
-  /// 步骤2: 选择课时数量
-  Widget _buildSessionCountSelection() {
+  Widget _buildParamsSelection() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('请选择课时数量'),
+        // 课程目标
+        _buildGoalDropdown(),
         const SizedBox(height: 16),
-        // 预设选项
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: presetSessionCounts.map((count) {
-            final isSelected = _selectedSessionCount == count;
-            return ChoiceChip(
-              label: Text('$count节'),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedSessionCount = count;
-                    _customSessionCountController.clear();
-                  } else {
-                    _selectedSessionCount = null;
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
+
+        // 课时数量
+        _buildSessionCountField(),
         const SizedBox(height: 16),
-        // 自定义输入
-        Row(
-          children: [
-            const Text('自定义：'),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 100,
-              child: TextField(
-                controller: _customSessionCountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: '课时数',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSessionCount = null;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text('节 (1-60)'),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // 验证提示
-        if (_customSessionCountController.text.isNotEmpty)
-          Text(
-            _getValidationMessage(),
-            style: TextStyle(
-              color: _getValidationMessage().contains('✓')
-                  ? Colors.green
-                  : Colors.red,
-              fontSize: 12,
-            ),
-          ),
+
+        // 默认课时时长
+        _buildDurationField(),
       ],
     );
   }
 
-  String _getValidationMessage() {
-    if (_selectedSessionCount != null) {
-      return '✓ 已选择 ${_selectedSessionCount} 节课';
-    }
-    if (_customSessionCountController.text.isEmpty) {
-      return '请选择或输入课时数量';
-    }
-    final value = int.tryParse(_customSessionCountController.text);
-    if (value == null) {
-      return '请输入有效的数字';
-    }
-    if (value < 1 || value > 60) {
-      return '课时数量必须在 1-60 之间';
-    }
-    return '✓ 自定义 $value 节课';
+  Widget _buildGoalDropdown() {
+    final goalsAsync = ref.watch(activeGoalsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('课程目标', style: TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        goalsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Text('加载目标失败: $e'),
+          data: (goals) {
+            return DropdownButtonFormField<int>(
+              value: _selectedGoalId,
+              decoration: const InputDecoration(
+                hintText: '请选择课程目标',
+                border: OutlineInputBorder(),
+              ),
+              items: goals.map((g) => DropdownMenuItem<int>(
+                value: g.id,
+                child: Text(g.name),
+              )).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  final goal = goals.firstWhere((g) => g.id == value);
+                  setState(() {
+                    _selectedGoalId = value;
+                    _selectedGoalName = goal.name;
+                  });
+                }
+              },
+            );
+          },
+        ),
+      ],
+    );
   }
 
-  /// 步骤3: 检测模板（显示loading）
+  Widget _buildSessionCountField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('课时数量', style: TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<int>(
+          value: _selectedSessionCount,
+          decoration: const InputDecoration(
+            hintText: '选择课时数量',
+            border: OutlineInputBorder(),
+          ),
+          items: presetSessionCounts.map((count) => DropdownMenuItem<int>(
+            value: count,
+            child: Text('$count 节'),
+          )).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedSessionCount = value;
+              _customSessionCountController.clear();
+            });
+          },
+        ),
+        const SizedBox(height: 8),
+        _buildCustomInputRow(
+          controller: _customSessionCountController,
+          hintText: '课时数',
+          suffix: '节 (1-60)',
+          onChanged: () {
+            setState(() {
+              _selectedSessionCount = null;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDurationField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('默认课时时长', style: TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<int>(
+          value: _selectedDuration,
+          decoration: const InputDecoration(
+            hintText: '选择课时时长',
+            border: OutlineInputBorder(),
+          ),
+          items: presetDurations.map((minutes) => DropdownMenuItem<int>(
+            value: minutes,
+            child: Text('$minutes 分钟'),
+          )).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedDuration = value;
+              _customDurationController.clear();
+            });
+          },
+        ),
+        const SizedBox(height: 8),
+        _buildCustomInputRow(
+          controller: _customDurationController,
+          hintText: '时长',
+          suffix: '分钟 (1-180)',
+          onChanged: () {
+            setState(() {
+              _selectedDuration = null;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  /// 可复用的"或自定义"输入行
+  Widget _buildCustomInputRow({
+    required TextEditingController controller,
+    required String hintText,
+    required String suffix,
+    required VoidCallback onChanged,
+  }) {
+    return Row(
+      children: [
+        const Text('或自定义：', style: TextStyle(fontSize: 13)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 80,
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: const OutlineInputBorder(),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            ),
+            style: const TextStyle(fontSize: 14),
+            onChanged: (_) => onChanged(),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(suffix, style: const TextStyle(fontSize: 13)),
+      ],
+    );
+  }
+
+  // ============================================
+  // 步骤 2/3: 检测模板（自动过渡 loading）
+  // ============================================
+
   Widget _buildTemplateChecking() {
     return const Center(
       child: Padding(
@@ -349,224 +390,122 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     );
   }
 
-  /// 构建默认课时时长选择区域
-  Widget _buildDurationSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '默认课时时长',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: presetDurations.map((minutes) {
-            final isSelected = _selectedDuration == minutes;
-            return ChoiceChip(
-              label: Text('$minutes分钟'),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedDuration = minutes;
-                    _customDurationController.clear();
-                  } else {
-                    _selectedDuration = null;
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Text('自定义：'),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 100,
-              child: TextField(
-                controller: _customDurationController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: '时长',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedDuration = null;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text('分钟 (1-180)'),
-          ],
-        ),
-        const SizedBox(height: 4),
-        if (_customDurationController.text.isNotEmpty)
-          Text(
-            _getDurationValidationMessage(),
-            style: TextStyle(
-              color: _getDurationValidationMessage().contains('✓')
-                  ? Colors.green
-                  : Colors.red,
-              fontSize: 12,
-            ),
-          ),
-      ],
-    );
-  }
+  // ============================================
+  // 步骤 3/3: 编辑蓝图
+  // ============================================
 
-  String _getDurationValidationMessage() {
-    if (_selectedDuration != null) {
-      return '✓ 已选择 $_selectedDuration 分钟';
-    }
-    if (_customDurationController.text.isEmpty) {
-      return '';
-    }
-    final value = int.tryParse(_customDurationController.text);
-    if (value == null) {
-      return '请输入有效的数字';
-    }
-    if (value < 1 || value > 180) {
-      return '时长必须在 1-180 分钟之间';
-    }
-    return '✓ 自定义 $value 分钟';
-  }
-
-  /// 步骤4: 编辑蓝图
   Widget _buildBlueprintEditing() {
     final sessionCount = _actualSessionCount ?? 12;
     final duration = _actualDuration;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 摘要信息
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.blue.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('课程目标: ${_selectedGoalName ?? "未选择"}'),
-              const SizedBox(height: 4),
-              Text('课时数量: $sessionCount 节'),
-              const SizedBox(height: 4),
-              Text('默认时长: $duration 分钟'),
-              if (_templateInfo != null) ...[
-                const SizedBox(height: 4),
-                Text('模板课时: ${_templateInfo!.availableSessionCount} 节'),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // 默认课时时长选择
-        _buildDurationSelection(),
-        const SizedBox(height: 16),
-
-        // 模板提示信息
-        if (_templateError != null)
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 摘要信息
           Container(
-            padding: const EdgeInsets.all(8),
-            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _useTemplate ? Colors.orange.shade50 : Colors.grey.shade100,
+              color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: _useTemplate ? Colors.orange.shade200 : Colors.grey.shade300,
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('课程目标: ${_selectedGoalName ?? "未选择"}'),
+                const SizedBox(height: 4),
+                Text('课时数量: $sessionCount 节'),
+                const SizedBox(height: 4),
+                Text('默认时长: $duration 分钟'),
+                if (_templateInfo != null) ...[
+                  const SizedBox(height: 4),
+                  Text('模板课时: ${_templateInfo!.availableSessionCount} 节'),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 模板提示信息
+          if (_templateError != null)
+            Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: _useTemplate ? Colors.orange.shade50 : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _useTemplate ? Colors.orange.shade200 : Colors.grey.shade300,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _useTemplate ? Icons.info_outline : Icons.warning_outlined,
+                    color: _useTemplate ? Colors.orange : Colors.grey,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_templateError!)),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  _useTemplate ? Icons.info_outline : Icons.warning_outlined,
-                  color: _useTemplate ? Colors.orange : Colors.grey,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(_templateError!)),
-              ],
+
+          // 模板开关（如果有模板）
+          if (_templateInfo != null)
+            SwitchListTile(
+              title: const Text('使用模板数据'),
+              subtitle: Text(_useTemplate ? '将复制模板课时内容' : '将创建空白课时'),
+              value: _useTemplate,
+              onChanged: (value) {
+                setState(() {
+                  _useTemplate = value;
+                });
+              },
+            ),
+
+          const SizedBox(height: 8),
+
+          // 蓝图编辑
+          const Text('蓝图描述（可选）'),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _blueprintController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: '输入课程规划的整体描述...',
+              border: OutlineInputBorder(),
             ),
           ),
-
-        // 模板开关（如果有模板）
-        if (_templateInfo != null)
-          SwitchListTile(
-            title: const Text('使用模板数据'),
-            subtitle: Text(_useTemplate ? '将复制模板课时内容' : '将创建空白课时'),
-            value: _useTemplate,
-            onChanged: (value) {
-              setState(() {
-                _useTemplate = value;
-              });
-            },
-          ),
-
-        const SizedBox(height: 8),
-
-        // 蓝图编辑
-        const Text('蓝图描述（可选）'),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _blueprintController,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: '输入课程规划的整体描述...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  /// 构建按钮
+  // ============================================
+  // 按钮
+  // ============================================
+
   List<Widget> _buildActions() {
     switch (_currentStep) {
-      case 0: // 选择目标
+      case 0: // 选择参数
         return [
           TextButton(
             onPressed: _isCreating ? null : () => Navigator.of(context).pop(false),
             child: const Text('取消'),
           ),
           ElevatedButton(
-            onPressed: _isCreating || _selectedGoalId == null ? null : _handleNext,
+            onPressed: _isCreating || !_canProceedFromStep0 ? null : _handleNext,
             child: const Text('下一步'),
           ),
         ];
 
-      case 1: // 选择课时数
-        return [
-          TextButton(
-            onPressed: _isCreating ? null : _handleBack,
-            child: const Text('上一步'),
-          ),
-          TextButton(
-            onPressed: _isCreating ? null : () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: _isCreating || _actualSessionCount == null ? null : _handleNext,
-            child: const Text('下一步'),
-          ),
-        ];
+      case 1: // 检测模板（无按钮，自动进行）
+        return [];
 
-      case 2: // 检测模板
-        return [
-          // 无按钮，自动进行
-        ];
-
-      case 3: // 编辑蓝图
+      case 2: // 编辑蓝图
         return [
           TextButton(
             onPressed: _isCreating ? null : _handleBack,
@@ -594,21 +533,17 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   }
 
   void _handleNext() {
-    setState(() {
-      if (_currentStep == 0) {
-        // 从目标选择到课时选择
+    if (_currentStep == 0) {
+      setState(() {
         _currentStep = 1;
-      } else if (_currentStep == 1) {
-        // 从课时选择到模板检测
-        _currentStep = 2;
-        _checkTemplate();
-      }
-    });
+      });
+      _checkTemplate();
+    }
   }
 
   void _handleBack() {
     setState(() {
-      _currentStep--;
+      _currentStep = 0;
     });
   }
 }

@@ -36,7 +36,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
     _selectedGoalName = widget.coursePlan.goalName;
     _blueprintController = TextEditingController(text: widget.coursePlan.blueprint ?? '');
 
-    // 回填时长选中状态
+    // 回填时长：匹配预设则选中 Dropdown，否则填入自定义输入框
     final duration = widget.coursePlan.defaultDuration ?? 60;
     if (presetDurations.contains(duration)) {
       _selectedDuration = duration;
@@ -132,10 +132,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
             const SizedBox(height: 20),
 
             // 课程目标选择
-            const Text(
-              '课程目标',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
+            const Text('课程目标', style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             goalsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -143,15 +140,13 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
               data: (goals) {
                 final goalIds = goals.map((g) => g.id).toSet();
 
-                // 构建下拉项：活跃目标
                 final items = <DropdownMenuItem<int>>[
                   ...goals.map((g) => DropdownMenuItem<int>(
-                        value: g.id,
-                        child: Text(g.name),
-                      )),
+                    value: g.id,
+                    child: Text(g.name),
+                  )),
                 ];
 
-                // 如果当前目标已弃用/不在活跃列表中，补入下拉项
                 if (_selectedGoalId != null &&
                     !goalIds.contains(_selectedGoalId)) {
                   items.insert(
@@ -183,15 +178,58 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
             ),
             const SizedBox(height: 16),
 
-            // 默认课时时长选择
-            _buildDurationSelection(),
+            // 默认课时时长
+            const Text('默认课时时长', style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int>(
+              value: _selectedDuration,
+              decoration: const InputDecoration(
+                hintText: '选择课时时长',
+                border: OutlineInputBorder(),
+              ),
+              items: presetDurations.map((minutes) => DropdownMenuItem<int>(
+                value: minutes,
+                child: Text('$minutes 分钟'),
+              )).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedDuration = value;
+                  _customDurationController.clear();
+                });
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('或自定义：', style: TextStyle(fontSize: 13)),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: _customDurationController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: '时长',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 14),
+                    onChanged: (_) {
+                      setState(() {
+                        _selectedDuration = null;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text('分钟 (1-180)', style: TextStyle(fontSize: 13)),
+              ],
+            ),
             const SizedBox(height: 16),
 
             // 蓝图编辑
-            const Text(
-              '蓝图描述（可选）',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
+            const Text('蓝图描述（可选）', style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             TextField(
               controller: _blueprintController,
@@ -221,94 +259,6 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
         ),
       ],
     );
-  }
-
-  /// 构建默认课时时长选择区域
-  Widget _buildDurationSelection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '默认课时时长',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: presetDurations.map((minutes) {
-            final isSelected = _selectedDuration == minutes;
-            return ChoiceChip(
-              label: Text('$minutes分钟'),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedDuration = minutes;
-                    _customDurationController.clear();
-                  } else {
-                    _selectedDuration = null;
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Text('自定义：'),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 100,
-              child: TextField(
-                controller: _customDurationController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: '时长',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedDuration = null;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text('分钟 (1-180)'),
-          ],
-        ),
-        const SizedBox(height: 4),
-        if (_customDurationController.text.isNotEmpty)
-          Text(
-            _getDurationValidationMessage(),
-            style: TextStyle(
-              color: _getDurationValidationMessage().contains('✓')
-                  ? Colors.green
-                  : Colors.red,
-              fontSize: 12,
-            ),
-          ),
-      ],
-    );
-  }
-
-  String _getDurationValidationMessage() {
-    if (_selectedDuration != null) {
-      return '✓ 已选择 $_selectedDuration 分钟';
-    }
-    if (_customDurationController.text.isEmpty) {
-      return '';
-    }
-    final value = int.tryParse(_customDurationController.text);
-    if (value == null) {
-      return '请输入有效的数字';
-    }
-    if (value < 1 || value > 180) {
-      return '时长必须在 1-180 分钟之间';
-    }
-    return '✓ 自定义 $value 分钟';
   }
 }
 
