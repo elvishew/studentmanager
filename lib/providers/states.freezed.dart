@@ -1829,6 +1829,7 @@ mixin _$CoursePlan {
   int get goalId => throw _privateConstructorUsedError;
   String? get goalName => throw _privateConstructorUsedError;
   String? get blueprint => throw _privateConstructorUsedError;
+  int? get defaultDuration => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
   Student? get student => throw _privateConstructorUsedError; // 关联的学员信息
@@ -1856,6 +1857,7 @@ abstract class $CoursePlanCopyWith<$Res> {
     int goalId,
     String? goalName,
     String? blueprint,
+    int? defaultDuration,
     DateTime createdAt,
     DateTime updatedAt,
     Student? student,
@@ -1887,6 +1889,7 @@ class _$CoursePlanCopyWithImpl<$Res, $Val extends CoursePlan>
     Object? goalId = null,
     Object? goalName = freezed,
     Object? blueprint = freezed,
+    Object? defaultDuration = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? student = freezed,
@@ -1916,6 +1919,10 @@ class _$CoursePlanCopyWithImpl<$Res, $Val extends CoursePlan>
                 ? _value.blueprint
                 : blueprint // ignore: cast_nullable_to_non_nullable
                       as String?,
+            defaultDuration: freezed == defaultDuration
+                ? _value.defaultDuration
+                : defaultDuration // ignore: cast_nullable_to_non_nullable
+                      as int?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -1975,6 +1982,7 @@ abstract class _$$CoursePlanImplCopyWith<$Res>
     int goalId,
     String? goalName,
     String? blueprint,
+    int? defaultDuration,
     DateTime createdAt,
     DateTime updatedAt,
     Student? student,
@@ -2006,6 +2014,7 @@ class __$$CoursePlanImplCopyWithImpl<$Res>
     Object? goalId = null,
     Object? goalName = freezed,
     Object? blueprint = freezed,
+    Object? defaultDuration = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? student = freezed,
@@ -2035,6 +2044,10 @@ class __$$CoursePlanImplCopyWithImpl<$Res>
             ? _value.blueprint
             : blueprint // ignore: cast_nullable_to_non_nullable
                   as String?,
+        defaultDuration: freezed == defaultDuration
+            ? _value.defaultDuration
+            : defaultDuration // ignore: cast_nullable_to_non_nullable
+                  as int?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -2073,6 +2086,7 @@ class _$CoursePlanImpl extends _CoursePlan {
     required this.goalId,
     this.goalName,
     this.blueprint,
+    this.defaultDuration = 60,
     required this.createdAt,
     required this.updatedAt,
     this.student,
@@ -2092,6 +2106,9 @@ class _$CoursePlanImpl extends _CoursePlan {
   final String? goalName;
   @override
   final String? blueprint;
+  @override
+  @JsonKey()
+  final int? defaultDuration;
   @override
   final DateTime createdAt;
   @override
@@ -2119,7 +2136,7 @@ class _$CoursePlanImpl extends _CoursePlan {
 
   @override
   String toString() {
-    return 'CoursePlan(id: $id, studentId: $studentId, goalId: $goalId, goalName: $goalName, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, student: $student, sessions: $sessions, totalSessions: $totalSessions, completedSessions: $completedSessions)';
+    return 'CoursePlan(id: $id, studentId: $studentId, goalId: $goalId, goalName: $goalName, blueprint: $blueprint, defaultDuration: $defaultDuration, createdAt: $createdAt, updatedAt: $updatedAt, student: $student, sessions: $sessions, totalSessions: $totalSessions, completedSessions: $completedSessions)';
   }
 
   @override
@@ -2135,6 +2152,8 @@ class _$CoursePlanImpl extends _CoursePlan {
                 other.goalName == goalName) &&
             (identical(other.blueprint, blueprint) ||
                 other.blueprint == blueprint) &&
+            (identical(other.defaultDuration, defaultDuration) ||
+                other.defaultDuration == defaultDuration) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -2155,6 +2174,7 @@ class _$CoursePlanImpl extends _CoursePlan {
     goalId,
     goalName,
     blueprint,
+    defaultDuration,
     createdAt,
     updatedAt,
     student,
@@ -2179,6 +2199,7 @@ abstract class _CoursePlan extends CoursePlan {
     required final int goalId,
     final String? goalName,
     final String? blueprint,
+    final int? defaultDuration,
     required final DateTime createdAt,
     required final DateTime updatedAt,
     final Student? student,
@@ -2198,6 +2219,8 @@ abstract class _CoursePlan extends CoursePlan {
   String? get goalName;
   @override
   String? get blueprint;
+  @override
+  int? get defaultDuration;
   @override
   DateTime get createdAt;
   @override
@@ -2990,6 +3013,7 @@ mixin _$Session {
   int get coursePlanId => throw _privateConstructorUsedError;
   int get sessionNumber => throw _privateConstructorUsedError;
   DateTime? get scheduledTime => throw _privateConstructorUsedError;
+  int? get durationOverride => throw _privateConstructorUsedError;
   SessionStatus get status => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -3011,6 +3035,7 @@ abstract class $SessionCopyWith<$Res> {
     int coursePlanId,
     int sessionNumber,
     DateTime? scheduledTime,
+    int? durationOverride,
     SessionStatus status,
     DateTime createdAt,
     DateTime updatedAt,
@@ -3037,6 +3062,7 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
     Object? coursePlanId = null,
     Object? sessionNumber = null,
     Object? scheduledTime = freezed,
+    Object? durationOverride = freezed,
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -3060,6 +3086,10 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
                 ? _value.scheduledTime
                 : scheduledTime // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            durationOverride: freezed == durationOverride
+                ? _value.durationOverride
+                : durationOverride // ignore: cast_nullable_to_non_nullable
+                      as int?,
             status: null == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
@@ -3095,6 +3125,7 @@ abstract class _$$SessionImplCopyWith<$Res> implements $SessionCopyWith<$Res> {
     int coursePlanId,
     int sessionNumber,
     DateTime? scheduledTime,
+    int? durationOverride,
     SessionStatus status,
     DateTime createdAt,
     DateTime updatedAt,
@@ -3120,6 +3151,7 @@ class __$$SessionImplCopyWithImpl<$Res>
     Object? coursePlanId = null,
     Object? sessionNumber = null,
     Object? scheduledTime = freezed,
+    Object? durationOverride = freezed,
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -3143,6 +3175,10 @@ class __$$SessionImplCopyWithImpl<$Res>
             ? _value.scheduledTime
             : scheduledTime // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        durationOverride: freezed == durationOverride
+            ? _value.durationOverride
+            : durationOverride // ignore: cast_nullable_to_non_nullable
+                  as int?,
         status: null == status
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
@@ -3172,6 +3208,7 @@ class _$SessionImpl extends _Session {
     required this.coursePlanId,
     required this.sessionNumber,
     this.scheduledTime,
+    this.durationOverride,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -3187,6 +3224,8 @@ class _$SessionImpl extends _Session {
   final int sessionNumber;
   @override
   final DateTime? scheduledTime;
+  @override
+  final int? durationOverride;
   @override
   final SessionStatus status;
   @override
@@ -3205,7 +3244,7 @@ class _$SessionImpl extends _Session {
 
   @override
   String toString() {
-    return 'Session(id: $id, coursePlanId: $coursePlanId, sessionNumber: $sessionNumber, scheduledTime: $scheduledTime, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, trainingBlocks: $trainingBlocks)';
+    return 'Session(id: $id, coursePlanId: $coursePlanId, sessionNumber: $sessionNumber, scheduledTime: $scheduledTime, durationOverride: $durationOverride, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, trainingBlocks: $trainingBlocks)';
   }
 
   @override
@@ -3220,6 +3259,8 @@ class _$SessionImpl extends _Session {
                 other.sessionNumber == sessionNumber) &&
             (identical(other.scheduledTime, scheduledTime) ||
                 other.scheduledTime == scheduledTime) &&
+            (identical(other.durationOverride, durationOverride) ||
+                other.durationOverride == durationOverride) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -3238,6 +3279,7 @@ class _$SessionImpl extends _Session {
     coursePlanId,
     sessionNumber,
     scheduledTime,
+    durationOverride,
     status,
     createdAt,
     updatedAt,
@@ -3259,6 +3301,7 @@ abstract class _Session extends Session {
     required final int coursePlanId,
     required final int sessionNumber,
     final DateTime? scheduledTime,
+    final int? durationOverride,
     required final SessionStatus status,
     required final DateTime createdAt,
     required final DateTime updatedAt,
@@ -3274,6 +3317,8 @@ abstract class _Session extends Session {
   int get sessionNumber;
   @override
   DateTime? get scheduledTime;
+  @override
+  int? get durationOverride;
   @override
   SessionStatus get status;
   @override

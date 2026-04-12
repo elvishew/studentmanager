@@ -87,6 +87,7 @@ class CoursePlan with _$CoursePlan {
     required int goalId,
     String? goalName,
     String? blueprint,
+    @Default(60) int? defaultDuration,
     required DateTime createdAt,
     required DateTime updatedAt,
     Student? student, // 关联的学员信息
@@ -103,6 +104,7 @@ class CoursePlan with _$CoursePlan {
       goalId: map['goal_id'] as int? ?? 0,
       goalName: map['goal_name'] as String?,
       blueprint: map['blueprint'] as String?,
+      defaultDuration: map['default_duration'] as int? ?? 60,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -115,6 +117,7 @@ class CoursePlan with _$CoursePlan {
       'student_id': studentId,
       'goal_id': goalId,
       'blueprint': blueprint,
+      'default_duration': defaultDuration,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -153,6 +156,7 @@ class Session with _$Session {
     required int coursePlanId,
     required int sessionNumber,
     DateTime? scheduledTime,
+    int? durationOverride,
     required SessionStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -168,6 +172,7 @@ class Session with _$Session {
       scheduledTime: map['scheduled_time'] != null
           ? DateTime.parse(map['scheduled_time'] as String)
           : null,
+      durationOverride: map['duration_override'] as int?,
       status: _parseSessionStatus(map['status'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -181,6 +186,7 @@ class Session with _$Session {
       'course_plan_id': coursePlanId,
       'session_number': sessionNumber,
       'scheduled_time': scheduledTime?.toIso8601String(),
+      'duration_override': durationOverride,
       'status': status.value,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),

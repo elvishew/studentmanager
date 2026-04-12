@@ -65,6 +65,8 @@ class SessionRepository {
     required int sessionId,
     String? scheduledTime,
     String? status,
+    int? durationOverride,
+    bool clearDurationOverride = false,
   }) async {
     // ============================================
     // 第一步：构建更新数据（只更新非空字段）
@@ -85,6 +87,12 @@ class SessionRepository {
         );
       }
       updateData['status'] = status;
+    }
+
+    if (durationOverride != null) {
+      updateData['duration_override'] = durationOverride;
+    } else if (clearDurationOverride) {
+      updateData['duration_override'] = null;
     }
 
     // 如果没有需要更新的字段，返回0
@@ -472,6 +480,8 @@ class SessionRepository {
     required int sessionId,
     String? scheduledTime,
     String? status,
+    int? durationOverride,
+    bool clearDurationOverride = false,
   }) async {
     Map<String, dynamic> updateData = {
       'updated_at': DateTime.now().toIso8601String(),
@@ -490,6 +500,12 @@ class SessionRepository {
         );
       }
       updateData['status'] = status;
+    }
+
+    if (durationOverride != null) {
+      updateData['duration_override'] = durationOverride;
+    } else if (clearDurationOverride) {
+      updateData['duration_override'] = null;
     }
 
     int count = await database.update(

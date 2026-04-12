@@ -98,6 +98,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   Widget _buildCourseInfoCard(ThemeData theme) {
     final goal = _coursePlan?.goalName ?? '';
     final blueprint = _coursePlan?.blueprint;
+    final defaultDuration = _coursePlan?.defaultDuration ?? 60;
 
     return Container(
       width: double.infinity,
@@ -143,6 +144,23 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               fontWeight: FontWeight.w600,
               color: goal.isNotEmpty ? null : theme.colorScheme.outline,
             ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(
+                Icons.timer_outlined,
+                size: 14,
+                color: theme.colorScheme.outline,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '默认时长: $defaultDuration 分钟',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+            ],
           ),
           if (blueprint != null && blueprint.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -417,10 +435,10 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           children: [
             // 状态标签
             _buildStatusLabel(session.status),
-            // 上课时间
+            // 上课时间 + 时长
             if (session.scheduledTime != null)
               Text(
-                _formatDateTime(session.scheduledTime!),
+                _formatSessionTime(session),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -562,9 +580,15 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     }
   }
 
-  /// 格式化日期时间
-  String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.month}月${dateTime.day}日 ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  /// 格式化课时时间（含时长）
+  String _formatSessionTime(Session session) {
+    final scheduledTime = session.scheduledTime!;
+    final duration = session.durationOverride ?? (_coursePlan?.defaultDuration ?? 60);
+    final endTime = scheduledTime.add(Duration(minutes: duration));
+    return '${scheduledTime.month}月${scheduledTime.day}日 '
+           '${scheduledTime.hour.toString().padLeft(2, '0')}:${scheduledTime.minute.toString().padLeft(2, '0')}'
+           ' - '
+           '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
   }
 
   /// 构建快捷操作按钮

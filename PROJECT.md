@@ -43,13 +43,13 @@ lib/
     └── session_action_dialogs.dart    # 课时操作弹窗（消课/跳过等）
 ```
 
-## 数据库表 (SQLite, version 5)
+## 数据库表 (SQLite, version 6)
 
 | 表名 | 说明 |
 |------|------|
 | `students` | 学员信息 |
-| `course_plans` | 课程规划 (FK → students, CASCADE) |
-| `sessions` | 课时 (FK → course_plans, CASCADE; status: pending/completed/skipped) |
+| `course_plans` | 课程规划 (FK → students, CASCADE; default_duration 默认课时时长) |
+| `sessions` | 课时 (FK → course_plans, CASCADE; status: pending/completed/skipped; duration_override 可选时长覆盖) |
 | `training_blocks` | 训练块 (FK → sessions, CASCADE; FK → actions/equipments/tools, SET NULL) |
 | `actions` | 动作 (is_deprecated 软删除) |
 | `equipments` | 器械 (is_deprecated 软删除) |
@@ -78,6 +78,7 @@ lib/
 - [x] 训练块编辑（动作/器械/工具/次数/组数/时长/强度/备注/自定义标记）
 - [x] 排课与消课（设置时间、标记完成/跳过）
 - [x] 进度统计（已完成/剩余课时）
+- [x] 课时时长管理（课程规划默认时长 + 课时可选覆盖）
 - [x] 动作/器械/工具管理（CRUD + 软删除/恢复）
 - [x] 课程目标默认配置数据层（goal_configs 表 + Repository）
 - [x] 学员相册（创建/删除相册、拍照/选取照片、查看/删除照片）

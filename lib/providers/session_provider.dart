@@ -155,12 +155,16 @@ class SessionNotifier extends _$SessionNotifier {
     required int sessionId,
     DateTime? scheduledTime,
     SessionStatus? status,
+    int? durationOverride,
+    bool clearDurationOverride = false,
   }) async {
     try {
       final count = await _sessionRepository.updateSession(
         sessionId: sessionId,
         scheduledTime: scheduledTime?.toIso8601String(),
         status: status?.value,
+        durationOverride: durationOverride,
+        clearDurationOverride: clearDurationOverride,
       );
 
       if (count > 0) {
@@ -175,6 +179,7 @@ class SessionNotifier extends _$SessionNotifier {
                 return s.copyWith(
                   scheduledTime: scheduledTime ?? s.scheduledTime,
                   status: status ?? s.status,
+                  durationOverride: clearDurationOverride ? null : (durationOverride ?? s.durationOverride),
                   updatedAt: DateTime.now(),
                 );
               }

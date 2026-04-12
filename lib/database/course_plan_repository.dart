@@ -67,6 +67,7 @@ class CoursePlanRepository {
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
+    int? defaultDuration,
   }) async {
     return await database.transaction((txn) async {
       // ============================================
@@ -78,6 +79,7 @@ class CoursePlanRepository {
           'student_id': studentId,
           'goal_id': goalId,
           'blueprint': customBlueprint, // 使用传入的蓝图
+          'default_duration': defaultDuration ?? 60,
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         },
@@ -240,6 +242,7 @@ class CoursePlanRepository {
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
+    int? defaultDuration,
   }) async {
     // 创建课程规划
     int coursePlanId = await txn.insert(
@@ -248,6 +251,7 @@ class CoursePlanRepository {
         'student_id': studentId,
         'goal_id': goalId,
         'blueprint': customBlueprint,
+        'default_duration': defaultDuration ?? 60,
         'created_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
       },

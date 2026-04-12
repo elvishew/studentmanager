@@ -107,6 +107,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
+    int? defaultDuration,
   }) async {
     try {
       final coursePlanId = await _repository.createCoursePlan(
@@ -115,6 +116,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
         sessionCount: sessionCount,
         customBlueprint: customBlueprint,
         useTemplate: useTemplate,
+        defaultDuration: defaultDuration,
       );
 
       // 重新加载当前学员的课程规划
@@ -135,6 +137,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     required int id,
     int? goalId,
     String? blueprint,
+    int? defaultDuration,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -147,6 +150,10 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
       if (blueprint != null) {
         updateData['blueprint'] = blueprint;
+      }
+
+      if (defaultDuration != null) {
+        updateData['default_duration'] = defaultDuration;
       }
 
       final count = await _database.update(
@@ -169,6 +176,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
                 return plan.copyWith(
                   goalId: goalId ?? plan.goalId,
                   blueprint: blueprint ?? plan.blueprint,
+                  defaultDuration: defaultDuration ?? plan.defaultDuration,
                   updatedAt: DateTime.now(),
                 );
               }

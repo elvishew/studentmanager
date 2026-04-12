@@ -31,7 +31,7 @@ Future<Database> _initDatabase() async {
 
   final database = await openDatabase(
     path,
-    version: 5,
+    version: 6,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
@@ -55,6 +55,7 @@ Future<Database> _initDatabase() async {
           student_id INTEGER NOT NULL,
           goal_id INTEGER NOT NULL,
           blueprint TEXT,
+          default_duration INTEGER NOT NULL DEFAULT 60,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -69,6 +70,7 @@ Future<Database> _initDatabase() async {
           course_plan_id INTEGER NOT NULL,
           session_number INTEGER NOT NULL,
           scheduled_time TEXT,
+          duration_override INTEGER,
           status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'skipped')),
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -288,6 +290,11 @@ Future<Database> _initDatabase() async {
         ''');
         await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
         await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
+      }
+      if (oldVersion < 6) {
+        // v5→v6：添加课时时长相关字段
+        await db.execute('ALTER TABLE course_plans ADD COLUMN default_duration INTEGER NOT NULL DEFAULT 60');
+        await db.execute('ALTER TABLE sessions ADD COLUMN duration_override INTEGER');
       }
     },
   );

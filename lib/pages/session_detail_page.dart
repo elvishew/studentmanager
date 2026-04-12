@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
@@ -169,17 +170,27 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
   Future<void> _showEditSessionDialog() async {
     if (_session == null) return;
 
+    // 获取课程规划的默认时长
+    final coursePlan = await ref.read(coursePlanNotifierProvider.notifier)
+        .getDetailById(_session!.coursePlanId);
+    final defaultDuration = coursePlan?.defaultDuration ?? 60;
+
     final result = await showSessionEditDialog(
       context,
       session: _session!,
+      defaultDuration: defaultDuration,
     );
 
     if (result != null && mounted) {
       final notifier = ref.read(sessionNotifierProvider.notifier);
+      final durationOverride = result['durationOverride'] as int?;
       final success = await notifier.updateSession(
         sessionId: widget.sessionId,
         scheduledTime: result['scheduledTime'] as DateTime?,
         status: result['status'] as SessionStatus?,
+        durationOverride: durationOverride,
+        clearDurationOverride: durationOverride == null &&
+            _session!.durationOverride != null,
       );
 
       if (mounted) {

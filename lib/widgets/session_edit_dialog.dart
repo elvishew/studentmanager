@@ -5,10 +5,12 @@ import 'session_action_dialogs.dart';
 /// 课时编辑对话框
 class SessionEditDialog extends StatefulWidget {
   final Session session;
+  final int defaultDuration;
 
   const SessionEditDialog({
     super.key,
     required this.session,
+    required this.defaultDuration,
   });
 
   @override
@@ -20,11 +22,51 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
   late SessionStatus _selectedStatus;
   bool _isSaving = false;
 
+  // 时长相关
+  bool _useCustomDuration = false;
+  int? _selectedDuration;
+  final TextEditingController _customDurationController = TextEditingController();
+
+  static const List<int> presetDurations = [30, 45, 60, 90];
+
   @override
   void initState() {
     super.initState();
     _scheduledTime = widget.session.scheduledTime;
     _selectedStatus = widget.session.status;
+
+    // 回填时长覆盖状态
+    if (widget.session.durationOverride != null) {
+      _useCustomDuration = true;
+      final override = widget.session.durationOverride!;
+      if (presetDurations.contains(override)) {
+        _selectedDuration = override;
+      } else {
+        _selectedDuration = null;
+        _customDurationController.text = override.toString();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _customDurationController.dispose();
+    super.dispose();
+  }
+
+  /// 获取实际时长覆盖值（null 表示使用默认）
+  int? get _actualDurationOverride {
+    if (!_useCustomDuration) return null;
+    if (_selectedDuration != null) {
+      return _selectedDuration;
+    }
+    if (_customDurationController.text.isNotEmpty) {
+      final value = int.tryParse(_customDurationController.text);
+      if (value != null && value >= 1 && value <= 180) {
+        return value;
+      }
+    }
+    return widget.defaultDuration;
   }
 
   @override
@@ -42,6 +84,9 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
             const SizedBox(height: 24),
             // 状态选择
             _buildStatusSection(),
+            const SizedBox(height: 24),
+            // 时长选择
+            _buildDurationSection(),
           ],
         ),
       ),
@@ -157,10 +202,25 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
       return;
     }
 
+    // 验证自定义时长
+    if (_useCustomDuration && _selectedDuration == null && _customDurationController.text.isNotEmpty) {
+      final value = int.tryParse(_customDurationController.text);
+      if (value == null || value < 1 || value > 180) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('时长必须在 1-180 分钟之间'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+
     // 返回结果
     Navigator.of(context).pop({
       'scheduledTime': _scheduledTime,
       'status': _selectedStatus,
+      'durationOverride': _actualDurationOverride,
     });
   }
 
@@ -180,15 +240,137 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
            '${dateTime.hour.toString().padLeft(2, '0')}:'
            '${dateTime.minute.toString().padLeft(2, '0')}';
   }
+
+  /// 构建课时时长选择区域
+  Widget _buildDurationSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '课时时长',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '课程默认时长: ${widget.defaultDuration} 分钟',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.outline,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          title: const Text('自定义时长'),
+          subtitle: Text(
+            _useCustomDuration
+                ? '使用自定义时长'
+                : '使用课程默认时长（${widget.defaultDuration}分钟）',
+          ),
+          value: _useCustomDuration,
+          onChanged: (value) {
+            setState(() {
+              _useCustomDuration = value;
+              if (!value) {
+                _selectedDuration = null;
+                _customDurationController.clear();
+              }
+            });
+          },
+          contentPadding: EdgeInsets.zero,
+        ),
+        if (_useCustomDuration) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: presetDurations.map((minutes) {
+              final isSelected = _selectedDuration == minutes;
+              return ChoiceChip(
+                label: Text('$minutes分钟'),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedDuration = minutes;
+                      _customDurationController.clear();
+                    } else {
+                      _selectedDuration = null;
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text('自定义：'),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 100,
+                child: TextField(
+                  controller: _customDurationController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    hintText: '时长',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedDuration = null;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text('分钟 (1-180)'),
+            ],
+          ),
+          const SizedBox(height: 4),
+          if (_customDurationController.text.isNotEmpty)
+            Text(
+              _getDurationValidationMessage(),
+              style: TextStyle(
+                color: _getDurationValidationMessage().contains('✓')
+                    ? Colors.green
+                    : Colors.red,
+                fontSize: 12,
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
+  String _getDurationValidationMessage() {
+    if (_selectedDuration != null) {
+      return '✓ 已选择 $_selectedDuration 分钟';
+    }
+    if (_customDurationController.text.isEmpty) {
+      return '';
+    }
+    final value = int.tryParse(_customDurationController.text);
+    if (value == null) {
+      return '请输入有效的数字';
+    }
+    if (value < 1 || value > 180) {
+      return '时长必须在 1-180 分钟之间';
+    }
+    return '✓ 自定义 $value 分钟';
+  }
 }
 
 /// 显示课时编辑对话框
 Future<Map<String, dynamic>?> showSessionEditDialog(
   BuildContext context, {
   required Session session,
+  required int defaultDuration,
 }) {
   return showDialog<Map<String, dynamic>>(
     context: context,
-    builder: (context) => SessionEditDialog(session: session),
+    builder: (context) => SessionEditDialog(
+      session: session,
+      defaultDuration: defaultDuration,
+    ),
   );
 }
