@@ -535,7 +535,6 @@ class TrainingBlockNotifier extends _$TrainingBlockNotifier {
     String? duration,
     String? intensity,
     String? notes,
-    required bool isCustom,
   }) async {
     return await _repository.addTrainingBlock(
       sessionId: sessionId,
@@ -547,7 +546,6 @@ class TrainingBlockNotifier extends _$TrainingBlockNotifier {
       duration: duration,
       intensity: intensity,
       notes: notes,
-      isCustom: isCustom,
     );
   }
 
@@ -562,7 +560,6 @@ class TrainingBlockNotifier extends _$TrainingBlockNotifier {
     String? duration,
     String? intensity,
     String? notes,
-    bool? isCustom,
   }) async {
     await _repository.updateTrainingBlock(
       blockId: blockId,
@@ -574,7 +571,6 @@ class TrainingBlockNotifier extends _$TrainingBlockNotifier {
       duration: duration,
       intensity: intensity,
       notes: notes,
-      isCustom: isCustom,
     );
   }
 

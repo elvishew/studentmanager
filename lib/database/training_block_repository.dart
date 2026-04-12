@@ -21,7 +21,6 @@ class TrainingBlockRepository {
   /// [duration] 时长（可选）
   /// [intensity] 强度（可选）
   /// [notes] 备注（可选）
-  /// [isCustom] 是否自定义（默认 false）
   /// [sortOrder] 排序序号（可选，默认添加到末尾）
   ///
   /// 返回新创建的训练块ID
@@ -35,7 +34,6 @@ class TrainingBlockRepository {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom = false,
     int? sortOrder,
   }) async {
     return await database.transaction((txn) async {
@@ -82,7 +80,6 @@ class TrainingBlockRepository {
           'duration': duration,
           'intensity': intensity,
           'notes': notes,
-          'is_custom': isCustom ? 1 : 0,
           'sort_order': finalSortOrder,
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
@@ -108,7 +105,7 @@ class TrainingBlockRepository {
   /// [duration] 时长（可选）
   /// [intensity] 强度（可选）
   /// [notes] 备注（可选）
-  /// [isCustom] 是否自定义（可选）
+  /// [notes] 备注（可选）
   ///
   /// 返回影响的行数（1表示成功，0表示失败）
   Future<int> updateTrainingBlock({
@@ -121,7 +118,6 @@ class TrainingBlockRepository {
     String? duration,
     String? intensity,
     String? notes,
-    bool? isCustom,
   }) async {
     // ============================================
     // 第一步：构建更新数据（只包含非空字段）
@@ -139,7 +135,6 @@ class TrainingBlockRepository {
     if (duration != null) updateData['duration'] = duration;
     if (intensity != null) updateData['intensity'] = intensity;
     if (notes != null) updateData['notes'] = notes;
-    if (isCustom != null) updateData['is_custom'] = isCustom ? 1 : 0;
 
     // 如果没有需要更新的字段，返回0
     if (updateData.length == 1) {
@@ -368,7 +363,6 @@ class TrainingBlockRepository {
             'duration': block['duration'],
             'intensity': block['intensity'],
             'notes': block['notes'],
-            'is_custom': block['is_custom'] ?? 0,
             'sort_order': sortOrder,
             'created_at': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
@@ -397,7 +391,7 @@ class TrainingBlockRepository {
   /// [duration] 时长
   /// [intensity] 强度
   /// [notes] 备注
-  /// [isCustom] 是否自定义
+  /// [notes] 备注
   ///
   /// 返回新创建的训练块ID
   Future<int> insertTrainingBlockAt({
@@ -411,7 +405,6 @@ class TrainingBlockRepository {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom = false,
   }) async {
     return await database.transaction((txn) async {
       // ============================================
@@ -459,7 +452,6 @@ class TrainingBlockRepository {
           'duration': duration,
           'intensity': intensity,
           'notes': notes,
-          'is_custom': isCustom ? 1 : 0,
           'sort_order': sortOrder,
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
@@ -600,7 +592,6 @@ class TrainingBlockRepository {
       duration: sourceBlock['duration'],
       intensity: sourceBlock['intensity'],
       notes: sourceBlock['notes'],
-      isCustom: (sourceBlock['is_custom'] as int) == 1,
     );
 
     return newBlockId;
@@ -669,9 +660,6 @@ class TrainingBlockRepository {
     }
     if (data.containsKey('notes')) {
       updateData['notes'] = data['notes'];
-    }
-    if (data.containsKey('is_custom')) {
-      updateData['is_custom'] = (data['is_custom'] == true) ? 1 : 0;
     }
 
     int count = await database.update(

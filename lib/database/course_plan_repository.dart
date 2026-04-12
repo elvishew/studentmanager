@@ -174,7 +174,6 @@ class CoursePlanRepository {
               'duration': goalConfigBlock['duration'],
               'intensity': goalConfigBlock['intensity'],
               'notes': goalConfigBlock['notes'],
-              'is_custom': goalConfigBlock['is_custom'] ?? 0,
               'sort_order': goalConfigBlock['sort_order'] ?? 0,
               'created_at': DateTime.now().toIso8601String(),
               'updated_at': DateTime.now().toIso8601String(),
@@ -508,7 +507,6 @@ class CoursePlanRepository {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom = false,
     int sortOrder = 0,
   }) async {
     final now = DateTime.now().toIso8601String();
@@ -524,7 +522,6 @@ class CoursePlanRepository {
         'duration': duration,
         'intensity': intensity,
         'notes': notes,
-        'is_custom': isCustom ? 1 : 0,
         'sort_order': sortOrder,
         'created_at': now,
         'updated_at': now,
@@ -543,7 +540,6 @@ class CoursePlanRepository {
     String? duration,
     String? intensity,
     String? notes,
-    bool? isCustom,
   }) async {
     final values = <String, dynamic>{
       'updated_at': DateTime.now().toIso8601String(),
@@ -556,7 +552,6 @@ class CoursePlanRepository {
     if (duration != null) values['duration'] = duration;
     if (intensity != null) values['intensity'] = intensity;
     if (notes != null) values['notes'] = notes;
-    if (isCustom != null) values['is_custom'] = isCustom ? 1 : 0;
 
     await database.update(
       'goal_config_training_blocks',

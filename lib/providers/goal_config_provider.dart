@@ -152,7 +152,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom = false,
   }) async {
     final maxOrder = await _repository.getMaxSortOrder(goalConfigSessionId);
     return await _repository.addGoalConfigTrainingBlock(
@@ -165,7 +164,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
       duration: duration,
       intensity: intensity,
       notes: notes,
-      isCustom: isCustom,
       sortOrder: maxOrder + 1,
     );
   }
@@ -181,7 +179,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     String? duration,
     String? intensity,
     String? notes,
-    bool? isCustom,
   }) async {
     await _repository.updateGoalConfigTrainingBlock(
       id: id,
@@ -193,7 +190,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
       duration: duration,
       intensity: intensity,
       notes: notes,
-      isCustom: isCustom,
     );
   }
 

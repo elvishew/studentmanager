@@ -201,7 +201,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 序号、自定义标记、操作按钮
+            // 序号、操作按钮
             Row(
               children: [
                 Text(
@@ -210,24 +210,6 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(width: 8),
-                if (block.isCustom)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.purple, width: 1),
-                    ),
-                    child: const Text(
-                      '自定义',
-                      style: TextStyle(
-                        color: Colors.purple,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.arrow_upward, size: 18),

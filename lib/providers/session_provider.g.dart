@@ -174,7 +174,7 @@ final sessionNotifierProvider =
 
 typedef _$SessionNotifier = AutoDisposeNotifier<SessionState>;
 String _$trainingBlockNotifierHash() =>
-    r'b14a913245a19cb6b5173194243ef7b833636eab';
+    r'5fbc1a4377da32f8b00e6bc1c7574616a1d58356';
 
 /// ============================================
 /// TrainingBlockNotifier Provider

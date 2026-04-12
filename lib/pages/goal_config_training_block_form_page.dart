@@ -30,7 +30,6 @@ class _GoalConfigTrainingBlockFormPageState extends ConsumerState<GoalConfigTrai
   int? _selectedActionId;
   int? _selectedEquipmentId;
   int? _selectedToolId;
-  bool _isCustom = false;
   bool _isSaving = false;
 
   List<Map<String, dynamic>> _actions = [];
@@ -130,7 +129,6 @@ class _GoalConfigTrainingBlockFormPageState extends ConsumerState<GoalConfigTrai
         _durationController.text = (block['duration'] ?? '') as String;
         _intensityController.text = (block['intensity'] ?? '') as String;
         _notesController.text = (block['notes'] ?? '') as String;
-        _isCustom = (block['is_custom'] ?? 0) == 1;
       });
     }
   }
@@ -166,7 +164,6 @@ class _GoalConfigTrainingBlockFormPageState extends ConsumerState<GoalConfigTrai
         duration: _durationController.text.trim().isEmpty ? null : _durationController.text.trim(),
         intensity: _intensityController.text.trim().isEmpty ? null : _intensityController.text.trim(),
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        isCustom: _isCustom,
       );
       success = true;
     } else {
@@ -181,7 +178,6 @@ class _GoalConfigTrainingBlockFormPageState extends ConsumerState<GoalConfigTrai
         duration: _durationController.text.trim().isEmpty ? null : _durationController.text.trim(),
         intensity: _intensityController.text.trim().isEmpty ? null : _intensityController.text.trim(),
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        isCustom: _isCustom,
       );
       success = blockId > 0;
     }
@@ -342,17 +338,6 @@ class _GoalConfigTrainingBlockFormPageState extends ConsumerState<GoalConfigTrai
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-
-            // 自定义标记
-            SwitchListTile(
-              title: const Text('自定义内容'),
-              subtitle: const Text('标记为自定义训练内容'),
-              value: _isCustom,
-              onChanged: (value) {
-                setState(() => _isCustom = value);
-              },
             ),
           ],
         ),

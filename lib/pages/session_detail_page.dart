@@ -346,7 +346,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 序号、自定义标记、操作按钮
+            // 序号、操作按钮
             Row(
               children: [
                 Text(
@@ -355,24 +355,6 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(width: 8),
-                if (block.isCustom)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.purple, width: 1),
-                    ),
-                    child: const Text(
-                      '自定义',
-                      style: TextStyle(
-                        color: Colors.purple,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 const Spacer(),
                 // 上移按钮
                 IconButton(
@@ -589,7 +571,6 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
   int? _selectedActionId;
   int? _selectedEquipmentId;
   int? _selectedToolId;
-  bool _isCustom = false;
   bool _isSaving = false;
 
   // 可选数据（用于下拉选择）
@@ -706,7 +687,6 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
         _durationController.text = (block['duration'] ?? '') as String;
         _intensityController.text = (block['intensity'] ?? '') as String;
         _notesController.text = (block['notes'] ?? '') as String;
-        _isCustom = (block['is_custom'] ?? 0) == 1;
       });
     }
   }
@@ -744,7 +724,6 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
         duration: _durationController.text.trim().isEmpty ? null : _durationController.text.trim(),
         intensity: _intensityController.text.trim().isEmpty ? null : _intensityController.text.trim(),
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        isCustom: _isCustom,
       );
       success = true;
     } else {
@@ -759,7 +738,6 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
         duration: _durationController.text.trim().isEmpty ? null : _durationController.text.trim(),
         intensity: _intensityController.text.trim().isEmpty ? null : _intensityController.text.trim(),
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        isCustom: _isCustom,
       );
       success = blockId != null;
     }
@@ -928,19 +906,6 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-
-            // 自定义标记
-            SwitchListTile(
-              title: const Text('自定义内容'),
-              subtitle: const Text('标记为自定义训练内容'),
-              value: _isCustom,
-              onChanged: (value) {
-                setState(() {
-                  _isCustom = value;
-                });
-              },
             ),
           ],
         ),

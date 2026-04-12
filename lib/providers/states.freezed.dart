@@ -3281,7 +3281,6 @@ mixin _$TrainingBlock {
   String? get duration => throw _privateConstructorUsedError;
   String? get intensity => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
-  bool get isCustom => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -3314,7 +3313,6 @@ abstract class $TrainingBlockCopyWith<$Res> {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
@@ -3353,7 +3351,6 @@ class _$TrainingBlockCopyWithImpl<$Res, $Val extends TrainingBlock>
     Object? duration = freezed,
     Object? intensity = freezed,
     Object? notes = freezed,
-    Object? isCustom = null,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -3403,10 +3400,6 @@ class _$TrainingBlockCopyWithImpl<$Res, $Val extends TrainingBlock>
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
-            isCustom: null == isCustom
-                ? _value.isCustom
-                : isCustom // ignore: cast_nullable_to_non_nullable
-                      as bool,
             sortOrder: null == sortOrder
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -3499,7 +3492,6 @@ abstract class _$$TrainingBlockImplCopyWith<$Res>
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
@@ -3540,7 +3532,6 @@ class __$$TrainingBlockImplCopyWithImpl<$Res>
     Object? duration = freezed,
     Object? intensity = freezed,
     Object? notes = freezed,
-    Object? isCustom = null,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -3590,10 +3581,6 @@ class __$$TrainingBlockImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String?,
-        isCustom: null == isCustom
-            ? _value.isCustom
-            : isCustom // ignore: cast_nullable_to_non_nullable
-                  as bool,
         sortOrder: null == sortOrder
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -3637,7 +3624,6 @@ class _$TrainingBlockImpl extends _TrainingBlock {
     this.duration,
     this.intensity,
     this.notes,
-    required this.isCustom,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -3667,8 +3653,6 @@ class _$TrainingBlockImpl extends _TrainingBlock {
   @override
   final String? notes;
   @override
-  final bool isCustom;
-  @override
   final int sortOrder;
   @override
   final DateTime createdAt;
@@ -3685,7 +3669,7 @@ class _$TrainingBlockImpl extends _TrainingBlock {
 
   @override
   String toString() {
-    return 'TrainingBlock(id: $id, sessionId: $sessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, isCustom: $isCustom, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
+    return 'TrainingBlock(id: $id, sessionId: $sessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
   }
 
   @override
@@ -3708,8 +3692,6 @@ class _$TrainingBlockImpl extends _TrainingBlock {
             (identical(other.intensity, intensity) ||
                 other.intensity == intensity) &&
             (identical(other.notes, notes) || other.notes == notes) &&
-            (identical(other.isCustom, isCustom) ||
-                other.isCustom == isCustom) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
             (identical(other.createdAt, createdAt) ||
@@ -3735,7 +3717,6 @@ class _$TrainingBlockImpl extends _TrainingBlock {
     duration,
     intensity,
     notes,
-    isCustom,
     sortOrder,
     createdAt,
     updatedAt,
@@ -3765,7 +3746,6 @@ abstract class _TrainingBlock extends TrainingBlock {
     final String? duration,
     final String? intensity,
     final String? notes,
-    required final bool isCustom,
     required final int sortOrder,
     required final DateTime createdAt,
     required final DateTime updatedAt,
@@ -3795,8 +3775,6 @@ abstract class _TrainingBlock extends TrainingBlock {
   String? get intensity;
   @override
   String? get notes;
-  @override
-  bool get isCustom;
   @override
   int get sortOrder;
   @override
@@ -5713,7 +5691,6 @@ mixin _$GoalConfigTrainingBlock {
   String? get duration => throw _privateConstructorUsedError;
   String? get intensity => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
-  bool get isCustom => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -5746,7 +5723,6 @@ abstract class $GoalConfigTrainingBlockCopyWith<$Res> {
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
@@ -5788,7 +5764,6 @@ class _$GoalConfigTrainingBlockCopyWithImpl<
     Object? duration = freezed,
     Object? intensity = freezed,
     Object? notes = freezed,
-    Object? isCustom = null,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -5838,10 +5813,6 @@ class _$GoalConfigTrainingBlockCopyWithImpl<
                 ? _value.notes
                 : notes // ignore: cast_nullable_to_non_nullable
                       as String?,
-            isCustom: null == isCustom
-                ? _value.isCustom
-                : isCustom // ignore: cast_nullable_to_non_nullable
-                      as bool,
             sortOrder: null == sortOrder
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -5934,7 +5905,6 @@ abstract class _$$GoalConfigTrainingBlockImplCopyWith<$Res>
     String? duration,
     String? intensity,
     String? notes,
-    bool isCustom,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
@@ -5979,7 +5949,6 @@ class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
     Object? duration = freezed,
     Object? intensity = freezed,
     Object? notes = freezed,
-    Object? isCustom = null,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -6029,10 +5998,6 @@ class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
             ? _value.notes
             : notes // ignore: cast_nullable_to_non_nullable
                   as String?,
-        isCustom: null == isCustom
-            ? _value.isCustom
-            : isCustom // ignore: cast_nullable_to_non_nullable
-                  as bool,
         sortOrder: null == sortOrder
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -6076,7 +6041,6 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
     this.duration,
     this.intensity,
     this.notes,
-    required this.isCustom,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -6106,8 +6070,6 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
   @override
   final String? notes;
   @override
-  final bool isCustom;
-  @override
   final int sortOrder;
   @override
   final DateTime createdAt;
@@ -6122,7 +6084,7 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
 
   @override
   String toString() {
-    return 'GoalConfigTrainingBlock(id: $id, goalConfigSessionId: $goalConfigSessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, isCustom: $isCustom, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
+    return 'GoalConfigTrainingBlock(id: $id, goalConfigSessionId: $goalConfigSessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
   }
 
   @override
@@ -6145,8 +6107,6 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
             (identical(other.intensity, intensity) ||
                 other.intensity == intensity) &&
             (identical(other.notes, notes) || other.notes == notes) &&
-            (identical(other.isCustom, isCustom) ||
-                other.isCustom == isCustom) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
             (identical(other.createdAt, createdAt) ||
@@ -6172,7 +6132,6 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
     duration,
     intensity,
     notes,
-    isCustom,
     sortOrder,
     createdAt,
     updatedAt,
@@ -6205,7 +6164,6 @@ abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
     final String? duration,
     final String? intensity,
     final String? notes,
-    required final bool isCustom,
     required final int sortOrder,
     required final DateTime createdAt,
     required final DateTime updatedAt,
@@ -6235,8 +6193,6 @@ abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
   String? get intensity;
   @override
   String? get notes;
-  @override
-  bool get isCustom;
   @override
   int get sortOrder;
   @override
