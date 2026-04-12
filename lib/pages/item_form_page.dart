@@ -39,6 +39,9 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
   bool _isCheckingName = false;
   bool? _nameIsAvailable;
 
+  /// 批量模式下已存在的名称列表
+  List<String> _batchExistingNames = [];
+
   bool get _isBatchMode => widget.itemId == null && _nameController.text.contains(',');
 
   /// 解析逗号分隔的名称列表（去空格、去重）
@@ -92,7 +95,7 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
 
   Future<void> _checkNameAvailability(String text) async {
     if (text.trim().isEmpty) {
-      setState(() { _nameIsAvailable = null; });
+      setState(() { _nameIsAvailable = null; _batchExistingNames = []; });
       return;
     }
     if (widget.itemId != null && text.trim() == _existingName) {
@@ -103,16 +106,18 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
     try {
       if (_isBatchMode) {
         final names = _parseNames(text);
+        final existing = <String>[];
         for (final name in names) {
           if (await _repository.checkNameExists(name)) {
-            if (mounted) {
-              setState(() { _isCheckingName = false; _nameIsAvailable = false; });
-            }
-            return;
+            existing.add(name);
           }
         }
         if (mounted) {
-          setState(() { _isCheckingName = false; _nameIsAvailable = true; });
+          setState(() {
+            _isCheckingName = false;
+            _nameIsAvailable = existing.isEmpty ? true : null;
+            _batchExistingNames = existing;
+          });
         }
       } else {
         final exists = await _repository.checkNameExists(text.trim(), excludeId: widget.itemId);
@@ -127,8 +132,9 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
 
   Widget _buildStatusHint() {
     // 批量模式提示
-    if (_isBatchMode && _nameIsAvailable != false) {
+    if (_isBatchMode) {
       final names = _parseNames(_nameController.text);
+      final newCount = names.length - _batchExistingNames.length;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -138,15 +144,36 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
               const SizedBox(width: 6),
               const Text('正在验证...', style: TextStyle(fontSize: 12, color: Colors.orange)),
             ])
-          else if (_nameIsAvailable == true)
+          else if (_batchExistingNames.isEmpty)
             const Row(children: [
               Icon(Icons.check_circle, size: 14, color: Colors.green),
               SizedBox(width: 6),
               Text('所有名称可用', style: TextStyle(fontSize: 12, color: Colors.green)),
-            ]),
+            ])
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.info_outline, size: 14, color: Colors.orange),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '将新增 $newCount 项，已跳过 ${_batchExistingNames.length} 个重复项',
+                      style: const TextStyle(fontSize: 12, color: Colors.orange),
+                    ),
+                  ),
+                ]),
+                const SizedBox(height: 2),
+                Text(
+                  '已存在：${_batchExistingNames.join("、")}',
+                  style: const TextStyle(fontSize: 11, color: Colors.orange),
+                ),
+              ],
+            ),
           const SizedBox(height: 4),
           Text(
-            '批量模式：将创建 ${names.length} 个${widget.fieldLabel}',
+            '批量模式：共 ${names.length} 个${widget.fieldLabel}',
             style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
@@ -239,16 +266,17 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
     // 新建模式
     if (_isBatchMode) {
       await _performBatchSave(_parseNames(text));
-    } else {
-      final exists = await _repository.checkNameExists(text);
-      if (exists) {
-        setState(() { _nameIsAvailable = false; });
-        HapticFeedback.mediumImpact();
-        return;
-      }
-      setState(() { _nameIsAvailable = true; });
-      await _performSave(text);
+      return;
     }
+
+    final exists = await _repository.checkNameExists(text);
+    if (exists) {
+      setState(() { _nameIsAvailable = false; });
+      HapticFeedback.mediumImpact();
+      return;
+    }
+    setState(() { _nameIsAvailable = true; });
+    await _performSave(text);
   }
 
   Future<void> _performBatchSave(List<String> names) async {
@@ -311,7 +339,7 @@ class _BasicItemFormPageState extends ConsumerState<BasicItemFormPage> {
             )
           else
             TextButton(
-              onPressed: _nameIsAvailable == false ? null : _save,
+              onPressed: (!_isBatchMode && _nameIsAvailable == false) ? null : _save,
               child: const Text('保存'),
             ),
         ],
