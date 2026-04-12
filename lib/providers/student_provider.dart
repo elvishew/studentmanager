@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'states.dart';
+import '../database/album_repository.dart';
 
 part 'student_provider.g.dart';
 
@@ -156,6 +157,14 @@ class StudentNotifier extends _$StudentNotifier {
 
   Future<bool> delete(int id) async {
     try {
+      // 先清理该学员所有相册的照片文件
+      try {
+        final albumRepo = AlbumRepository(database: _database);
+        await albumRepo.cleanupByStudentId(id);
+      } catch (_) {
+        // 文件清理失败不影响学员删除
+      }
+
       final count = await _database.delete(
         'students',
         where: 'id = ?',

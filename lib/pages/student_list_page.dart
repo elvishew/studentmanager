@@ -69,7 +69,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
-        content: Text('确定要删除学员「${student.name}」吗？\n\n删除后将同时删除该学员的所有课程规划和课时数据。'),
+        content: Text('确定要删除学员「${student.name}」吗？\n\n删除后将同时删除该学员的所有课程规划、课时数据和相册照片，此操作不可恢复。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

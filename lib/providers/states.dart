@@ -534,3 +534,91 @@ class GoalConfigTrainingBlock with _$GoalConfigTrainingBlock {
     };
   }
 }
+
+/// ============================================
+/// 相册状态
+/// ============================================
+
+@freezed
+class AlbumState with _$AlbumState {
+  const factory AlbumState.initial() = _AlbumInitial;
+  const factory AlbumState.loading() = _AlbumLoading;
+  const factory AlbumState.data({
+    required List<Album> albums,
+    @Default(null) int? selectedStudentId,
+  }) = _AlbumData;
+  const factory AlbumState.error(Object error, StackTrace stackTrace) = _AlbumError;
+}
+
+/// 相册数据模型
+@freezed
+class Album with _$Album {
+  const Album._();
+
+  const factory Album({
+    required int id,
+    required int studentId,
+    required String name,
+    String? notes,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    @Default(0) int photoCount,
+  }) = _Album;
+
+  factory Album.fromMap(Map<String, dynamic> map) {
+    return Album(
+      id: map['id'] as int,
+      studentId: map['student_id'] as int,
+      name: map['name'] as String,
+      notes: map['notes'] as String?,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+      photoCount: map['photo_count'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'student_id': studentId,
+      'name': name,
+      'notes': notes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+/// 相册照片数据模型
+@freezed
+class AlbumPhoto with _$AlbumPhoto {
+  const AlbumPhoto._();
+
+  const factory AlbumPhoto({
+    required int id,
+    required int albumId,
+    required String filePath,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _AlbumPhoto;
+
+  factory AlbumPhoto.fromMap(Map<String, dynamic> map) {
+    return AlbumPhoto(
+      id: map['id'] as int,
+      albumId: map['album_id'] as int,
+      filePath: map['file_path'] as String,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'album_id': albumId,
+      'file_path': filePath,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}

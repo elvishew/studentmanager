@@ -17,12 +17,14 @@ lib/
 │   ├── course_plan_repository.dart    # 课程规划 + 课程目标默认配置
 │   ├── session_repository.dart        # 课时 CRUD
 │   ├── training_block_repository.dart # 训练块 CRUD
+│   ├── album_repository.dart          # 相册 CRUD + 文件管理
 │   └── item_repository.dart           # 动作/器械/工具 CRUD（统一泛型）
 ├── providers/                         # Riverpod 状态管理
 │   ├── states.dart                    # 所有 Freezed 数据模型 + 枚举
 │   ├── student_provider.dart          # 学员 Provider + DB Provider
 │   ├── course_plan_provider.dart      # 课程规划 Provider
 │   ├── session_provider.dart          # 课时 Provider
+│   ├── album_provider.dart            # 相册 Provider
 │   └── item_provider.dart             # 动作/器械/工具 Provider
 ├── pages/                             # 页面
 │   ├── student_list_page.dart         # 学员列表（搜索+新建）
@@ -31,6 +33,8 @@ lib/
 │   ├── session_detail_page.dart       # 课时详情（训练块编辑器+状态管理）
 │   ├── create_course_plan_dialog.dart # 新建课程规划弹窗
 │   ├── edit_course_plan_dialog.dart   # 编辑课程目标/蓝图弹窗
+│   ├── create_album_dialog.dart       # 新建相册弹窗
+│   ├── album_detail_page.dart         # 相册详情（照片网格+拍照/选取）
 │   ├── settings_page.dart             # 设置入口
 │   ├── item_list_page.dart            # 动作/器械/工具列表管理
 │   └── item_form_page.dart            # 新增/编辑动作/器械/工具表单
@@ -39,7 +43,7 @@ lib/
     └── session_action_dialogs.dart    # 课时操作弹窗（消课/跳过等）
 ```
 
-## 数据库表 (SQLite, version 2)
+## 数据库表 (SQLite, version 5)
 
 | 表名 | 说明 |
 |------|------|
@@ -53,14 +57,17 @@ lib/
 | `goal_configs` | 课程目标默认配置 (默认蓝图) |
 | `goal_config_sessions` | 默认配置中的课时模板 |
 | `goal_config_training_blocks` | 默认配置中的训练块模板 |
+| `albums` | 相册 (FK → students, CASCADE) |
+| `album_photos` | 相册照片 (FK → albums, CASCADE; file_path 存储在 App 沙盒) |
 
 ## 核心数据模型 (states.dart)
 
 - **Student** / **CoursePlan** / **Session** / **TrainingBlock** - Freezed 模型，含 fromMap/toMap
 - **Action** / **Equipment** / **Tool** - 基础数据，isDeprecated 软删除
+- **Album** / **AlbumPhoto** - 相册模型，Album 含 photoCount 计算字段
 - **CourseGoal** 枚举 - 9种课程目标（含"自定义"）
 - **SessionStatus** 枚举 - pending/completed/skipped
-- 状态类：StudentState / CoursePlanState / SessionState（initial/loading/data/error）
+- 状态类：StudentState / CoursePlanState / SessionState / AlbumState（initial/loading/data/error）
 
 ## 已实现功能
 
@@ -73,6 +80,7 @@ lib/
 - [x] 进度统计（已完成/剩余课时）
 - [x] 动作/器械/工具管理（CRUD + 软删除/恢复）
 - [x] 课程目标默认配置数据层（goal_configs 表 + Repository）
+- [x] 学员相册（创建/删除相册、拍照/选取照片、查看/删除照片）
 
 ## 未实现功能
 

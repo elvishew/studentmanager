@@ -31,7 +31,7 @@ Future<Database> _initDatabase() async {
 
   final database = await openDatabase(
     path,
-    version: 4,
+    version: 5,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
@@ -195,6 +195,35 @@ Future<Database> _initDatabase() async {
       await db.execute('CREATE INDEX idx_sessions_status ON sessions(status)');
       await db.execute('CREATE INDEX idx_sessions_scheduled_time ON sessions(scheduled_time)');
 
+      // 创建相册表
+      await db.execute('''
+        CREATE TABLE albums (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          notes TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // 创建相册照片表
+      await db.execute('''
+        CREATE TABLE album_photos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          album_id INTEGER NOT NULL,
+          file_path TEXT NOT NULL,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
+        )
+      ''');
+
+      // 相册相关索引
+      await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
+      await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
+
       // 插入初始数据
       await _insertInitialData(db);
     },
@@ -233,6 +262,32 @@ Future<Database> _initDatabase() async {
         await db.execute('DELETE FROM course_goals WHERE is_custom = 1');
 
         // 4. 旧 TEXT 列保留不删（SQLite < 3.35 不支持 DROP COLUMN），代码不再使用
+      }
+      if (oldVersion < 5) {
+        // v4→v5：添加相册和相册照片表
+        await db.execute('''
+          CREATE TABLE albums (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            notes TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE album_photos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            album_id INTEGER NOT NULL,
+            file_path TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
+          )
+        ''');
+        await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
+        await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
       }
     },
   );

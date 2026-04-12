@@ -6257,3 +6257,1160 @@ abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
   _$$GoalConfigTrainingBlockImplCopyWith<_$GoalConfigTrainingBlockImpl>
   get copyWith => throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$AlbumState {
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Album> albums, int? selectedStudentId) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_AlbumInitial value) initial,
+    required TResult Function(_AlbumLoading value) loading,
+    required TResult Function(_AlbumData value) data,
+    required TResult Function(_AlbumError value) error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_AlbumInitial value)? initial,
+    TResult? Function(_AlbumLoading value)? loading,
+    TResult? Function(_AlbumData value)? data,
+    TResult? Function(_AlbumError value)? error,
+  }) => throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_AlbumInitial value)? initial,
+    TResult Function(_AlbumLoading value)? loading,
+    TResult Function(_AlbumData value)? data,
+    TResult Function(_AlbumError value)? error,
+    required TResult orElse(),
+  }) => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AlbumStateCopyWith<$Res> {
+  factory $AlbumStateCopyWith(
+    AlbumState value,
+    $Res Function(AlbumState) then,
+  ) = _$AlbumStateCopyWithImpl<$Res, AlbumState>;
+}
+
+/// @nodoc
+class _$AlbumStateCopyWithImpl<$Res, $Val extends AlbumState>
+    implements $AlbumStateCopyWith<$Res> {
+  _$AlbumStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+abstract class _$$AlbumInitialImplCopyWith<$Res> {
+  factory _$$AlbumInitialImplCopyWith(
+    _$AlbumInitialImpl value,
+    $Res Function(_$AlbumInitialImpl) then,
+  ) = __$$AlbumInitialImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$AlbumInitialImplCopyWithImpl<$Res>
+    extends _$AlbumStateCopyWithImpl<$Res, _$AlbumInitialImpl>
+    implements _$$AlbumInitialImplCopyWith<$Res> {
+  __$$AlbumInitialImplCopyWithImpl(
+    _$AlbumInitialImpl _value,
+    $Res Function(_$AlbumInitialImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$AlbumInitialImpl implements _AlbumInitial {
+  const _$AlbumInitialImpl();
+
+  @override
+  String toString() {
+    return 'AlbumState.initial()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$AlbumInitialImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Album> albums, int? selectedStudentId) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return initial();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_AlbumInitial value) initial,
+    required TResult Function(_AlbumLoading value) loading,
+    required TResult Function(_AlbumData value) data,
+    required TResult Function(_AlbumError value) error,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_AlbumInitial value)? initial,
+    TResult? Function(_AlbumLoading value)? loading,
+    TResult? Function(_AlbumData value)? data,
+    TResult? Function(_AlbumError value)? error,
+  }) {
+    return initial?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_AlbumInitial value)? initial,
+    TResult Function(_AlbumLoading value)? loading,
+    TResult Function(_AlbumData value)? data,
+    TResult Function(_AlbumError value)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AlbumInitial implements AlbumState {
+  const factory _AlbumInitial() = _$AlbumInitialImpl;
+}
+
+/// @nodoc
+abstract class _$$AlbumLoadingImplCopyWith<$Res> {
+  factory _$$AlbumLoadingImplCopyWith(
+    _$AlbumLoadingImpl value,
+    $Res Function(_$AlbumLoadingImpl) then,
+  ) = __$$AlbumLoadingImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$AlbumLoadingImplCopyWithImpl<$Res>
+    extends _$AlbumStateCopyWithImpl<$Res, _$AlbumLoadingImpl>
+    implements _$$AlbumLoadingImplCopyWith<$Res> {
+  __$$AlbumLoadingImplCopyWithImpl(
+    _$AlbumLoadingImpl _value,
+    $Res Function(_$AlbumLoadingImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$AlbumLoadingImpl implements _AlbumLoading {
+  const _$AlbumLoadingImpl();
+
+  @override
+  String toString() {
+    return 'AlbumState.loading()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$AlbumLoadingImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Album> albums, int? selectedStudentId) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return loading();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_AlbumInitial value) initial,
+    required TResult Function(_AlbumLoading value) loading,
+    required TResult Function(_AlbumData value) data,
+    required TResult Function(_AlbumError value) error,
+  }) {
+    return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_AlbumInitial value)? initial,
+    TResult? Function(_AlbumLoading value)? loading,
+    TResult? Function(_AlbumData value)? data,
+    TResult? Function(_AlbumError value)? error,
+  }) {
+    return loading?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_AlbumInitial value)? initial,
+    TResult Function(_AlbumLoading value)? loading,
+    TResult Function(_AlbumData value)? data,
+    TResult Function(_AlbumError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AlbumLoading implements AlbumState {
+  const factory _AlbumLoading() = _$AlbumLoadingImpl;
+}
+
+/// @nodoc
+abstract class _$$AlbumDataImplCopyWith<$Res> {
+  factory _$$AlbumDataImplCopyWith(
+    _$AlbumDataImpl value,
+    $Res Function(_$AlbumDataImpl) then,
+  ) = __$$AlbumDataImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<Album> albums, int? selectedStudentId});
+}
+
+/// @nodoc
+class __$$AlbumDataImplCopyWithImpl<$Res>
+    extends _$AlbumStateCopyWithImpl<$Res, _$AlbumDataImpl>
+    implements _$$AlbumDataImplCopyWith<$Res> {
+  __$$AlbumDataImplCopyWithImpl(
+    _$AlbumDataImpl _value,
+    $Res Function(_$AlbumDataImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? albums = null, Object? selectedStudentId = freezed}) {
+    return _then(
+      _$AlbumDataImpl(
+        albums: null == albums
+            ? _value._albums
+            : albums // ignore: cast_nullable_to_non_nullable
+                  as List<Album>,
+        selectedStudentId: freezed == selectedStudentId
+            ? _value.selectedStudentId
+            : selectedStudentId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AlbumDataImpl implements _AlbumData {
+  const _$AlbumDataImpl({
+    required final List<Album> albums,
+    this.selectedStudentId = null,
+  }) : _albums = albums;
+
+  final List<Album> _albums;
+  @override
+  List<Album> get albums {
+    if (_albums is EqualUnmodifiableListView) return _albums;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_albums);
+  }
+
+  @override
+  @JsonKey()
+  final int? selectedStudentId;
+
+  @override
+  String toString() {
+    return 'AlbumState.data(albums: $albums, selectedStudentId: $selectedStudentId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AlbumDataImpl &&
+            const DeepCollectionEquality().equals(other._albums, _albums) &&
+            (identical(other.selectedStudentId, selectedStudentId) ||
+                other.selectedStudentId == selectedStudentId));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_albums),
+    selectedStudentId,
+  );
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AlbumDataImplCopyWith<_$AlbumDataImpl> get copyWith =>
+      __$$AlbumDataImplCopyWithImpl<_$AlbumDataImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Album> albums, int? selectedStudentId) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return data(albums, selectedStudentId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return data?.call(albums, selectedStudentId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(albums, selectedStudentId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_AlbumInitial value) initial,
+    required TResult Function(_AlbumLoading value) loading,
+    required TResult Function(_AlbumData value) data,
+    required TResult Function(_AlbumError value) error,
+  }) {
+    return data(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_AlbumInitial value)? initial,
+    TResult? Function(_AlbumLoading value)? loading,
+    TResult? Function(_AlbumData value)? data,
+    TResult? Function(_AlbumError value)? error,
+  }) {
+    return data?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_AlbumInitial value)? initial,
+    TResult Function(_AlbumLoading value)? loading,
+    TResult Function(_AlbumData value)? data,
+    TResult Function(_AlbumError value)? error,
+    required TResult orElse(),
+  }) {
+    if (data != null) {
+      return data(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AlbumData implements AlbumState {
+  const factory _AlbumData({
+    required final List<Album> albums,
+    final int? selectedStudentId,
+  }) = _$AlbumDataImpl;
+
+  List<Album> get albums;
+  int? get selectedStudentId;
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AlbumDataImplCopyWith<_$AlbumDataImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$AlbumErrorImplCopyWith<$Res> {
+  factory _$$AlbumErrorImplCopyWith(
+    _$AlbumErrorImpl value,
+    $Res Function(_$AlbumErrorImpl) then,
+  ) = __$$AlbumErrorImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({Object error, StackTrace stackTrace});
+}
+
+/// @nodoc
+class __$$AlbumErrorImplCopyWithImpl<$Res>
+    extends _$AlbumStateCopyWithImpl<$Res, _$AlbumErrorImpl>
+    implements _$$AlbumErrorImplCopyWith<$Res> {
+  __$$AlbumErrorImplCopyWithImpl(
+    _$AlbumErrorImpl _value,
+    $Res Function(_$AlbumErrorImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? error = null, Object? stackTrace = null}) {
+    return _then(
+      _$AlbumErrorImpl(
+        null == error ? _value.error : error,
+        null == stackTrace
+            ? _value.stackTrace
+            : stackTrace // ignore: cast_nullable_to_non_nullable
+                  as StackTrace,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AlbumErrorImpl implements _AlbumError {
+  const _$AlbumErrorImpl(this.error, this.stackTrace);
+
+  @override
+  final Object error;
+  @override
+  final StackTrace stackTrace;
+
+  @override
+  String toString() {
+    return 'AlbumState.error(error: $error, stackTrace: $stackTrace)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AlbumErrorImpl &&
+            const DeepCollectionEquality().equals(other.error, error) &&
+            (identical(other.stackTrace, stackTrace) ||
+                other.stackTrace == stackTrace));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(error),
+    stackTrace,
+  );
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AlbumErrorImplCopyWith<_$AlbumErrorImpl> get copyWith =>
+      __$$AlbumErrorImplCopyWithImpl<_$AlbumErrorImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Album> albums, int? selectedStudentId) data,
+    required TResult Function(Object error, StackTrace stackTrace) error,
+  }) {
+    return error(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult? Function(Object error, StackTrace stackTrace)? error,
+  }) {
+    return error?.call(this.error, stackTrace);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Album> albums, int? selectedStudentId)? data,
+    TResult Function(Object error, StackTrace stackTrace)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this.error, stackTrace);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_AlbumInitial value) initial,
+    required TResult Function(_AlbumLoading value) loading,
+    required TResult Function(_AlbumData value) data,
+    required TResult Function(_AlbumError value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_AlbumInitial value)? initial,
+    TResult? Function(_AlbumLoading value)? loading,
+    TResult? Function(_AlbumData value)? data,
+    TResult? Function(_AlbumError value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_AlbumInitial value)? initial,
+    TResult Function(_AlbumLoading value)? loading,
+    TResult Function(_AlbumData value)? data,
+    TResult Function(_AlbumError value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _AlbumError implements AlbumState {
+  const factory _AlbumError(final Object error, final StackTrace stackTrace) =
+      _$AlbumErrorImpl;
+
+  Object get error;
+  StackTrace get stackTrace;
+
+  /// Create a copy of AlbumState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AlbumErrorImplCopyWith<_$AlbumErrorImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$Album {
+  int get id => throw _privateConstructorUsedError;
+  int get studentId => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  String? get notes => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  int get photoCount => throw _privateConstructorUsedError;
+
+  /// Create a copy of Album
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $AlbumCopyWith<Album> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AlbumCopyWith<$Res> {
+  factory $AlbumCopyWith(Album value, $Res Function(Album) then) =
+      _$AlbumCopyWithImpl<$Res, Album>;
+  @useResult
+  $Res call({
+    int id,
+    int studentId,
+    String name,
+    String? notes,
+    DateTime createdAt,
+    DateTime updatedAt,
+    int photoCount,
+  });
+}
+
+/// @nodoc
+class _$AlbumCopyWithImpl<$Res, $Val extends Album>
+    implements $AlbumCopyWith<$Res> {
+  _$AlbumCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Album
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? studentId = null,
+    Object? name = null,
+    Object? notes = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? photoCount = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            studentId: null == studentId
+                ? _value.studentId
+                : studentId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            notes: freezed == notes
+                ? _value.notes
+                : notes // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            photoCount: null == photoCount
+                ? _value.photoCount
+                : photoCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$AlbumImplCopyWith<$Res> implements $AlbumCopyWith<$Res> {
+  factory _$$AlbumImplCopyWith(
+    _$AlbumImpl value,
+    $Res Function(_$AlbumImpl) then,
+  ) = __$$AlbumImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    int studentId,
+    String name,
+    String? notes,
+    DateTime createdAt,
+    DateTime updatedAt,
+    int photoCount,
+  });
+}
+
+/// @nodoc
+class __$$AlbumImplCopyWithImpl<$Res>
+    extends _$AlbumCopyWithImpl<$Res, _$AlbumImpl>
+    implements _$$AlbumImplCopyWith<$Res> {
+  __$$AlbumImplCopyWithImpl(
+    _$AlbumImpl _value,
+    $Res Function(_$AlbumImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of Album
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? studentId = null,
+    Object? name = null,
+    Object? notes = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? photoCount = null,
+  }) {
+    return _then(
+      _$AlbumImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        studentId: null == studentId
+            ? _value.studentId
+            : studentId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        notes: freezed == notes
+            ? _value.notes
+            : notes // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        photoCount: null == photoCount
+            ? _value.photoCount
+            : photoCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AlbumImpl extends _Album {
+  const _$AlbumImpl({
+    required this.id,
+    required this.studentId,
+    required this.name,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+    this.photoCount = 0,
+  }) : super._();
+
+  @override
+  final int id;
+  @override
+  final int studentId;
+  @override
+  final String name;
+  @override
+  final String? notes;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  @override
+  @JsonKey()
+  final int photoCount;
+
+  @override
+  String toString() {
+    return 'Album(id: $id, studentId: $studentId, name: $name, notes: $notes, createdAt: $createdAt, updatedAt: $updatedAt, photoCount: $photoCount)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AlbumImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.studentId, studentId) ||
+                other.studentId == studentId) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.photoCount, photoCount) ||
+                other.photoCount == photoCount));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    studentId,
+    name,
+    notes,
+    createdAt,
+    updatedAt,
+    photoCount,
+  );
+
+  /// Create a copy of Album
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AlbumImplCopyWith<_$AlbumImpl> get copyWith =>
+      __$$AlbumImplCopyWithImpl<_$AlbumImpl>(this, _$identity);
+}
+
+abstract class _Album extends Album {
+  const factory _Album({
+    required final int id,
+    required final int studentId,
+    required final String name,
+    final String? notes,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final int photoCount,
+  }) = _$AlbumImpl;
+  const _Album._() : super._();
+
+  @override
+  int get id;
+  @override
+  int get studentId;
+  @override
+  String get name;
+  @override
+  String? get notes;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  int get photoCount;
+
+  /// Create a copy of Album
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AlbumImplCopyWith<_$AlbumImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$AlbumPhoto {
+  int get id => throw _privateConstructorUsedError;
+  int get albumId => throw _privateConstructorUsedError;
+  String get filePath => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+
+  /// Create a copy of AlbumPhoto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $AlbumPhotoCopyWith<AlbumPhoto> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $AlbumPhotoCopyWith<$Res> {
+  factory $AlbumPhotoCopyWith(
+    AlbumPhoto value,
+    $Res Function(AlbumPhoto) then,
+  ) = _$AlbumPhotoCopyWithImpl<$Res, AlbumPhoto>;
+  @useResult
+  $Res call({
+    int id,
+    int albumId,
+    String filePath,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
+}
+
+/// @nodoc
+class _$AlbumPhotoCopyWithImpl<$Res, $Val extends AlbumPhoto>
+    implements $AlbumPhotoCopyWith<$Res> {
+  _$AlbumPhotoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of AlbumPhoto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? albumId = null,
+    Object? filePath = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            albumId: null == albumId
+                ? _value.albumId
+                : albumId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            filePath: null == filePath
+                ? _value.filePath
+                : filePath // ignore: cast_nullable_to_non_nullable
+                      as String,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$AlbumPhotoImplCopyWith<$Res>
+    implements $AlbumPhotoCopyWith<$Res> {
+  factory _$$AlbumPhotoImplCopyWith(
+    _$AlbumPhotoImpl value,
+    $Res Function(_$AlbumPhotoImpl) then,
+  ) = __$$AlbumPhotoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    int albumId,
+    String filePath,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
+}
+
+/// @nodoc
+class __$$AlbumPhotoImplCopyWithImpl<$Res>
+    extends _$AlbumPhotoCopyWithImpl<$Res, _$AlbumPhotoImpl>
+    implements _$$AlbumPhotoImplCopyWith<$Res> {
+  __$$AlbumPhotoImplCopyWithImpl(
+    _$AlbumPhotoImpl _value,
+    $Res Function(_$AlbumPhotoImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of AlbumPhoto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? albumId = null,
+    Object? filePath = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+  }) {
+    return _then(
+      _$AlbumPhotoImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        albumId: null == albumId
+            ? _value.albumId
+            : albumId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        filePath: null == filePath
+            ? _value.filePath
+            : filePath // ignore: cast_nullable_to_non_nullable
+                  as String,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$AlbumPhotoImpl extends _AlbumPhoto {
+  const _$AlbumPhotoImpl({
+    required this.id,
+    required this.albumId,
+    required this.filePath,
+    required this.createdAt,
+    required this.updatedAt,
+  }) : super._();
+
+  @override
+  final int id;
+  @override
+  final int albumId;
+  @override
+  final String filePath;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+
+  @override
+  String toString() {
+    return 'AlbumPhoto(id: $id, albumId: $albumId, filePath: $filePath, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$AlbumPhotoImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.albumId, albumId) || other.albumId == albumId) &&
+            (identical(other.filePath, filePath) ||
+                other.filePath == filePath) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, albumId, filePath, createdAt, updatedAt);
+
+  /// Create a copy of AlbumPhoto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$AlbumPhotoImplCopyWith<_$AlbumPhotoImpl> get copyWith =>
+      __$$AlbumPhotoImplCopyWithImpl<_$AlbumPhotoImpl>(this, _$identity);
+}
+
+abstract class _AlbumPhoto extends AlbumPhoto {
+  const factory _AlbumPhoto({
+    required final int id,
+    required final int albumId,
+    required final String filePath,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+  }) = _$AlbumPhotoImpl;
+  const _AlbumPhoto._() : super._();
+
+  @override
+  int get id;
+  @override
+  int get albumId;
+  @override
+  String get filePath;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+
+  /// Create a copy of AlbumPhoto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$AlbumPhotoImplCopyWith<_$AlbumPhotoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

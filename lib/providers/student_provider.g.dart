@@ -68,7 +68,7 @@ final filteredStudentsProvider = AutoDisposeProvider<List<Student>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FilteredStudentsRef = AutoDisposeProviderRef<List<Student>>;
-String _$studentNotifierHash() => r'66d7f85d0bc5065db139f552e5d8d98b66d8ec93';
+String _$studentNotifierHash() => r'd20b3ffa40179274cc183d0a571c145605266c5e';
 
 /// ============================================
 /// Student Notifier
