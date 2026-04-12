@@ -6,12 +6,14 @@ import 'goal_config_session_detail_page.dart';
 
 /// 课程目标配置详情页（蓝图编辑 + 课时模板列表）
 class GoalConfigDetailPage extends ConsumerStatefulWidget {
-  final String goal;
+  final int goalId;
+  final String goalName;
   final int? goalConfigId;
 
   const GoalConfigDetailPage({
     super.key,
-    required this.goal,
+    required this.goalId,
+    required this.goalName,
     this.goalConfigId,
   });
 
@@ -52,7 +54,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   Future<int> _ensureConfig() async {
     if (_config != null) return _config!.id;
     final id = await ref.read(goalConfigNotifierProvider.notifier).upsertConfig(
-          goal: widget.goal,
+          goalId: widget.goalId,
           blueprint: null,
         );
     final detail = await ref.read(goalConfigNotifierProvider.notifier).fetchDetail(id);
@@ -68,7 +70,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.goal)),
+        appBar: AppBar(title: Text(widget.goalName)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -77,7 +79,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.goal),
+        title: Text(widget.goalName),
         actions: [
           if (_config != null)
             IconButton(
@@ -287,7 +289,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         // 空蓝图：如果也没有课时模板，直接删除整条配置
         if (_config != null) {
           await ref.read(goalConfigNotifierProvider.notifier).upsertConfig(
-                goal: widget.goal,
+                goalId: widget.goalId,
                 blueprint: null,
               );
           final cleaned = await ref.read(goalConfigNotifierProvider.notifier).cleanIfEmpty(_config!.id);
@@ -303,7 +305,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         // 非空蓝图：正常保存
         await _ensureConfig();
         await ref.read(goalConfigNotifierProvider.notifier).upsertConfig(
-              goal: widget.goal,
+              goalId: widget.goalId,
               blueprint: result,
             );
       }
@@ -450,7 +452,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         icon: const Icon(Icons.warning, color: Colors.red, size: 48),
         title: const Text('重置配置'),
         content: Text(
-          '确定要重置「${widget.goal}」的默认配置吗？\n\n'
+          '确定要重置「${widget.goalName}」的默认配置吗？\n\n'
           '蓝图和所有课时模板将被删除，此操作不可恢复。',
         ),
         actions: [

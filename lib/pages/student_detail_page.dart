@@ -245,18 +245,19 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建课程规划卡片
   Widget _buildCoursePlanCard(CoursePlan coursePlan) {
+    final goalName = coursePlan.goalName ?? '';
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getGoalColor(coursePlan.goal),
+          backgroundColor: _getGoalColor(goalName),
           child: Icon(
-            _getGoalIcon(coursePlan.goal),
+            _getGoalIcon(goalName),
             color: Colors.white,
           ),
         ),
         title: Text(
-          coursePlan.goal,
+          goalName,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Column(
@@ -341,7 +342,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
         icon: const Icon(Icons.warning, color: Colors.red, size: 48),
         title: const Text('删除课程规划'),
         content: Text(
-          '确定要删除「${coursePlan.goal}」吗？\n\n'
+          '确定要删除「${coursePlan.goalName ?? ""}」吗？\n\n'
           '删除后将同时删除该规划下的所有课时和训练记录，此操作不可恢复。',
         ),
         actions: [

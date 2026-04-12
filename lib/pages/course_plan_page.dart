@@ -96,7 +96,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 构建课程信息卡片（课程目标 + 蓝图）
   Widget _buildCourseInfoCard(ThemeData theme) {
-    final goal = _coursePlan?.goal ?? '';
+    final goal = _coursePlan?.goalName ?? '';
     final blueprint = _coursePlan?.blueprint;
 
     return Container(

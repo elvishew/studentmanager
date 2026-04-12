@@ -98,10 +98,10 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
 
   /// 新增或更新配置
   Future<int> upsertConfig({
-    required String goal,
+    required int goalId,
     String? blueprint,
   }) async {
-    final id = await _repository.upsertGoalConfig(goal, blueprint);
+    final id = await _repository.upsertGoalConfig(goalId, blueprint);
     await fetchAll();
     return id;
   }

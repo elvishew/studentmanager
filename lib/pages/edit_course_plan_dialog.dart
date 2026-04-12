@@ -18,6 +18,7 @@ class EditCoursePlanDialog extends ConsumerStatefulWidget {
 }
 
 class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
+  int? _selectedGoalId;
   String? _selectedGoalName;
   late TextEditingController _blueprintController;
   bool _isSaving = false;
@@ -25,7 +26,8 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedGoalName = widget.coursePlan.goal;
+    _selectedGoalId = widget.coursePlan.goalId;
+    _selectedGoalName = widget.coursePlan.goalName;
     _blueprintController = TextEditingController(text: widget.coursePlan.blueprint ?? '');
   }
 
@@ -44,7 +46,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
     final notifier = ref.read(coursePlanNotifierProvider.notifier);
     final success = await notifier.update(
       id: widget.coursePlan.id,
-      goal: _selectedGoalName!,
+      goalId: _selectedGoalId,
       blueprint: _blueprintController.text.isEmpty ? null : _blueprintController.text,
     );
 
@@ -108,43 +110,41 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Text('加载失败: $e'),
               data: (goals) {
-                final goalNames = goals.map((g) => g.name).toSet();
+                final goalIds = goals.map((g) => g.id).toSet();
 
-                // 构建下拉项：活跃目标 + "自定义"
-                final items = <DropdownMenuItem<String>>[
-                  ...goals.map((g) => DropdownMenuItem<String>(
-                        value: g.name,
+                // 构建下拉项：活跃目标
+                final items = <DropdownMenuItem<int>>[
+                  ...goals.map((g) => DropdownMenuItem<int>(
+                        value: g.id,
                         child: Text(g.name),
                       )),
                 ];
 
                 // 如果当前目标已弃用/不在活跃列表中，补入下拉项
-                if (_selectedGoalName != null &&
-                    _selectedGoalName != kCustomGoalName &&
-                    !goalNames.contains(_selectedGoalName)) {
+                if (_selectedGoalId != null &&
+                    !goalIds.contains(_selectedGoalId)) {
                   items.insert(
                     0,
-                    DropdownMenuItem<String>(
-                      value: _selectedGoalName,
-                      child: Text('$_selectedGoalName（已弃用）'),
+                    DropdownMenuItem<int>(
+                      value: _selectedGoalId,
+                      child: Text('${_selectedGoalName ?? "未知目标"}（已弃用）'),
                     ),
                   );
                 }
 
-                items.add(const DropdownMenuItem<String>(
-                  value: kCustomGoalName,
-                  child: Text('自定义'),
-                ));
-
-                return DropdownButtonFormField<String>(
-                  initialValue: _selectedGoalName,
+                return DropdownButtonFormField<int>(
+                  initialValue: _selectedGoalId,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   items: items,
                   onChanged: (value) {
                     if (value != null) {
-                      setState(() => _selectedGoalName = value);
+                      final goal = goals.firstWhere((g) => g.id == value);
+                      setState(() {
+                        _selectedGoalId = value;
+                        _selectedGoalName = goal.name;
+                      });
                     }
                   },
                 );

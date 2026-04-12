@@ -198,15 +198,12 @@ final toolNotifierProvider = StateNotifierProvider.autoDispose<BasicItemNotifier
 /// 课程目标 Notifier（自定义引用检查）
 /// ============================================
 
-/// 课程目标数据项（扩展 BasicItem，增加 isCustom 标记）
+/// 课程目标数据项
 class GoalItem extends BasicItem {
-  final bool isCustom;
-
   const GoalItem({
     required super.id,
     required super.name,
     required super.isDeprecated,
-    required this.isCustom,
   });
 }
 
@@ -251,7 +248,7 @@ class GoalItemNotifier extends StateNotifier<GoalItemState> {
       : _repository = repository,
         super(const GoalItemState());
 
-  /// 获取所有（包含弃用，排除"自定义"）
+  /// 获取所有（包含弃用）
   Future<void> fetchAll() async {
     state = state.copyWith(status: BasicItemStatus.loading);
     try {
@@ -261,9 +258,7 @@ class GoalItemNotifier extends StateNotifier<GoalItemState> {
                 id: m['id'] as int,
                 name: m['name'] as String,
                 isDeprecated: (m['is_deprecated'] ?? 0) == 1,
-                isCustom: (m['is_custom'] ?? 0) == 1,
               ))
-          .where((item) => !item.isCustom) // 管理页不显示"自定义"
           .toList();
       state = GoalItemState(status: BasicItemStatus.data, items: items);
     } catch (e, st) {
@@ -289,9 +284,7 @@ class GoalItemNotifier extends StateNotifier<GoalItemState> {
                 id: m['id'] as int,
                 name: m['name'] as String,
                 isDeprecated: (m['is_deprecated'] ?? 0) == 1,
-                isCustom: (m['is_custom'] ?? 0) == 1,
               ))
-          .where((item) => !item.isCustom)
           .toList();
       if (query.isNotEmpty) {
         items = items.where((i) => i.name.toLowerCase().contains(query.toLowerCase())).toList();
@@ -331,17 +324,12 @@ class GoalItemNotifier extends StateNotifier<GoalItemState> {
     }
   }
 
-  /// 检查引用次数（查 course_plans 表中的 goal 文本）
+  /// 检查引用次数（查 course_plans 表中的 goal_id）
   Future<int> checkUsage(int id) async {
-    // 先查出目标名称
-    final item = await _repository.getById(id);
-    if (item == null) return 0;
-    final name = item['name'] as String;
-    // 查 course_plans 中有多少条记录引用了这个目标
     final results = await _repository.database.query(
       'course_plans',
-      where: 'goal = ?',
-      whereArgs: [name],
+      where: 'goal_id = ?',
+      whereArgs: [id],
     );
     return results.length;
   }
@@ -380,8 +368,8 @@ Future<List<GoalItem>> activeGoals(ActiveGoalsRef ref) async {
   final db = ref.watch(databaseProvider);
   final maps = await db.query(
     'course_goals',
-    where: 'is_deprecated = ? AND is_custom = ?',
-    whereArgs: [0, 0],
+    where: 'is_deprecated = ?',
+    whereArgs: [0],
     orderBy: 'name ASC',
   );
   return maps
@@ -389,7 +377,6 @@ Future<List<GoalItem>> activeGoals(ActiveGoalsRef ref) async {
             id: m['id'] as int,
             name: m['name'] as String,
             isDeprecated: false,
-            isCustom: (m['is_custom'] ?? 0) == 1,
           ))
       .toList();
 }

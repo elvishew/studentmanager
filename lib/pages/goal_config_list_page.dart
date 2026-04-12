@@ -47,8 +47,8 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final goal = goals[index];
-                  final config = goalConfigs.where((c) => c.goal == goal.name).firstOrNull;
-                  return _buildGoalTile(context, goal.name, config, theme);
+                  final config = goalConfigs.where((c) => c.goalId == goal.id).firstOrNull;
+                  return _buildGoalTile(context, goal, config, theme);
                 },
               );
             },
@@ -60,7 +60,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
 
   Widget _buildGoalTile(
     BuildContext context,
-    String goalName,
+    GoalItem goal,
     GoalConfig? config,
     ThemeData theme,
   ) {
@@ -80,7 +80,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
         ),
       ),
       title: Text(
-        goalName,
+        goal.name,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
       subtitle: Column(
@@ -125,15 +125,16 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
         ],
       ),
       trailing: const Icon(Icons.chevron_right),
-      onTap: () => _navigateToDetail(context, goalName, config),
+      onTap: () => _navigateToDetail(context, goal, config),
     );
   }
 
-  void _navigateToDetail(BuildContext context, String goalName, GoalConfig? config) {
+  void _navigateToDetail(BuildContext context, GoalItem goal, GoalConfig? config) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => GoalConfigDetailPage(
-          goal: goalName,
+          goalId: goal.id,
+          goalName: goal.name,
           goalConfigId: config?.id,
         ),
       ),

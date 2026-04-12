@@ -19,14 +19,14 @@ class CoursePlanRepository {
 
   /// 检测目标是否有模板数据
   ///
-  /// [goal] 课程目标
+  /// [goalId] 课程目标ID
   ///
   /// 返回模板信息，如果未找到模板则返回 null
-  Future<GoalTemplateInfo?> checkGoalTemplate(String goal) async {
+  Future<GoalTemplateInfo?> checkGoalTemplate(int goalId) async {
     final List<Map<String, dynamic>> goalConfigs = await database.query(
       'goal_configs',
-      where: 'goal = ?',
-      whereArgs: [goal],
+      where: 'goal_id = ?',
+      whereArgs: [goalId],
     );
 
     if (goalConfigs.isEmpty) return null;
@@ -55,7 +55,7 @@ class CoursePlanRepository {
   /// 创建课程规划
   ///
   /// [studentId] 学员ID
-  /// [goal] 课程目标（如 "产后修复"、"肩颈理疗" 等）
+  /// [goalId] 课程目标ID
   /// [sessionCount] 课时数量（默认12节）
   /// [customBlueprint] 自定义蓝图描述（可选）
   /// [useTemplate] 是否使用模板数据（默认true）
@@ -63,7 +63,7 @@ class CoursePlanRepository {
   /// 返回新创建的课程规划ID
   Future<int> createCoursePlan({
     required int studentId,
-    required String goal,
+    required int goalId,
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
@@ -76,7 +76,7 @@ class CoursePlanRepository {
         'course_plans',
         {
           'student_id': studentId,
-          'goal': goal,
+          'goal_id': goalId,
           'blueprint': customBlueprint, // 使用传入的蓝图
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
@@ -89,30 +89,28 @@ class CoursePlanRepository {
       int? goalConfigId;
       String? templateBlueprint;
 
-      if (goal != '自定义') {
-        List<Map<String, dynamic>> goalConfigs = await txn.query(
-          'goal_configs',
-          where: 'goal = ?',
-          whereArgs: [goal],
-        );
+      List<Map<String, dynamic>> goalConfigs = await txn.query(
+        'goal_configs',
+        where: 'goal_id = ?',
+        whereArgs: [goalId],
+      );
 
-        if (goalConfigs.isNotEmpty) {
-          Map<String, dynamic> goalConfig = goalConfigs.first;
-          templateBlueprint = goalConfig['blueprint'] as String?;
-          goalConfigId = goalConfig['id'] as int;
+      if (goalConfigs.isNotEmpty) {
+        Map<String, dynamic> goalConfig = goalConfigs.first;
+        templateBlueprint = goalConfig['blueprint'] as String?;
+        goalConfigId = goalConfig['id'] as int;
 
-          // 更新课程规划的 blueprint 字段（如果未提供自定义蓝图且模板有蓝图）
-          if (customBlueprint == null && templateBlueprint != null) {
-            await txn.update(
-              'course_plans',
-              {
-                'blueprint': templateBlueprint,
-                'updated_at': DateTime.now().toIso8601String(),
-              },
-              where: 'id = ?',
-              whereArgs: [coursePlanId],
-            );
-          }
+        // 更新课程规划的 blueprint 字段（如果未提供自定义蓝图且模板有蓝图）
+        if (customBlueprint == null && templateBlueprint != null) {
+          await txn.update(
+            'course_plans',
+            {
+              'blueprint': templateBlueprint,
+              'updated_at': DateTime.now().toIso8601String(),
+            },
+            where: 'id = ?',
+            whereArgs: [coursePlanId],
+          );
         }
       }
 
@@ -216,12 +214,12 @@ class CoursePlanRepository {
     await database.transaction((txn) async {
       for (var plan in plans) {
         int studentId = plan['student_id'] as int;
-        String goal = plan['goal'] as String;
+        int goalId = plan['goal_id'] as int;
 
         int coursePlanId = await _createCoursePlanInTransaction(
           txn: txn,
           studentId: studentId,
-          goal: goal,
+          goalId: goalId,
           sessionCount: plan['session_count'] as int? ?? 12,
           customBlueprint: plan['blueprint'] as String?,
           useTemplate: plan['use_template'] as bool? ?? true,
@@ -238,7 +236,7 @@ class CoursePlanRepository {
   Future<int> _createCoursePlanInTransaction({
     required Transaction txn,
     required int studentId,
-    required String goal,
+    required int goalId,
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
@@ -248,7 +246,7 @@ class CoursePlanRepository {
       'course_plans',
       {
         'student_id': studentId,
-        'goal': goal,
+        'goal_id': goalId,
         'blueprint': customBlueprint,
         'created_at': DateTime.now().toIso8601String(),
         'updated_at': DateTime.now().toIso8601String(),
@@ -259,30 +257,28 @@ class CoursePlanRepository {
     int? goalConfigId;
     String? templateBlueprint;
 
-    if (goal != '自定义') {
-      List<Map<String, dynamic>> goalConfigs = await txn.query(
-        'goal_configs',
-        where: 'goal = ?',
-        whereArgs: [goal],
-      );
+    List<Map<String, dynamic>> goalConfigs = await txn.query(
+      'goal_configs',
+      where: 'goal_id = ?',
+      whereArgs: [goalId],
+    );
 
-      if (goalConfigs.isNotEmpty) {
-        Map<String, dynamic> goalConfig = goalConfigs.first;
-        templateBlueprint = goalConfig['blueprint'] as String?;
-        goalConfigId = goalConfig['id'] as int;
+    if (goalConfigs.isNotEmpty) {
+      Map<String, dynamic> goalConfig = goalConfigs.first;
+      templateBlueprint = goalConfig['blueprint'] as String?;
+      goalConfigId = goalConfig['id'] as int;
 
-        // 更新蓝图（如果未提供自定义蓝图）
-        if (customBlueprint == null && templateBlueprint != null) {
-          await txn.update(
-            'course_plans',
-            {
-              'blueprint': templateBlueprint,
-              'updated_at': DateTime.now().toIso8601String(),
-            },
-            where: 'id = ?',
-            whereArgs: [coursePlanId],
-          );
-        }
+      // 更新蓝图（如果未提供自定义蓝图）
+      if (customBlueprint == null && templateBlueprint != null) {
+        await txn.update(
+          'course_plans',
+          {
+            'blueprint': templateBlueprint,
+            'updated_at': DateTime.now().toIso8601String(),
+          },
+          where: 'id = ?',
+          whereArgs: [coursePlanId],
+        );
       }
     }
 
@@ -338,7 +334,6 @@ class CoursePlanRepository {
             'duration': goalConfigBlock['duration'],
             'intensity': goalConfigBlock['intensity'],
             'notes': goalConfigBlock['notes'],
-            'is_custom': goalConfigBlock['is_custom'] ?? 0,
             'sort_order': goalConfigBlock['sort_order'] ?? 0,
             'created_at': DateTime.now().toIso8601String(),
             'updated_at': DateTime.now().toIso8601String(),
@@ -373,9 +368,11 @@ class CoursePlanRepository {
   /// 获取所有课程目标配置（含课时模板数量）
   Future<List<Map<String, dynamic>>> fetchAllGoalConfigs() async {
     return await database.rawQuery('''
-      SELECT gc.*, COUNT(gcs.id) as session_count
+      SELECT gc.*, cg.name as goal_name, COUNT(gcs.id) as session_count
       FROM goal_configs gc
+      LEFT JOIN course_goals cg ON gc.goal_id = cg.id
       LEFT JOIN goal_config_sessions gcs ON gc.id = gcs.goal_config_id
+      WHERE gc.goal_id IS NOT NULL
       GROUP BY gc.id
       ORDER BY gc.id ASC
     ''');
@@ -430,13 +427,13 @@ class CoursePlanRepository {
   }
 
   /// 新增或更新课程目标配置
-  Future<int> upsertGoalConfig(String goal, String? blueprint) async {
+  Future<int> upsertGoalConfig(int goalId, String? blueprint) async {
     final now = DateTime.now().toIso8601String();
 
     final existing = await database.query(
       'goal_configs',
-      where: 'goal = ?',
-      whereArgs: [goal],
+      where: 'goal_id = ?',
+      whereArgs: [goalId],
       limit: 1,
     );
 
@@ -447,15 +444,15 @@ class CoursePlanRepository {
           'blueprint': blueprint,
           'updated_at': now,
         },
-        where: 'goal = ?',
-        whereArgs: [goal],
+        where: 'goal_id = ?',
+        whereArgs: [goalId],
       );
       return existing.first['id'] as int;
     } else {
       return await database.insert(
         'goal_configs',
         {
-          'goal': goal,
+          'goal_id': goalId,
           'blueprint': blueprint,
           'created_at': now,
           'updated_at': now,

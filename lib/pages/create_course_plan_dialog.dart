@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/item_provider.dart';
-import 'package:student_manager/providers/states.dart';
 import '../database/course_plan_repository.dart';
 
 /// 创建课程规划弹窗
@@ -23,8 +22,8 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   int _currentStep = 0;
 
   // 用户选择
+  int? _selectedGoalId;
   String? _selectedGoalName;
-  bool _isCustomGoal = false;
   int? _selectedSessionCount; // 预设选择
   final TextEditingController _customSessionCountController = TextEditingController();
   final TextEditingController _blueprintController = TextEditingController();
@@ -59,9 +58,9 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
 
   /// 检测模板数据
   Future<void> _checkTemplate() async {
-    if (_selectedGoalName == null || _isCustomGoal) {
+    if (_selectedGoalId == null) {
       setState(() {
-        _currentStep = 3; // 跳过模板检测，直接到蓝图编辑
+        _currentStep = 3;
       });
       return;
     }
@@ -72,7 +71,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
 
     try {
       final repository = ref.read(coursePlanRepositoryProvider);
-      final templateInfo = await repository.checkGoalTemplate(_selectedGoalName!);
+      final templateInfo = await repository.checkGoalTemplate(_selectedGoalId!);
 
       setState(() {
         _templateInfo = templateInfo;
@@ -111,7 +110,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     final notifier = ref.read(coursePlanNotifierProvider.notifier);
     final coursePlanId = await notifier.create(
       studentId: widget.studentId,
-      goal: _selectedGoalName!,
+      goalId: _selectedGoalId!,
       sessionCount: sessionCount,
       customBlueprint: _blueprintController.text.isEmpty ? null : _blueprintController.text,
       useTemplate: _useTemplate,
@@ -189,49 +188,28 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
             const Text('请选择课程目标'),
             const SizedBox(height: 16),
             ...goals.map((goal) {
-              final isSelected = _selectedGoalName == goal.name && !_isCustomGoal;
+              final isSelected = _selectedGoalId == goal.id;
               return ListTile(
-                leading: Radio<String>(
-                  value: goal.name,
-                  groupValue: _isCustomGoal ? null : _selectedGoalName,
+                leading: Radio<int>(
+                  value: goal.id,
+                  groupValue: _selectedGoalId,
                   onChanged: (value) {
                     setState(() {
-                      _selectedGoalName = value;
-                      _isCustomGoal = false;
+                      _selectedGoalId = value;
+                      _selectedGoalName = goal.name;
                     });
                   },
                 ),
                 title: Text(goal.name),
                 onTap: () {
                   setState(() {
+                    _selectedGoalId = goal.id;
                     _selectedGoalName = goal.name;
-                    _isCustomGoal = false;
                   });
                 },
                 selected: isSelected,
               );
             }),
-            // "自定义"始终显示在最后
-            ListTile(
-              leading: Radio<String>(
-                value: kCustomGoalName,
-                groupValue: _isCustomGoal ? kCustomGoalName : _selectedGoalName,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGoalName = value;
-                    _isCustomGoal = true;
-                  });
-                },
-              ),
-              title: const Text('自定义'),
-              onTap: () {
-                setState(() {
-                  _selectedGoalName = kCustomGoalName;
-                  _isCustomGoal = true;
-                });
-              },
-              selected: _isCustomGoal,
-            ),
           ],
         );
       },
@@ -440,7 +418,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
             child: const Text('取消'),
           ),
           ElevatedButton(
-            onPressed: _isCreating || _selectedGoalName == null ? null : _handleNext,
+            onPressed: _isCreating || _selectedGoalId == null ? null : _handleNext,
             child: const Text('下一步'),
           ),
         ];
@@ -497,13 +475,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     setState(() {
       if (_currentStep == 0) {
         // 从目标选择到课时选择
-        if (_isCustomGoal) {
-          // 自定义目标跳过课时选择，直接到蓝图编辑
-          _currentStep = 3;
-          _useTemplate = false;
-        } else {
-          _currentStep = 1;
-        }
+        _currentStep = 1;
       } else if (_currentStep == 1) {
         // 从课时选择到模板检测
         _currentStep = 2;
@@ -514,16 +486,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
 
   void _handleBack() {
     setState(() {
-      if (_currentStep == 3) {
-        // 从蓝图编辑返回
-        if (_isCustomGoal) {
-          _currentStep = 0;
-        } else {
-          _currentStep = 1;
-        }
-      } else {
-        _currentStep--;
-      }
+      _currentStep--;
     });
   }
 }

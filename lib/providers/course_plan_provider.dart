@@ -40,12 +40,13 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     state = CoursePlanState.loading();
 
     try {
-      final List<Map<String, dynamic>> maps = await _database.query(
-        'course_plans',
-        where: 'student_id = ?',
-        whereArgs: [studentId],
-        orderBy: 'created_at DESC',
-      );
+      final List<Map<String, dynamic>> maps = await _database.rawQuery('''
+        SELECT cp.*, cg.name as goal_name
+        FROM course_plans cp
+        LEFT JOIN course_goals cg ON cp.goal_id = cg.id
+        WHERE cp.student_id = ?
+        ORDER BY cp.created_at DESC
+      ''', [studentId]);
 
       final coursePlans = await Future.wait(
         maps.map((map) async {
@@ -72,10 +73,12 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     state = const CoursePlanState.loading();
 
     try {
-      final List<Map<String, dynamic>> maps = await _database.query(
-        'course_plans',
-        orderBy: 'created_at DESC',
-      );
+      final List<Map<String, dynamic>> maps = await _database.rawQuery('''
+        SELECT cp.*, cg.name as goal_name
+        FROM course_plans cp
+        LEFT JOIN course_goals cg ON cp.goal_id = cg.id
+        ORDER BY cp.created_at DESC
+      ''');
 
       final coursePlans = await Future.wait(
         maps.map((map) async {
@@ -100,7 +103,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
   Future<int?> create({
     required int studentId,
-    required String goal,
+    required int goalId,
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
@@ -108,7 +111,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     try {
       final coursePlanId = await _repository.createCoursePlan(
         studentId: studentId,
-        goal: goal,
+        goalId: goalId,
         sessionCount: sessionCount,
         customBlueprint: customBlueprint,
         useTemplate: useTemplate,
@@ -130,7 +133,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
   Future<bool> update({
     required int id,
-    String? goal,
+    int? goalId,
     String? blueprint,
   }) async {
     try {
@@ -138,8 +141,8 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      if (goal != null) {
-        updateData['goal'] = goal;
+      if (goalId != null) {
+        updateData['goal_id'] = goalId;
       }
 
       if (blueprint != null) {
@@ -160,10 +163,11 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
           loading: () => state = const CoursePlanState.loading(),
           error: (error, stackTrace) => state = CoursePlanState.error(error, stackTrace),
           data: (coursePlans, selectedCoursePlan, selectedStudentId) {
+            // 如果目标改了，需要查新目标名
             final updatedPlans = coursePlans.map((plan) {
               if (plan.id == id) {
                 return plan.copyWith(
-                  goal: goal ?? plan.goal,
+                  goalId: goalId ?? plan.goalId,
                   blueprint: blueprint ?? plan.blueprint,
                   updatedAt: DateTime.now(),
                 );
@@ -269,12 +273,12 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 
   Future<CoursePlan?> getDetailById(int id) async {
     try {
-      final List<Map<String, dynamic>> maps = await _database.query(
-        'course_plans',
-        where: 'id = ?',
-        whereArgs: [id],
-        limit: 1,
-      );
+      final List<Map<String, dynamic>> maps = await _database.rawQuery('''
+        SELECT cp.*, cg.name as goal_name
+        FROM course_plans cp
+        LEFT JOIN course_goals cg ON cp.goal_id = cg.id
+        WHERE cp.id = ?
+      ''', [id]);
 
       if (maps.isEmpty) return null;
 

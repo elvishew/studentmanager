@@ -31,7 +31,7 @@ Future<Database> _initDatabase() async {
 
   final database = await openDatabase(
     path,
-    version: 3,
+    version: 4,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
@@ -53,11 +53,12 @@ Future<Database> _initDatabase() async {
         CREATE TABLE course_plans (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           student_id INTEGER NOT NULL,
-          goal TEXT NOT NULL,
+          goal_id INTEGER NOT NULL,
           blueprint TEXT,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+          FOREIGN KEY (goal_id) REFERENCES course_goals(id)
         )
       ''');
 
@@ -133,8 +134,20 @@ Future<Database> _initDatabase() async {
       await db.execute('''
         CREATE TABLE goal_configs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          goal TEXT NOT NULL UNIQUE,
+          goal_id INTEGER NOT NULL UNIQUE,
           blueprint TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (goal_id) REFERENCES course_goals(id)
+        )
+      ''');
+
+      // 创建课程目标表
+      await db.execute('''
+        CREATE TABLE course_goals (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
@@ -173,18 +186,6 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建课程目标表
-      await db.execute('''
-        CREATE TABLE course_goals (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          is_deprecated INTEGER NOT NULL DEFAULT 0,
-          is_custom INTEGER NOT NULL DEFAULT 0,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
       // 创建索引
       await db.execute('CREATE INDEX idx_sessions_course_plan ON sessions(course_plan_id)');
       await db.execute('CREATE INDEX idx_training_blocks_session ON training_blocks(session_id)');
@@ -217,6 +218,21 @@ Future<Database> _initDatabase() async {
           )
         ''');
         await _insertInitialGoals(db);
+      }
+      if (oldVersion < 4) {
+        // v3→v4：goal TEXT → goal_id INTEGER 外键引用
+        // 1. course_plans 添加 goal_id
+        await db.execute('ALTER TABLE course_plans ADD COLUMN goal_id INTEGER');
+        await db.execute('UPDATE course_plans SET goal_id = (SELECT id FROM course_goals WHERE name = course_plans.goal)');
+
+        // 2. goal_configs 添加 goal_id
+        await db.execute('ALTER TABLE goal_configs ADD COLUMN goal_id INTEGER');
+        await db.execute('UPDATE goal_configs SET goal_id = (SELECT id FROM course_goals WHERE name = goal_configs.goal)');
+
+        // 3. 删除"自定义"目标行
+        await db.execute('DELETE FROM course_goals WHERE is_custom = 1');
+
+        // 4. 旧 TEXT 列保留不删（SQLite < 3.35 不支持 DROP COLUMN），代码不再使用
       }
     },
   );
@@ -277,8 +293,6 @@ Future<void> _insertInitialGoals(Database db) async {
   for (final name in goals) {
     await db.insert('course_goals', {'name': name});
   }
-  // "自定义"目标标记为 is_custom
-  await db.insert('course_goals', {'name': '自定义', 'is_custom': 1});
 }
 
 class MyApp extends StatelessWidget {

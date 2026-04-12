@@ -1826,7 +1826,8 @@ abstract class _CoursePlanError implements CoursePlanState {
 mixin _$CoursePlan {
   int get id => throw _privateConstructorUsedError;
   int get studentId => throw _privateConstructorUsedError;
-  String get goal => throw _privateConstructorUsedError;
+  int get goalId => throw _privateConstructorUsedError;
+  String? get goalName => throw _privateConstructorUsedError;
   String? get blueprint => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -1852,7 +1853,8 @@ abstract class $CoursePlanCopyWith<$Res> {
   $Res call({
     int id,
     int studentId,
-    String goal,
+    int goalId,
+    String? goalName,
     String? blueprint,
     DateTime createdAt,
     DateTime updatedAt,
@@ -1882,7 +1884,8 @@ class _$CoursePlanCopyWithImpl<$Res, $Val extends CoursePlan>
   $Res call({
     Object? id = null,
     Object? studentId = null,
-    Object? goal = null,
+    Object? goalId = null,
+    Object? goalName = freezed,
     Object? blueprint = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -1901,10 +1904,14 @@ class _$CoursePlanCopyWithImpl<$Res, $Val extends CoursePlan>
                 ? _value.studentId
                 : studentId // ignore: cast_nullable_to_non_nullable
                       as int,
-            goal: null == goal
-                ? _value.goal
-                : goal // ignore: cast_nullable_to_non_nullable
-                      as String,
+            goalId: null == goalId
+                ? _value.goalId
+                : goalId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            goalName: freezed == goalName
+                ? _value.goalName
+                : goalName // ignore: cast_nullable_to_non_nullable
+                      as String?,
             blueprint: freezed == blueprint
                 ? _value.blueprint
                 : blueprint // ignore: cast_nullable_to_non_nullable
@@ -1965,7 +1972,8 @@ abstract class _$$CoursePlanImplCopyWith<$Res>
   $Res call({
     int id,
     int studentId,
-    String goal,
+    int goalId,
+    String? goalName,
     String? blueprint,
     DateTime createdAt,
     DateTime updatedAt,
@@ -1995,7 +2003,8 @@ class __$$CoursePlanImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? studentId = null,
-    Object? goal = null,
+    Object? goalId = null,
+    Object? goalName = freezed,
     Object? blueprint = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -2014,10 +2023,14 @@ class __$$CoursePlanImplCopyWithImpl<$Res>
             ? _value.studentId
             : studentId // ignore: cast_nullable_to_non_nullable
                   as int,
-        goal: null == goal
-            ? _value.goal
-            : goal // ignore: cast_nullable_to_non_nullable
-                  as String,
+        goalId: null == goalId
+            ? _value.goalId
+            : goalId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        goalName: freezed == goalName
+            ? _value.goalName
+            : goalName // ignore: cast_nullable_to_non_nullable
+                  as String?,
         blueprint: freezed == blueprint
             ? _value.blueprint
             : blueprint // ignore: cast_nullable_to_non_nullable
@@ -2057,7 +2070,8 @@ class _$CoursePlanImpl extends _CoursePlan {
   const _$CoursePlanImpl({
     required this.id,
     required this.studentId,
-    required this.goal,
+    required this.goalId,
+    this.goalName,
     this.blueprint,
     required this.createdAt,
     required this.updatedAt,
@@ -2073,7 +2087,9 @@ class _$CoursePlanImpl extends _CoursePlan {
   @override
   final int studentId;
   @override
-  final String goal;
+  final int goalId;
+  @override
+  final String? goalName;
   @override
   final String? blueprint;
   @override
@@ -2103,7 +2119,7 @@ class _$CoursePlanImpl extends _CoursePlan {
 
   @override
   String toString() {
-    return 'CoursePlan(id: $id, studentId: $studentId, goal: $goal, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, student: $student, sessions: $sessions, totalSessions: $totalSessions, completedSessions: $completedSessions)';
+    return 'CoursePlan(id: $id, studentId: $studentId, goalId: $goalId, goalName: $goalName, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, student: $student, sessions: $sessions, totalSessions: $totalSessions, completedSessions: $completedSessions)';
   }
 
   @override
@@ -2114,7 +2130,9 @@ class _$CoursePlanImpl extends _CoursePlan {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.studentId, studentId) ||
                 other.studentId == studentId) &&
-            (identical(other.goal, goal) || other.goal == goal) &&
+            (identical(other.goalId, goalId) || other.goalId == goalId) &&
+            (identical(other.goalName, goalName) ||
+                other.goalName == goalName) &&
             (identical(other.blueprint, blueprint) ||
                 other.blueprint == blueprint) &&
             (identical(other.createdAt, createdAt) ||
@@ -2134,7 +2152,8 @@ class _$CoursePlanImpl extends _CoursePlan {
     runtimeType,
     id,
     studentId,
-    goal,
+    goalId,
+    goalName,
     blueprint,
     createdAt,
     updatedAt,
@@ -2157,7 +2176,8 @@ abstract class _CoursePlan extends CoursePlan {
   const factory _CoursePlan({
     required final int id,
     required final int studentId,
-    required final String goal,
+    required final int goalId,
+    final String? goalName,
     final String? blueprint,
     required final DateTime createdAt,
     required final DateTime updatedAt,
@@ -2173,7 +2193,9 @@ abstract class _CoursePlan extends CoursePlan {
   @override
   int get studentId;
   @override
-  String get goal;
+  int get goalId;
+  @override
+  String? get goalName;
   @override
   String? get blueprint;
   @override
@@ -5122,7 +5144,8 @@ abstract class _GoalConfigError implements GoalConfigState {
 /// @nodoc
 mixin _$GoalConfig {
   int get id => throw _privateConstructorUsedError;
-  String get goal => throw _privateConstructorUsedError;
+  int get goalId => throw _privateConstructorUsedError;
+  String? get goalName => throw _privateConstructorUsedError;
   String? get blueprint => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
@@ -5145,7 +5168,8 @@ abstract class $GoalConfigCopyWith<$Res> {
   @useResult
   $Res call({
     int id,
-    String goal,
+    int goalId,
+    String? goalName,
     String? blueprint,
     DateTime createdAt,
     DateTime updatedAt,
@@ -5170,7 +5194,8 @@ class _$GoalConfigCopyWithImpl<$Res, $Val extends GoalConfig>
   @override
   $Res call({
     Object? id = null,
-    Object? goal = null,
+    Object? goalId = null,
+    Object? goalName = freezed,
     Object? blueprint = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -5183,10 +5208,14 @@ class _$GoalConfigCopyWithImpl<$Res, $Val extends GoalConfig>
                 ? _value.id
                 : id // ignore: cast_nullable_to_non_nullable
                       as int,
-            goal: null == goal
-                ? _value.goal
-                : goal // ignore: cast_nullable_to_non_nullable
-                      as String,
+            goalId: null == goalId
+                ? _value.goalId
+                : goalId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            goalName: freezed == goalName
+                ? _value.goalName
+                : goalName // ignore: cast_nullable_to_non_nullable
+                      as String?,
             blueprint: freezed == blueprint
                 ? _value.blueprint
                 : blueprint // ignore: cast_nullable_to_non_nullable
@@ -5224,7 +5253,8 @@ abstract class _$$GoalConfigImplCopyWith<$Res>
   @useResult
   $Res call({
     int id,
-    String goal,
+    int goalId,
+    String? goalName,
     String? blueprint,
     DateTime createdAt,
     DateTime updatedAt,
@@ -5248,7 +5278,8 @@ class __$$GoalConfigImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? goal = null,
+    Object? goalId = null,
+    Object? goalName = freezed,
     Object? blueprint = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
@@ -5261,10 +5292,14 @@ class __$$GoalConfigImplCopyWithImpl<$Res>
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
                   as int,
-        goal: null == goal
-            ? _value.goal
-            : goal // ignore: cast_nullable_to_non_nullable
-                  as String,
+        goalId: null == goalId
+            ? _value.goalId
+            : goalId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        goalName: freezed == goalName
+            ? _value.goalName
+            : goalName // ignore: cast_nullable_to_non_nullable
+                  as String?,
         blueprint: freezed == blueprint
             ? _value.blueprint
             : blueprint // ignore: cast_nullable_to_non_nullable
@@ -5295,7 +5330,8 @@ class __$$GoalConfigImplCopyWithImpl<$Res>
 class _$GoalConfigImpl extends _GoalConfig {
   const _$GoalConfigImpl({
     required this.id,
-    required this.goal,
+    required this.goalId,
+    this.goalName,
     this.blueprint,
     required this.createdAt,
     required this.updatedAt,
@@ -5307,7 +5343,9 @@ class _$GoalConfigImpl extends _GoalConfig {
   @override
   final int id;
   @override
-  final String goal;
+  final int goalId;
+  @override
+  final String? goalName;
   @override
   final String? blueprint;
   @override
@@ -5330,7 +5368,7 @@ class _$GoalConfigImpl extends _GoalConfig {
 
   @override
   String toString() {
-    return 'GoalConfig(id: $id, goal: $goal, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, sessions: $sessions, sessionCount: $sessionCount)';
+    return 'GoalConfig(id: $id, goalId: $goalId, goalName: $goalName, blueprint: $blueprint, createdAt: $createdAt, updatedAt: $updatedAt, sessions: $sessions, sessionCount: $sessionCount)';
   }
 
   @override
@@ -5339,7 +5377,9 @@ class _$GoalConfigImpl extends _GoalConfig {
         (other.runtimeType == runtimeType &&
             other is _$GoalConfigImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.goal, goal) || other.goal == goal) &&
+            (identical(other.goalId, goalId) || other.goalId == goalId) &&
+            (identical(other.goalName, goalName) ||
+                other.goalName == goalName) &&
             (identical(other.blueprint, blueprint) ||
                 other.blueprint == blueprint) &&
             (identical(other.createdAt, createdAt) ||
@@ -5355,7 +5395,8 @@ class _$GoalConfigImpl extends _GoalConfig {
   int get hashCode => Object.hash(
     runtimeType,
     id,
-    goal,
+    goalId,
+    goalName,
     blueprint,
     createdAt,
     updatedAt,
@@ -5375,7 +5416,8 @@ class _$GoalConfigImpl extends _GoalConfig {
 abstract class _GoalConfig extends GoalConfig {
   const factory _GoalConfig({
     required final int id,
-    required final String goal,
+    required final int goalId,
+    final String? goalName,
     final String? blueprint,
     required final DateTime createdAt,
     required final DateTime updatedAt,
@@ -5387,7 +5429,9 @@ abstract class _GoalConfig extends GoalConfig {
   @override
   int get id;
   @override
-  String get goal;
+  int get goalId;
+  @override
+  String? get goalName;
   @override
   String? get blueprint;
   @override

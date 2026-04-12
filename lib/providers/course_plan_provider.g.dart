@@ -91,7 +91,7 @@ final filteredStudentIdProvider = AutoDisposeProvider<int?>.internal(
 // ignore: unused_element
 typedef FilteredStudentIdRef = AutoDisposeProviderRef<int?>;
 String _$coursePlanNotifierHash() =>
-    r'd03cdf7e87a87eb83a04b83e7fcc011cb8490768';
+    r'9931eb6843763ad6063ee782c10251790d9ce160';
 
 /// ============================================
 /// CoursePlan Notifier

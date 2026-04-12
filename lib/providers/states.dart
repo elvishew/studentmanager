@@ -84,7 +84,8 @@ class CoursePlan with _$CoursePlan {
   const factory CoursePlan({
     required int id,
     required int studentId,
-    required String goal,
+    required int goalId,
+    String? goalName,
     String? blueprint,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -99,7 +100,8 @@ class CoursePlan with _$CoursePlan {
     return CoursePlan(
       id: map['id'] as int,
       studentId: map['student_id'] as int,
-      goal: map['goal'] as String,
+      goalId: map['goal_id'] as int? ?? 0,
+      goalName: map['goal_name'] as String?,
       blueprint: map['blueprint'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -111,7 +113,7 @@ class CoursePlan with _$CoursePlan {
     return {
       'id': id,
       'student_id': studentId,
-      'goal': goal,
+      'goal_id': goalId,
       'blueprint': blueprint,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -384,13 +386,6 @@ class Tool with _$Tool {
 }
 
 /// ============================================
-/// 课程目标常量
-/// ============================================
-
-/// "自定义"目标的固定名称，用于判断特殊逻辑
-const kCustomGoalName = '自定义';
-
-/// ============================================
 /// 课程目标默认配置
 /// ============================================
 
@@ -412,7 +407,8 @@ class GoalConfig with _$GoalConfig {
 
   const factory GoalConfig({
     required int id,
-    required String goal,
+    required int goalId,
+    String? goalName,
     String? blueprint,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -423,7 +419,8 @@ class GoalConfig with _$GoalConfig {
   factory GoalConfig.fromMap(Map<String, dynamic> map) {
     return GoalConfig(
       id: map['id'] as int,
-      goal: map['goal'] as String,
+      goalId: map['goal_id'] as int? ?? 0,
+      goalName: map['goal_name'] as String?,
       blueprint: map['blueprint'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -434,7 +431,7 @@ class GoalConfig with _$GoalConfig {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'goal': goal,
+      'goal_id': goalId,
       'blueprint': blueprint,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),

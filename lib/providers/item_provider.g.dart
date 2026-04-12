@@ -6,7 +6,7 @@ part of 'item_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$activeGoalsHash() => r'79884d6b49b3763740a3cc927f9346b345546d3e';
+String _$activeGoalsHash() => r'b2a91319a62b320085941acbca2cbfbfe16f44d6';
 
 /// 获取所有未弃用的目标（供创建/编辑规划时选择用）
 ///
