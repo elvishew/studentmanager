@@ -62,6 +62,17 @@ class ContentFieldRepository {
     return results.isNotEmpty ? results.first : null;
   }
 
+  /// 检查字段名称是否已存在（trim 后精确匹配）
+  Future<bool> checkFieldNameExists(String name, {int? excludeId}) async {
+    final results = await database.query(
+      'content_fields',
+      where: 'TRIM(name) = ? ${excludeId != null ? 'AND id != ?' : ''}',
+      whereArgs: excludeId != null ? [name.trim(), excludeId] : [name.trim()],
+      limit: 1,
+    );
+    return results.isNotEmpty;
+  }
+
   /// 创建字段
   Future<int> createField({
     required String name,

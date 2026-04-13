@@ -54,12 +54,13 @@ class ContentFieldNotifier extends _$ContentFieldNotifier {
     state = fields;
   }
 
-  /// 创建字段
+  /// 创建字段（重名返回 null）
   Future<int?> createField({
     required String name,
     required String fieldType,
     required bool isRequired,
   }) async {
+    if (await _repository.checkFieldNameExists(name)) return null;
     final maxOrder = await _repository.getMaxSortOrder();
     return await _repository.createField(
       name: name,
@@ -69,13 +70,14 @@ class ContentFieldNotifier extends _$ContentFieldNotifier {
     );
   }
 
-  /// 更新字段
+  /// 更新字段（重名返回 false）
   Future<bool> updateField({
     required int id,
     required String name,
     required String fieldType,
     required bool isRequired,
   }) async {
+    if (await _repository.checkFieldNameExists(name, excludeId: id)) return false;
     return await _repository.updateField(
       id: id,
       name: name,

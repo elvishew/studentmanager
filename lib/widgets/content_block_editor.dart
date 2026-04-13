@@ -36,6 +36,21 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
   List<ContentField> _fields = [];
   Map<int, String> _existingValues = {};
 
+  /// 所有必填字段均已填写时才可保存
+  bool get _canSave {
+    if (_fields.isEmpty) return false;
+    for (final field in _fields) {
+      if (!field.isRequired || field.isDeprecated) continue;
+      if (field.fieldType == FieldType.select) {
+        if (_selectedOptions[field.id] == null || _selectedOptions[field.id]!.isEmpty) return false;
+      } else {
+        final controller = _controllers[field.id];
+        if (controller == null || controller.text.trim().isEmpty) return false;
+      }
+    }
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -105,26 +120,7 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
   }
 
   Future<void> _save() async {
-    // 验证必填字段
-    for (final field in _fields) {
-      if (!field.isRequired) continue;
-      if (field.fieldType == FieldType.select) {
-        if (_selectedOptions[field.id] == null || _selectedOptions[field.id]!.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('请选择${field.name}')),
-          );
-          return;
-        }
-      } else {
-        final controller = _controllers[field.id];
-        if (controller == null || controller.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('请填写${field.name}')),
-          );
-          return;
-        }
-      }
-    }
+    if (!_canSave) return;
 
     setState(() => _isSaving = true);
 
@@ -220,7 +216,7 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
             )
           else
             TextButton(
-              onPressed: _save,
+              onPressed: _canSave ? _save : null,
               child: const Text('保存'),
             ),
         ],

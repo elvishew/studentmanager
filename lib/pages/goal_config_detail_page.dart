@@ -34,8 +34,11 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   Future<void> _loadDetail() async {
     setState(() => _isLoading = true);
 
-    if (widget.goalConfigId != null) {
-      final detail = await ref.read(goalConfigNotifierProvider.notifier).fetchDetail(widget.goalConfigId!);
+    // 优先使用 _config（可能由 _ensureConfig 惰性创建），其次使用 widget.goalConfigId
+    final configId = _config?.id ?? widget.goalConfigId;
+
+    if (configId != null) {
+      final detail = await ref.read(goalConfigNotifierProvider.notifier).fetchDetail(configId);
       if (mounted) {
         setState(() {
           _config = detail;
@@ -43,7 +46,6 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         });
       }
     } else {
-      // 尚未配置，不自动创建记录
       if (mounted) {
         setState(() => _isLoading = false);
       }

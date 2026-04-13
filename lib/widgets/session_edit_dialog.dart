@@ -96,7 +96,7 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
           child: const Text('取消'),
         ),
         ElevatedButton(
-          onPressed: _isSaving ? null : _handleSave,
+          onPressed: _isSaving || !_canSave ? null : _handleSave,
           child: _isSaving
               ? const SizedBox(
                   width: 16,
@@ -189,34 +189,19 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
     }
   }
 
-  /// 保存
-  void _handleSave() {
-    // 验证：如果状态是已完成，必须有时间
-    if (_selectedStatus == SessionStatus.completed && _scheduledTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('标记为完成前必须先预约上课时间'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    // 验证自定义时长
+  /// 保存按钮是否可用
+  bool get _canSave {
+    // 已完成状态必须有上课时间
+    if (_selectedStatus == SessionStatus.completed && _scheduledTime == null) return false;
+    // 自定义时长必须在有效范围内
     if (_useCustomDuration && _selectedDuration == null && _customDurationController.text.isNotEmpty) {
       final value = int.tryParse(_customDurationController.text);
-      if (value == null || value < 1 || value > 180) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('时长必须在 1-180 分钟之间'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
+      if (value == null || value < 1 || value > 180) return false;
     }
+    return true;
+  }
 
-    // 返回结果
+  /// 保存
     Navigator.of(context).pop({
       'scheduledTime': _scheduledTime,
       'status': _selectedStatus,

@@ -28,9 +28,6 @@ Future<Database> _initDatabase() async {
   final dbPath = await getDatabasesPath();
   final path = join(dbPath, 'student_manager.db');
 
-  // 开发阶段：删除旧数据库以确保 schema 干净
-  await deleteDatabase(path);
-
   final database = await openDatabase(
     path,
     version: 1,

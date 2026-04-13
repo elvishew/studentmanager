@@ -57,7 +57,7 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
             )
           else
             TextButton(
-              onPressed: _save,
+              onPressed: _nameController.text.trim().isNotEmpty ? _save : null,
               child: const Text('保存'),
             ),
         ],
@@ -78,6 +78,7 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
                 if (value == null || value.trim().isEmpty) return '请输入字段名称';
                 return null;
               },
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -154,6 +155,10 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
           SnackBar(
             content: Text(widget.field != null ? '字段已更新' : '字段已创建'),
           ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('已存在同名字段')),
         );
       }
     }
