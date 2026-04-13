@@ -1,0 +1,13 @@
+{
+  "id": "math",
+  "name": "数学辅导",
+  "contentFields": [
+    {"name": "知识点", "type": "select", "required": true, "sortOrder": 0, "options": ["计算", "方程", "函数", "几何", "概率统计", "数列", "导数", "积分"]},
+    {"name": "题型", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "难度等级", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "题目数量", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "正确率", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["基础巩固", "能力提升", "考试冲刺", "竞赛准备", "思维训练", "查漏补缺"]
+}

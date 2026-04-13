@@ -18,10 +18,6 @@ class CoursePlanRepository {
   CoursePlanRepository({required this.database});
 
   /// 检测目标是否有模板数据
-  ///
-  /// [goalId] 课程目标ID
-  ///
-  /// 返回模板信息，如果未找到模板则返回 null
   Future<GoalTemplateInfo?> checkGoalTemplate(int goalId) async {
     final List<Map<String, dynamic>> goalConfigs = await database.query(
       'goal_configs',
@@ -34,7 +30,6 @@ class CoursePlanRepository {
     final goalConfig = goalConfigs.first;
     final goalConfigId = goalConfig['id'] as int;
 
-    // 查询最大课时数
     final List<Map<String, dynamic>> sessions = await database.query(
       'goal_config_sessions',
       where: 'goal_config_id = ?',
@@ -49,18 +44,10 @@ class CoursePlanRepository {
     return GoalTemplateInfo(
       blueprint: goalConfig['blueprint'] as String?,
       availableSessionCount: maxSessions,
-  );
+    );
   }
 
   /// 创建课程规划
-  ///
-  /// [studentId] 学员ID
-  /// [goalId] 课程目标ID
-  /// [sessionCount] 课时数量（默认12节）
-  /// [customBlueprint] 自定义蓝图描述（可选）
-  /// [useTemplate] 是否使用模板数据（默认true）
-  ///
-  /// 返回新创建的课程规划ID
   Future<int> createCoursePlan({
     required int studentId,
     required int goalId,
@@ -70,24 +57,19 @@ class CoursePlanRepository {
     int? defaultDuration,
   }) async {
     return await database.transaction((txn) async {
-      // ============================================
-      // 第一步：创建课程规划（使用传入的蓝图或初始为空）
-      // ============================================
       int coursePlanId = await txn.insert(
         'course_plans',
         {
           'student_id': studentId,
           'goal_id': goalId,
-          'blueprint': customBlueprint, // 使用传入的蓝图
+          'blueprint': customBlueprint,
           'default_duration': defaultDuration ?? 60,
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         },
       );
 
-      // ============================================
-      // 第二步：查询该课程目标的默认配置
-      // ============================================
+      // 查询默认配置
       int? goalConfigId;
       String? templateBlueprint;
 
@@ -102,7 +84,6 @@ class CoursePlanRepository {
         templateBlueprint = goalConfig['blueprint'] as String?;
         goalConfigId = goalConfig['id'] as int;
 
-        // 更新课程规划的 blueprint 字段（如果未提供自定义蓝图且模板有蓝图）
         if (customBlueprint == null && templateBlueprint != null) {
           await txn.update(
             'course_plans',
@@ -116,9 +97,7 @@ class CoursePlanRepository {
         }
       }
 
-      // ============================================
-      // 第三步：查询默认配置的课时模板（使用动态课时数）
-      // ============================================
+      // 查询默认配置课时模板
       List<Map<String, dynamic>> goalConfigSessions = [];
 
       if (useTemplate && goalConfigId != null) {
@@ -130,16 +109,13 @@ class CoursePlanRepository {
         );
       }
 
-      // ============================================
-      // 第四步：创建课时
-      // ============================================
+      final now = DateTime.now().toIso8601String();
 
-      // 4.1 从模板创建有内容的课时
+      // 从模板创建有内容的课时
       for (Map<String, dynamic> goalConfigSession in goalConfigSessions) {
         int sessionNumber = goalConfigSession['session_number'] as int;
         int goalConfigSessionId = goalConfigSession['id'] as int;
 
-        // 创建课时
         int sessionId = await txn.insert(
           'sessions',
           {
@@ -147,42 +123,54 @@ class CoursePlanRepository {
             'session_number': sessionNumber,
             'scheduled_time': null,
             'status': 'pending',
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
+            'created_at': now,
+            'updated_at': now,
           },
         );
 
-        // 查询该节课模板的所有训练块
+        // 查询模板内容块
         List<Map<String, dynamic>> goalConfigBlocks = await txn.query(
-          'goal_config_training_blocks',
+          'goal_config_content_blocks',
           where: 'goal_config_session_id = ?',
           whereArgs: [goalConfigSessionId],
           orderBy: 'sort_order ASC',
         );
 
-        // 复制训练块到新课时
+        // 复制内容块
         for (Map<String, dynamic> goalConfigBlock in goalConfigBlocks) {
-          await txn.insert(
-            'training_blocks',
+          int blockId = await txn.insert(
+            'content_blocks',
             {
               'session_id': sessionId,
-              'action_id': goalConfigBlock['action_id'],
-              'equipment_id': goalConfigBlock['equipment_id'],
-              'tool_id': goalConfigBlock['tool_id'],
-              'reps': goalConfigBlock['reps'],
-              'sets': goalConfigBlock['sets'],
-              'duration': goalConfigBlock['duration'],
-              'intensity': goalConfigBlock['intensity'],
-              'notes': goalConfigBlock['notes'],
               'sort_order': goalConfigBlock['sort_order'] ?? 0,
-              'created_at': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
+              'created_at': now,
+              'updated_at': now,
             },
           );
+
+          // 复制内容块字段值
+          List<Map<String, dynamic>> blockValues = await txn.query(
+            'goal_config_content_block_values',
+            where: 'content_block_id = ?',
+            whereArgs: [goalConfigBlock['id']],
+          );
+
+          for (Map<String, dynamic> blockValue in blockValues) {
+            await txn.insert(
+              'content_block_values',
+              {
+                'content_block_id': blockId,
+                'content_field_id': blockValue['content_field_id'],
+                'value': blockValue['value'],
+                'created_at': now,
+                'updated_at': now,
+              },
+            );
+          }
         }
       }
 
-      // 4.2 创建剩余的空课时（如果模板课时数少于请求的课时数）
+      // 创建剩余的空课时
       int templateSessionCount = goalConfigSessions.length;
       for (int i = templateSessionCount + 1; i <= sessionCount; i++) {
         await txn.insert(
@@ -192,22 +180,17 @@ class CoursePlanRepository {
             'session_number': i,
             'scheduled_time': null,
             'status': 'pending',
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
+            'created_at': now,
+            'updated_at': now,
           },
         );
       }
 
-      // ============================================
-      // 完成：返回新创建的课程规划ID
-      // ============================================
       return coursePlanId;
     });
   }
 
-  /// （扩展）批量创建课程规划
-  ///
-  /// 用于需要一次创建多个课程规划的场景
+  /// 批量创建课程规划
   Future<List<int>> createCoursePlansBatch({
     required List<Map<String, dynamic>> plans,
   }) async {
@@ -215,18 +198,14 @@ class CoursePlanRepository {
 
     await database.transaction((txn) async {
       for (var plan in plans) {
-        int studentId = plan['student_id'] as int;
-        int goalId = plan['goal_id'] as int;
-
         int coursePlanId = await _createCoursePlanInTransaction(
           txn: txn,
-          studentId: studentId,
-          goalId: goalId,
+          studentId: plan['student_id'] as int,
+          goalId: plan['goal_id'] as int,
           sessionCount: plan['session_count'] as int? ?? 12,
           customBlueprint: plan['blueprint'] as String?,
           useTemplate: plan['use_template'] as bool? ?? true,
         );
-
         coursePlanIds.add(coursePlanId);
       }
     });
@@ -234,9 +213,8 @@ class CoursePlanRepository {
     return coursePlanIds;
   }
 
-  /// 内部方法：在事务中创建单个课程规划
   Future<int> _createCoursePlanInTransaction({
-    required Transaction txn,
+    required dynamic txn,
     required int studentId,
     required int goalId,
     int sessionCount = 12,
@@ -244,7 +222,8 @@ class CoursePlanRepository {
     bool useTemplate = true,
     int? defaultDuration,
   }) async {
-    // 创建课程规划
+    final now = DateTime.now().toIso8601String();
+
     int coursePlanId = await txn.insert(
       'course_plans',
       {
@@ -252,12 +231,11 @@ class CoursePlanRepository {
         'goal_id': goalId,
         'blueprint': customBlueprint,
         'default_duration': defaultDuration ?? 60,
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
+        'created_at': now,
+        'updated_at': now,
       },
     );
 
-    // 查询默认配置
     int? goalConfigId;
     String? templateBlueprint;
 
@@ -272,21 +250,16 @@ class CoursePlanRepository {
       templateBlueprint = goalConfig['blueprint'] as String?;
       goalConfigId = goalConfig['id'] as int;
 
-      // 更新蓝图（如果未提供自定义蓝图）
       if (customBlueprint == null && templateBlueprint != null) {
         await txn.update(
           'course_plans',
-          {
-            'blueprint': templateBlueprint,
-            'updated_at': DateTime.now().toIso8601String(),
-          },
+          {'blueprint': templateBlueprint, 'updated_at': now},
           where: 'id = ?',
           whereArgs: [coursePlanId],
         );
       }
     }
 
-    // 查询课时模板（使用动态课时数）
     List<Map<String, dynamic>> goalConfigSessions = [];
 
     if (useTemplate && goalConfigId != null) {
@@ -298,12 +271,10 @@ class CoursePlanRepository {
       );
     }
 
-    // 从模板创建有内容的课时
     for (Map<String, dynamic> goalConfigSession in goalConfigSessions) {
       int sessionNumber = goalConfigSession['session_number'] as int;
       int goalConfigSessionId = goalConfigSession['id'] as int;
 
-      // 创建课时
       int sessionId = await txn.insert(
         'sessions',
         {
@@ -311,42 +282,50 @@ class CoursePlanRepository {
           'session_number': sessionNumber,
           'scheduled_time': null,
           'status': 'pending',
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
+          'created_at': now,
+          'updated_at': now,
         },
       );
 
-      // 查询训练块模板
       List<Map<String, dynamic>> goalConfigBlocks = await txn.query(
-        'goal_config_training_blocks',
+        'goal_config_content_blocks',
         where: 'goal_config_session_id = ?',
         whereArgs: [goalConfigSessionId],
         orderBy: 'sort_order ASC',
       );
 
-      // 复制训练块
       for (Map<String, dynamic> goalConfigBlock in goalConfigBlocks) {
-        await txn.insert(
-          'training_blocks',
+        int blockId = await txn.insert(
+          'content_blocks',
           {
             'session_id': sessionId,
-            'action_id': goalConfigBlock['action_id'],
-            'equipment_id': goalConfigBlock['equipment_id'],
-            'tool_id': goalConfigBlock['tool_id'],
-            'reps': goalConfigBlock['reps'],
-            'sets': goalConfigBlock['sets'],
-            'duration': goalConfigBlock['duration'],
-            'intensity': goalConfigBlock['intensity'],
-            'notes': goalConfigBlock['notes'],
             'sort_order': goalConfigBlock['sort_order'] ?? 0,
-            'created_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
+            'created_at': now,
+            'updated_at': now,
           },
         );
+
+        List<Map<String, dynamic>> blockValues = await txn.query(
+          'goal_config_content_block_values',
+          where: 'content_block_id = ?',
+          whereArgs: [goalConfigBlock['id']],
+        );
+
+        for (Map<String, dynamic> blockValue in blockValues) {
+          await txn.insert(
+            'content_block_values',
+            {
+              'content_block_id': blockId,
+              'content_field_id': blockValue['content_field_id'],
+              'value': blockValue['value'],
+              'created_at': now,
+              'updated_at': now,
+            },
+          );
+        }
       }
     }
 
-    // 创建剩余的空课时
     int templateSessionCount = goalConfigSessions.length;
     for (int i = templateSessionCount + 1; i <= sessionCount; i++) {
       await txn.insert(
@@ -356,8 +335,8 @@ class CoursePlanRepository {
           'session_number': i,
           'scheduled_time': null,
           'status': 'pending',
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
+          'created_at': now,
+          'updated_at': now,
         },
       );
     }
@@ -369,7 +348,6 @@ class CoursePlanRepository {
   /// 课程目标默认配置 CRUD
   /// ============================================
 
-  /// 获取所有课程目标配置（含课时模板数量）
   Future<List<Map<String, dynamic>>> fetchAllGoalConfigs() async {
     return await database.rawQuery('''
       SELECT gc.*, cg.name as goal_name, COUNT(gcs.id) as session_count
@@ -382,7 +360,6 @@ class CoursePlanRepository {
     ''');
   }
 
-  /// 获取课程目标配置详情（含 sessions + training blocks）
   Future<Map<String, dynamic>?> fetchGoalConfigDetail(int id) async {
     final configs = await database.query(
       'goal_configs',
@@ -394,7 +371,6 @@ class CoursePlanRepository {
 
     final config = Map<String, dynamic>.from(configs.first);
 
-    // 查询 sessions
     final sessions = await database.query(
       'goal_config_sessions',
       where: 'goal_config_id = ?',
@@ -405,32 +381,32 @@ class CoursePlanRepository {
     config['sessions'] = await Future.wait(sessions.map((session) async {
       final s = Map<String, dynamic>.from(session);
 
-      // 查询 training blocks（含关联的动作/器械/工具名称）
-      final blocks = await database.rawQuery('''
-        SELECT
-          tb.*,
-          a.name as action_name,
-          a.is_deprecated as action_deprecated,
-          e.name as equipment_name,
-          e.is_deprecated as equipment_deprecated,
-          t.name as tool_name,
-          t.is_deprecated as tool_deprecated
-        FROM goal_config_training_blocks tb
-        LEFT JOIN actions a ON tb.action_id = a.id
-        LEFT JOIN equipments e ON tb.equipment_id = e.id
-        LEFT JOIN tools t ON tb.tool_id = t.id
-        WHERE tb.goal_config_session_id = ?
-        ORDER BY tb.sort_order ASC
-      ''', [s['id']]);
+      // 查询内容块（含字段值）
+      final blocks = await database.query(
+        'goal_config_content_blocks',
+        where: 'goal_config_session_id = ?',
+        whereArgs: [s['id']],
+        orderBy: 'sort_order ASC',
+      );
 
-      s['training_blocks'] = blocks;
+      for (final block in blocks) {
+        final values = await database.rawQuery('''
+          SELECT gcbv.content_field_id, gcbv.value, cf.name as field_name, cf.field_type
+          FROM goal_config_content_block_values gcbv
+          JOIN content_fields cf ON gcbv.content_field_id = cf.id
+          WHERE gcbv.content_block_id = ?
+        ''', [block['id']]);
+
+        block['values'] = values;
+      }
+
+      s['content_blocks'] = blocks;
       return s;
     }));
 
     return config;
   }
 
-  /// 新增或更新课程目标配置
   Future<int> upsertGoalConfig(int goalId, String? blueprint) async {
     final now = DateTime.now().toIso8601String();
 
@@ -444,10 +420,7 @@ class CoursePlanRepository {
     if (existing.isNotEmpty) {
       await database.update(
         'goal_configs',
-        {
-          'blueprint': blueprint,
-          'updated_at': now,
-        },
+        {'blueprint': blueprint, 'updated_at': now},
         where: 'goal_id = ?',
         whereArgs: [goalId],
       );
@@ -465,7 +438,6 @@ class CoursePlanRepository {
     }
   }
 
-  /// 删除课程目标配置（CASCADE 删除 sessions + blocks）
   Future<void> deleteGoalConfig(int id) async {
     await database.delete(
       'goal_configs',
@@ -474,7 +446,6 @@ class CoursePlanRepository {
     );
   }
 
-  /// 新增课时模板
   Future<int> addGoalConfigSession(int goalConfigId, int sessionNumber) async {
     final now = DateTime.now().toIso8601String();
     return await database.insert(
@@ -488,7 +459,6 @@ class CoursePlanRepository {
     );
   }
 
-  /// 删除课时模板（CASCADE 删除 blocks）
   Future<void> deleteGoalConfigSession(int id) async {
     await database.delete(
       'goal_config_sessions',
@@ -497,87 +467,103 @@ class CoursePlanRepository {
     );
   }
 
-  /// 新增训练块模板
-  Future<int> addGoalConfigTrainingBlock({
+  /// 新增默认配置内容块
+  Future<int> addGoalConfigContentBlock({
     required int goalConfigSessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
-    int sortOrder = 0,
+    required Map<int, String> values,
   }) async {
     final now = DateTime.now().toIso8601String();
-    return await database.insert(
-      'goal_config_training_blocks',
+
+    // 获取最大排序号
+    final results = await database.rawQuery(
+      'SELECT COALESCE(MAX(sort_order), -1) as max_order FROM goal_config_content_blocks WHERE goal_config_session_id = ?',
+      [goalConfigSessionId],
+    );
+    final maxOrder = (results.first['max_order'] as int?) ?? -1;
+
+    final blockId = await database.insert(
+      'goal_config_content_blocks',
       {
         'goal_config_session_id': goalConfigSessionId,
-        'action_id': actionId,
-        'equipment_id': equipmentId,
-        'tool_id': toolId,
-        'reps': reps,
-        'sets': sets,
-        'duration': duration,
-        'intensity': intensity,
-        'notes': notes,
-        'sort_order': sortOrder,
+        'sort_order': maxOrder + 1,
         'created_at': now,
         'updated_at': now,
       },
     );
+
+    // 插入字段值
+    for (final entry in values.entries) {
+      if (entry.value.isNotEmpty) {
+        await database.insert(
+          'goal_config_content_block_values',
+          {
+            'content_block_id': blockId,
+            'content_field_id': entry.key,
+            'value': entry.value,
+            'created_at': now,
+            'updated_at': now,
+          },
+        );
+      }
+    }
+
+    return blockId;
   }
 
-  /// 更新训练块模板
-  Future<void> updateGoalConfigTrainingBlock({
+  /// 更新默认配置内容块
+  Future<void> updateGoalConfigContentBlock({
     required int id,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
+    required Map<int, String> values,
   }) async {
-    final values = <String, dynamic>{
-      'updated_at': DateTime.now().toIso8601String(),
-    };
-    if (actionId != null) values['action_id'] = actionId;
-    if (equipmentId != null) values['equipment_id'] = equipmentId;
-    if (toolId != null) values['tool_id'] = toolId;
-    if (reps != null) values['reps'] = reps;
-    if (sets != null) values['sets'] = sets;
-    if (duration != null) values['duration'] = duration;
-    if (intensity != null) values['intensity'] = intensity;
-    if (notes != null) values['notes'] = notes;
+    final now = DateTime.now().toIso8601String();
+
+    // 删除旧值
+    await database.delete(
+      'goal_config_content_block_values',
+      where: 'content_block_id = ?',
+      whereArgs: [id],
+    );
+
+    // 插入新值
+    for (final entry in values.entries) {
+      if (entry.value.isNotEmpty) {
+        await database.insert(
+          'goal_config_content_block_values',
+          {
+            'content_block_id': id,
+            'content_field_id': entry.key,
+            'value': entry.value,
+            'created_at': now,
+            'updated_at': now,
+          },
+        );
+      }
+    }
 
     await database.update(
-      'goal_config_training_blocks',
-      values,
+      'goal_config_content_blocks',
+      {'updated_at': now},
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
-  /// 删除训练块模板
-  Future<void> deleteGoalConfigTrainingBlock(int id) async {
+  /// 删除默认配置内容块
+  Future<void> deleteGoalConfigContentBlock(int id) async {
     await database.delete(
-      'goal_config_training_blocks',
+      'goal_config_content_blocks',
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
-  /// 调整训练块模板排序
-  Future<void> reorderGoalConfigTrainingBlock({
+  /// 调整默认配置内容块排序
+  Future<void> reorderGoalConfigContentBlock({
     required int blockId,
     required int newSortOrder,
   }) async {
     await database.update(
-      'goal_config_training_blocks',
+      'goal_config_content_blocks',
       {
         'sort_order': newSortOrder,
         'updated_at': DateTime.now().toIso8601String(),
@@ -590,7 +576,7 @@ class CoursePlanRepository {
   /// 获取指定 session 的最大排序号
   Future<int> getMaxSortOrder(int goalConfigSessionId) async {
     final results = await database.rawQuery(
-      'SELECT MAX(sort_order) as max_order FROM goal_config_training_blocks WHERE goal_config_session_id = ?',
+      'SELECT MAX(sort_order) as max_order FROM goal_config_content_blocks WHERE goal_config_session_id = ?',
       [goalConfigSessionId],
     );
     return (results.first['max_order'] as int?) ?? -1;

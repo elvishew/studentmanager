@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
 import 'package:student_manager/providers/states.dart';
-import 'goal_config_training_block_form_page.dart';
+import 'package:student_manager/widgets/content_block_editor.dart';
+import 'package:student_manager/widgets/content_block_tile.dart';
 
-/// 课时模板详情页（训练块编辑）
+/// 课时模板详情页（内容块编辑）
 class GoalConfigSessionDetailPage extends ConsumerStatefulWidget {
   final GoalConfigSession session;
 
@@ -19,11 +21,28 @@ class GoalConfigSessionDetailPage extends ConsumerStatefulWidget {
 
 class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionDetailPage> {
   GoalConfigSession? _session;
+  List<ContentField> _contentFields = [];
 
   @override
   void initState() {
     super.initState();
     _session = widget.session;
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await _loadContentFields();
+    await _loadDetail();
+  }
+
+  Future<void> _loadContentFields() async {
+    final notifier = ref.read(contentFieldNotifierProvider.notifier);
+    await notifier.loadFields();
+    if (mounted) {
+      setState(() {
+        _contentFields = ref.read(contentFieldNotifierProvider);
+      });
+    }
   }
 
   Future<void> _loadDetail() async {
@@ -37,12 +56,12 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
     }
   }
 
-  /// 添加训练块
-  Future<void> _addTrainingBlock() async {
+  Future<void> _addContentBlock() async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (context) => GoalConfigTrainingBlockFormPage(
-          goalConfigSessionId: _session!.id,
+        builder: (context) => ContentBlockEditor(
+          sessionId: _session!.id,
+          context: 'goal_config',
         ),
       ),
     );
@@ -52,13 +71,13 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
     }
   }
 
-  /// 编辑训练块
-  Future<void> _editTrainingBlock(GoalConfigTrainingBlock block) async {
+  Future<void> _editContentBlock(GoalConfigContentBlock block) async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (context) => GoalConfigTrainingBlockFormPage(
-          goalConfigSessionId: _session!.id,
+        builder: (context) => ContentBlockEditor(
+          sessionId: _session!.id,
           blockId: block.id,
+          context: 'goal_config',
         ),
       ),
     );
@@ -68,13 +87,12 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
     }
   }
 
-  /// 删除训练块
-  Future<void> _deleteTrainingBlock(GoalConfigTrainingBlock block) async {
+  Future<void> _deleteContentBlock(GoalConfigContentBlock block) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
-        content: Text('确定要删除训练块 ${block.sortOrder + 1} 吗？'),
+        content: Text('确定要删除内容块 ${block.sortOrder + 1} 吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -96,14 +114,13 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
       if (mounted) {
         await _loadDetail();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('训练块已删除')),
+          const SnackBar(content: Text('内容块已删除')),
         );
       }
     }
   }
 
-  /// 上移训练块
-  Future<void> _moveUp(GoalConfigTrainingBlock block) async {
+  Future<void> _moveUp(GoalConfigContentBlock block) async {
     if (block.sortOrder > 0) {
       await ref.read(goalConfigNotifierProvider.notifier).reorderBlock(
             blockId: block.id,
@@ -113,8 +130,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
     }
   }
 
-  /// 下移训练块
-  Future<void> _moveDown(GoalConfigTrainingBlock block, int maxOrder) async {
+  Future<void> _moveDown(GoalConfigContentBlock block, int maxOrder) async {
     if (block.sortOrder < maxOrder) {
       await ref.read(goalConfigNotifierProvider.notifier).reorderBlock(
             blockId: block.id,
@@ -133,8 +149,8 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
       );
     }
 
-    final trainingBlocks = _session!.trainingBlocks ?? [];
-    final maxOrder = trainingBlocks.isEmpty ? 0 : trainingBlocks.length - 1;
+    final contentBlocks = _session!.contentBlocks ?? [];
+    final maxOrder = contentBlocks.isEmpty ? 0 : contentBlocks.length - 1;
 
     return Scaffold(
       appBar: AppBar(
@@ -142,13 +158,12 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: _buildTrainingBlocksSection(trainingBlocks, maxOrder),
+        child: _buildContentBlocksSection(contentBlocks, maxOrder),
       ),
     );
   }
 
-  /// 构建训练块部分
-  Widget _buildTrainingBlocksSection(List<GoalConfigTrainingBlock> blocks, int maxOrder) {
+  Widget _buildContentBlocksSection(List<GoalConfigContentBlock> blocks, int maxOrder) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,13 +171,13 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '训练内容',
+              '教学内容',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             ElevatedButton.icon(
-              onPressed: _addTrainingBlock,
+              onPressed: _addContentBlock,
               icon: const Icon(Icons.add, size: 18),
               label: const Text('添加'),
             ),
@@ -176,142 +191,25 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: const Center(
-              child: Text('暂无训练内容'),
-            ),
+            child: const Center(child: Text('暂无教学内容')),
           )
         else
           Column(
             children: blocks.asMap().entries.map((entry) {
               final index = entry.key;
               final block = entry.value;
-              return _buildTrainingBlockTile(index + 1, block, maxOrder);
+              return ContentBlockTile(
+                block: block,
+                number: index + 1,
+                contentFields: _contentFields,
+                maxOrder: maxOrder,
+                onEdit: () => _editContentBlock(block),
+                onDelete: () => _deleteContentBlock(block),
+                onMoveUp: () => _moveUp(block),
+                onMoveDown: () => _moveDown(block, maxOrder),
+              );
             }).toList(),
           ),
-      ],
-    );
-  }
-
-  /// 构建训练块卡片
-  Widget _buildTrainingBlockTile(int number, GoalConfigTrainingBlock block, int maxOrder) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12.0),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 序号、操作按钮
-            Row(
-              children: [
-                Text(
-                  '训练块 $number',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.arrow_upward, size: 18),
-                  tooltip: '上移',
-                  onPressed: block.sortOrder > 0 ? () => _moveUp(block) : null,
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                  padding: EdgeInsets.zero,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_downward, size: 18),
-                  tooltip: '下移',
-                  onPressed: block.sortOrder < maxOrder ? () => _moveDown(block, maxOrder) : null,
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                  padding: EdgeInsets.zero,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 18),
-                  tooltip: '编辑',
-                  onPressed: () => _editTrainingBlock(block),
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                  padding: EdgeInsets.zero,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, size: 18),
-                  tooltip: '删除',
-                  onPressed: () => _deleteTrainingBlock(block),
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (block.action != null)
-              _buildDetailRow('动作', block.action!.name),
-            if (block.equipment != null)
-              _buildDetailRow('器械', block.equipment!.name),
-            if (block.tool != null)
-              _buildDetailRow('工具', block.tool!.name),
-            const SizedBox(height: 4),
-            if (block.reps != null || block.sets != null)
-              Row(
-                children: [
-                  if (block.reps != null) ...[
-                    Expanded(child: _buildDetailItem('次数', block.reps!)),
-                    const SizedBox(width: 8),
-                  ],
-                  if (block.sets != null) ...[
-                    Expanded(child: _buildDetailItem('组数', block.sets!)),
-                  ],
-                ],
-              ),
-            if (block.duration != null)
-              _buildDetailRow('时长', block.duration!),
-            if (block.intensity != null)
-              _buildDetailRow('强度', block.intensity!),
-            if (block.notes != null && block.notes!.isNotEmpty)
-              _buildDetailRow('备注', block.notes!),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label: ',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-              ),
-        ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-        ),
       ],
     );
   }

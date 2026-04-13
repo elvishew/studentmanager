@@ -29,21 +29,18 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     return const GoalConfigState.initial();
   }
 
-  /// 获取所有课程目标配置
   Future<void> fetchAll() async {
     state = const GoalConfigState.loading();
 
     try {
       final maps = await _repository.fetchAllGoalConfigs();
       final configs = maps.map((map) => GoalConfig.fromMap(map)).toList();
-
       state = GoalConfigState.data(goalConfigs: configs);
     } catch (e, stackTrace) {
       state = GoalConfigState.error(e, stackTrace);
     }
   }
 
-  /// 获取配置详情（含 sessions + training blocks）
   Future<GoalConfig?> fetchDetail(int id) async {
     try {
       final map = await _repository.fetchGoalConfigDetail(id);
@@ -54,40 +51,18 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
       final sessions = (map['sessions'] as List).map((s) {
         final session = GoalConfigSession.fromMap(s as Map<String, dynamic>);
 
-        final blocks = (s['training_blocks'] as List).map((b) {
-          final block = GoalConfigTrainingBlock.fromMap(b as Map<String, dynamic>);
-          return block.copyWith(
-            action: b['action_name'] != null
-                ? Action(
-                    id: b['action_id'] as int? ?? 0,
-                    name: b['action_name'] as String,
-                    isDeprecated: (b['action_deprecated'] as int? ?? 0) == 1,
-                    createdAt: block.createdAt,
-                    updatedAt: block.updatedAt,
-                  )
-                : null,
-            equipment: b['equipment_name'] != null
-                ? Equipment(
-                    id: b['equipment_id'] as int? ?? 0,
-                    name: b['equipment_name'] as String,
-                    isDeprecated: (b['equipment_deprecated'] as int? ?? 0) == 1,
-                    createdAt: block.createdAt,
-                    updatedAt: block.updatedAt,
-                  )
-                : null,
-            tool: b['tool_name'] != null
-                ? Tool(
-                    id: b['tool_id'] as int? ?? 0,
-                    name: b['tool_name'] as String,
-                    isDeprecated: (b['tool_deprecated'] as int? ?? 0) == 1,
-                    createdAt: block.createdAt,
-                    updatedAt: block.updatedAt,
-                  )
-                : null,
-          );
+        final blocks = (s['content_blocks'] as List).map((b) {
+          final blockMap = b as Map<String, dynamic>;
+          final block = GoalConfigContentBlock.fromMap(blockMap);
+          final valuesList = blockMap['values'] as List;
+          final values = <int, String>{};
+          for (final v in valuesList) {
+            values[v['content_field_id'] as int] = v['value'] as String? ?? '';
+          }
+          return block.copyWith(values: values);
         }).toList();
 
-        return session.copyWith(trainingBlocks: blocks);
+        return session.copyWith(contentBlocks: blocks);
       }).toList();
 
       return config.copyWith(sessions: sessions);
@@ -96,7 +71,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     }
   }
 
-  /// 新增或更新配置
   Future<int> upsertConfig({
     required int goalId,
     String? blueprint,
@@ -106,14 +80,11 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     return id;
   }
 
-  /// 删除配置
   Future<void> deleteConfig(int id) async {
     await _repository.deleteGoalConfig(id);
     await fetchAll();
   }
 
-  /// 清理空配置：蓝图为空且无课时模板时，删除整条记录
-  /// 返回 true 表示已删除，false 表示保留
   Future<bool> cleanIfEmpty(int goalConfigId) async {
     final detail = await fetchDetail(goalConfigId);
     if (detail == null) return true;
@@ -128,7 +99,6 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     return false;
   }
 
-  /// 新增课时模板
   Future<int> addSession({
     required int goalConfigId,
     required int sessionNumber,
@@ -136,74 +106,41 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
     return await _repository.addGoalConfigSession(goalConfigId, sessionNumber);
   }
 
-  /// 删除课时模板
   Future<void> deleteSession(int id) async {
     await _repository.deleteGoalConfigSession(id);
   }
 
-  /// 新增训练块模板
+  /// 新增内容块模板
   Future<int> addBlock({
     required int goalConfigSessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
+    required Map<int, String> values,
   }) async {
     final maxOrder = await _repository.getMaxSortOrder(goalConfigSessionId);
-    return await _repository.addGoalConfigTrainingBlock(
+    return await _repository.addGoalConfigContentBlock(
       goalConfigSessionId: goalConfigSessionId,
-      actionId: actionId,
-      equipmentId: equipmentId,
-      toolId: toolId,
-      reps: reps,
-      sets: sets,
-      duration: duration,
-      intensity: intensity,
-      notes: notes,
-      sortOrder: maxOrder + 1,
+      values: values,
     );
   }
 
-  /// 更新训练块模板
+  /// 更新内容块模板
   Future<void> updateBlock({
     required int id,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
+    required Map<int, String> values,
   }) async {
-    await _repository.updateGoalConfigTrainingBlock(
-      id: id,
-      actionId: actionId,
-      equipmentId: equipmentId,
-      toolId: toolId,
-      reps: reps,
-      sets: sets,
-      duration: duration,
-      intensity: intensity,
-      notes: notes,
-    );
+    await _repository.updateGoalConfigContentBlock(id: id, values: values);
   }
 
-  /// 删除训练块模板
+  /// 删除内容块模板
   Future<void> deleteBlock(int id) async {
-    await _repository.deleteGoalConfigTrainingBlock(id);
+    await _repository.deleteGoalConfigContentBlock(id);
   }
 
-  /// 调整训练块模板排序
+  /// 调整内容块模板排序
   Future<void> reorderBlock({
     required int blockId,
     required int newSortOrder,
   }) async {
-    await _repository.reorderGoalConfigTrainingBlock(
+    await _repository.reorderGoalConfigContentBlock(
       blockId: blockId,
       newSortOrder: newSortOrder,
     );

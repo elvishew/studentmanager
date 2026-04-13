@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
-import 'package:student_manager/providers/item_provider.dart';
+import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'goal_config_detail_page.dart';
 

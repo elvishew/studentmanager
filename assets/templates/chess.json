@@ -1,0 +1,13 @@
+{
+  "id": "chess",
+  "name": "国际象棋教练",
+  "contentFields": [
+    {"name": "训练内容", "type": "select", "required": true, "sortOrder": 0, "options": ["开局训练", "中局战术", "残局练习", "对局实战", "棋局分析", "解题练习"]},
+    {"name": "开局名称", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "战术主题", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "对局结果", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["零基础入门", "规则掌握", "开局体系", "战术训练", "等级赛备战", "竞技提升"]
+}

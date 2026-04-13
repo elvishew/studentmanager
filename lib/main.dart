@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'pages/student_list_page.dart';
+import 'pages/template_selection_page.dart';
 import 'providers/student_provider.dart';
+import 'utils/template_loader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,16 +28,63 @@ Future<Database> _initDatabase() async {
   final dbPath = await getDatabasesPath();
   final path = join(dbPath, 'student_manager.db');
 
-  // 删除旧数据库（开发阶段可选）
-  // await deleteDatabase(path);
+  // 开发阶段：删除旧数据库以确保 schema 干净
+  await deleteDatabase(path);
 
   final database = await openDatabase(
     path,
-    version: 6,
+    version: 1,
     onCreate: (db, version) async {
       await db.execute('PRAGMA foreign_keys = ON');
 
-      // 创建学员表
+      // ============================================
+      // 应用设置表
+      // ============================================
+      await db.execute('''
+        CREATE TABLE app_settings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          key TEXT NOT NULL UNIQUE,
+          value TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // ============================================
+      // 内容字段定义
+      // ============================================
+      await db.execute('''
+        CREATE TABLE content_fields (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          field_type TEXT NOT NULL CHECK(field_type IN ('select', 'number', 'text', 'multiline')),
+          is_required INTEGER NOT NULL DEFAULT 0,
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // ============================================
+      // 字段选项
+      // ============================================
+      await db.execute('''
+        CREATE TABLE field_options (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          content_field_id INTEGER NOT NULL,
+          value TEXT NOT NULL,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (content_field_id) REFERENCES content_fields(id) ON DELETE CASCADE,
+          UNIQUE(content_field_id, value)
+        )
+      ''');
+
+      // ============================================
+      // 学员表
+      // ============================================
       await db.execute('''
         CREATE TABLE students (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +97,22 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建课程规划表
+      // ============================================
+      // 课程目标表
+      // ============================================
+      await db.execute('''
+        CREATE TABLE course_goals (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // ============================================
+      // 课程规划表
+      // ============================================
       await db.execute('''
         CREATE TABLE course_plans (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +127,9 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建课时表
+      // ============================================
+      // 课时表
+      // ============================================
       await db.execute('''
         CREATE TABLE sessions (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,19 +145,13 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建训练块表
+      // ============================================
+      // 内容块（替代 training_blocks）
+      // ============================================
       await db.execute('''
-        CREATE TABLE training_blocks (
+        CREATE TABLE content_blocks (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           session_id INTEGER NOT NULL,
-          action_id INTEGER,
-          equipment_id INTEGER,
-          tool_id INTEGER,
-          reps TEXT,
-          sets TEXT,
-          duration TEXT,
-          intensity TEXT,
-          notes TEXT,
           sort_order INTEGER NOT NULL DEFAULT 0,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -99,40 +159,26 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建动作表
+      // ============================================
+      // 内容块字段值（EAV 模式）
+      // ============================================
       await db.execute('''
-        CREATE TABLE actions (
+        CREATE TABLE content_block_values (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          content_block_id INTEGER NOT NULL,
+          content_field_id INTEGER NOT NULL,
+          value TEXT,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (content_block_id) REFERENCES content_blocks(id) ON DELETE CASCADE,
+          FOREIGN KEY (content_field_id) REFERENCES content_fields(id) ON DELETE CASCADE,
+          UNIQUE(content_block_id, content_field_id)
         )
       ''');
 
-      // 创建器械表
-      await db.execute('''
-        CREATE TABLE equipments (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          is_deprecated INTEGER NOT NULL DEFAULT 0,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
-      // 创建工具表
-      await db.execute('''
-        CREATE TABLE tools (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          is_deprecated INTEGER NOT NULL DEFAULT 0,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
-      // 创建课程目标默认配置表
+      // ============================================
+      // 课程目标默认配置表
+      // ============================================
       await db.execute('''
         CREATE TABLE goal_configs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,18 +190,9 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建课程目标表
-      await db.execute('''
-        CREATE TABLE course_goals (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          is_deprecated INTEGER NOT NULL DEFAULT 0,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
-
-      // 创建默认配置课时模板表
+      // ============================================
+      // 默认配置课时模板表
+      // ============================================
       await db.execute('''
         CREATE TABLE goal_config_sessions (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -168,19 +205,13 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建默认配置训练块模板表
+      // ============================================
+      // 默认配置内容块
+      // ============================================
       await db.execute('''
-        CREATE TABLE goal_config_training_blocks (
+        CREATE TABLE goal_config_content_blocks (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           goal_config_session_id INTEGER NOT NULL,
-          action_id INTEGER,
-          equipment_id INTEGER,
-          tool_id INTEGER,
-          reps TEXT,
-          sets TEXT,
-          duration TEXT,
-          intensity TEXT,
-          notes TEXT,
           sort_order INTEGER NOT NULL DEFAULT 0,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -188,16 +219,26 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建索引
-      await db.execute('CREATE INDEX idx_sessions_course_plan ON sessions(course_plan_id)');
-      await db.execute('CREATE INDEX idx_training_blocks_session ON training_blocks(session_id)');
-      await db.execute('CREATE INDEX idx_course_plans_student ON course_plans(student_id)');
-      await db.execute('CREATE INDEX idx_goal_config_sessions_config ON goal_config_sessions(goal_config_id)');
-      await db.execute('CREATE INDEX idx_goal_config_training_blocks_session ON goal_config_training_blocks(goal_config_session_id)');
-      await db.execute('CREATE INDEX idx_sessions_status ON sessions(status)');
-      await db.execute('CREATE INDEX idx_sessions_scheduled_time ON sessions(scheduled_time)');
+      // ============================================
+      // 默认配置内容块字段值
+      // ============================================
+      await db.execute('''
+        CREATE TABLE goal_config_content_block_values (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          content_block_id INTEGER NOT NULL,
+          content_field_id INTEGER NOT NULL,
+          value TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (content_block_id) REFERENCES goal_config_content_blocks(id) ON DELETE CASCADE,
+          FOREIGN KEY (content_field_id) REFERENCES content_fields(id) ON DELETE CASCADE,
+          UNIQUE(content_block_id, content_field_id)
+        )
+      ''');
 
-      // 创建相册表
+      // ============================================
+      // 相册表
+      // ============================================
       await db.execute('''
         CREATE TABLE albums (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -210,7 +251,9 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 创建相册照片表
+      // ============================================
+      // 相册照片表
+      // ============================================
       await db.execute('''
         CREATE TABLE album_photos (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -222,139 +265,26 @@ Future<Database> _initDatabase() async {
         )
       ''');
 
-      // 相册相关索引
+      // ============================================
+      // 创建索引
+      // ============================================
+      await db.execute('CREATE INDEX idx_content_fields_sort ON content_fields(sort_order)');
+      await db.execute('CREATE INDEX idx_field_options_field ON field_options(content_field_id)');
+      await db.execute('CREATE INDEX idx_content_blocks_session ON content_blocks(session_id)');
+      await db.execute('CREATE INDEX idx_content_block_values_block ON content_block_values(content_block_id)');
+      await db.execute('CREATE INDEX idx_goal_config_content_blocks_session ON goal_config_content_blocks(goal_config_session_id)');
+      await db.execute('CREATE INDEX idx_goal_config_content_block_values_block ON goal_config_content_block_values(content_block_id)');
+      await db.execute('CREATE INDEX idx_sessions_course_plan ON sessions(course_plan_id)');
+      await db.execute('CREATE INDEX idx_course_plans_student ON course_plans(student_id)');
+      await db.execute('CREATE INDEX idx_goal_config_sessions_config ON goal_config_sessions(goal_config_id)');
+      await db.execute('CREATE INDEX idx_sessions_status ON sessions(status)');
+      await db.execute('CREATE INDEX idx_sessions_scheduled_time ON sessions(scheduled_time)');
       await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
       await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
-
-      // 插入初始数据
-      await _insertInitialData(db);
-    },
-    onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 2) {
-        // 添加is_deprecated字段
-        await db.execute('ALTER TABLE actions ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
-        await db.execute('ALTER TABLE equipments ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
-        await db.execute('ALTER TABLE tools ADD COLUMN is_deprecated INTEGER NOT NULL DEFAULT 0');
-      }
-      if (oldVersion < 3) {
-        // 创建课程目标表并插入初始数据
-        await db.execute('''
-          CREATE TABLE course_goals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            is_deprecated INTEGER NOT NULL DEFAULT 0,
-            is_custom INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-          )
-        ''');
-        await _insertInitialGoals(db);
-      }
-      if (oldVersion < 4) {
-        // v3→v4：goal TEXT → goal_id INTEGER 外键引用
-        // 1. course_plans 添加 goal_id
-        await db.execute('ALTER TABLE course_plans ADD COLUMN goal_id INTEGER');
-        await db.execute('UPDATE course_plans SET goal_id = (SELECT id FROM course_goals WHERE name = course_plans.goal)');
-
-        // 2. goal_configs 添加 goal_id
-        await db.execute('ALTER TABLE goal_configs ADD COLUMN goal_id INTEGER');
-        await db.execute('UPDATE goal_configs SET goal_id = (SELECT id FROM course_goals WHERE name = goal_configs.goal)');
-
-        // 3. 删除"自定义"目标行
-        await db.execute('DELETE FROM course_goals WHERE is_custom = 1');
-
-        // 4. 旧 TEXT 列保留不删（SQLite < 3.35 不支持 DROP COLUMN），代码不再使用
-      }
-      if (oldVersion < 5) {
-        // v4→v5：添加相册和相册照片表
-        await db.execute('''
-          CREATE TABLE albums (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            notes TEXT,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE album_photos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            album_id INTEGER NOT NULL,
-            file_path TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE
-          )
-        ''');
-        await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
-        await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
-      }
-      if (oldVersion < 6) {
-        // v5→v6：添加课时时长相关字段
-        await db.execute('ALTER TABLE course_plans ADD COLUMN default_duration INTEGER NOT NULL DEFAULT 60');
-        await db.execute('ALTER TABLE sessions ADD COLUMN duration_override INTEGER');
-      }
     },
   );
 
   return database;
-}
-
-/// 插入初始数据
-Future<void> _insertInitialData(Database db) async {
-  // 插入默认动作
-  await db.insert('actions', {'name': '宽蹲'});
-  await db.insert('actions', {'name': '侧弓步蹲'});
-  await db.insert('actions', {'name': '侧蹬腿'});
-  await db.insert('actions', {'name': '站姿弓步（一）'});
-  await db.insert('actions', {'name': '站姿弓步（二）'});
-  await db.insert('actions', {'name': '站姿弓步（三）'});
-
-  // 插入默认器械
-  await db.insert('equipments', {'name': '核心床（Reformer）'});
-  await db.insert('equipments', {'name': '凯迪拉克床（Cadillac）'});
-  await db.insert('equipments', {'name': '稳踏椅（Chair）'});
-  await db.insert('equipments', {'name': '梯桶（Ladder Barrel）'});
-  await db.insert('equipments', {'name': 'ARC'});
-
-  // 插入默认工具
-  await db.insert('tools', {'name': '盒子'});
-  await db.insert('tools', {'name': '小球'});
-  await db.insert('tools', {'name': '弹力带'});
-  await db.insert('tools', {'name': '普拉提环'});
-  await db.insert('tools', {'name': '泡沫轴'});
-  await db.insert('tools', {'name': '瑜伽砖'});
-
-  // 插入示例学员数据（用于测试）
-  await db.insert('students', {
-    'name': '张三',
-    'gender': '女',
-    'contact': '13800138000',
-    'notes': '产后2个月，需要修复',
-  });
-
-  await db.insert('students', {
-    'name': '李四',
-    'gender': '女',
-    'contact': '13900139000',
-    'notes': '肩颈不适',
-  });
-
-  // 插入默认课程目标
-  await _insertInitialGoals(db);
-}
-
-/// 插入初始课程目标
-Future<void> _insertInitialGoals(Database db) async {
-  final goals = [
-    '产后修复', '肩颈理疗', '肩背打造', '腰酸治疗',
-    '腰腹塑形', '全身塑形', '臀腿打造', '膝盖疼痛',
-  ];
-  for (final name in goals) {
-    await db.insert('course_goals', {'name': name});
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -363,7 +293,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '普拉提学员管理系统',
+      title: '学员课程管理系统',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -392,7 +322,31 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: ThemeMode.system,
-      home: const StudentListPage(),
+      home: const _AppHome(),
+    );
+  }
+}
+
+/// 首页路由：根据模板选择状态决定显示哪个页面
+class _AppHome extends ConsumerWidget {
+  const _AppHome();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<String?>(
+      future: TemplateLoader.getSelectedTemplate(ref.read(databaseProvider)),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final selectedTemplate = snapshot.data;
+        if (selectedTemplate == null || selectedTemplate.isEmpty) {
+          return const TemplateSelectionPage();
+        }
+        return const StudentListPage();
+      },
     );
   }
 }

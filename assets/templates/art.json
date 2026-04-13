@@ -1,0 +1,13 @@
+{
+  "id": "art",
+  "name": "美术老师",
+  "contentFields": [
+    {"name": "练习内容", "type": "select", "required": true, "sortOrder": 0, "options": ["素描", "色彩", "速写", "水彩", "油画", "国画", "手工", "创意画"]},
+    {"name": "主题/题材", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "工具材料", "type": "select", "required": false, "sortOrder": 2, "options": ["铅笔", "炭笔", "水彩笔", "油画棒", "颜料", "彩铅", "马克笔"]},
+    {"name": "画幅大小", "type": "text", "required": false, "sortOrder": 3},
+    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["基础素描", "色彩感知", "创意思维", "考级备战", "作品集准备", "兴趣培养"]
+}

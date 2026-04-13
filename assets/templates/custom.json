@@ -1,0 +1,9 @@
+{
+  "id": "custom",
+  "name": "自定义",
+  "contentFields": [
+    {"name": "内容", "type": "text", "required": false, "sortOrder": 0},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 1}
+  ],
+  "courseGoals": []
+}

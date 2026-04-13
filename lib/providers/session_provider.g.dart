@@ -28,36 +28,11 @@ final sessionRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionRepositoryRef = AutoDisposeProviderRef<SessionRepository>;
-String _$trainingBlockRepositoryHash() =>
-    r'4c728b0e5ead9c512685c838ccde1ef82e816652';
-
-/// ============================================
-/// TrainingBlockRepository Provider
-/// ============================================
-///
-/// Copied from [trainingBlockRepository].
-@ProviderFor(trainingBlockRepository)
-final trainingBlockRepositoryProvider =
-    AutoDisposeProvider<TrainingBlockRepository>.internal(
-      trainingBlockRepository,
-      name: r'trainingBlockRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$trainingBlockRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef TrainingBlockRepositoryRef =
-    AutoDisposeProviderRef<TrainingBlockRepository>;
 String _$selectedSessionHash() => r'239ce22f4e63f25fbf982979cafb5ed4f6059778';
 
 /// ============================================
 /// Session 计算属性 Provider
 /// ============================================
-/// 当前选中的课时
 ///
 /// Copied from [selectedSession].
 @ProviderFor(selectedSession)
@@ -76,9 +51,7 @@ final selectedSessionProvider = AutoDisposeProvider<Session?>.internal(
 typedef SelectedSessionRef = AutoDisposeProviderRef<Session?>;
 String _$sessionCountHash() => r'6a5d4c46d1d1794a81b0c29af3e0be5de943b8f1';
 
-/// 课时总数
-///
-/// Copied from [sessionCount].
+/// See also [sessionCount].
 @ProviderFor(sessionCount)
 final sessionCountProvider = AutoDisposeProvider<int>.internal(
   sessionCount,
@@ -96,9 +69,7 @@ typedef SessionCountRef = AutoDisposeProviderRef<int>;
 String _$completedSessionCountHash() =>
     r'8bc8635d19c0d02d4597cb1d3c2d097e2973e36d';
 
-/// 已完成课时数
-///
-/// Copied from [completedSessionCount].
+/// See also [completedSessionCount].
 @ProviderFor(completedSessionCount)
 final completedSessionCountProvider = AutoDisposeProvider<int>.internal(
   completedSessionCount,
@@ -116,9 +87,7 @@ typedef CompletedSessionCountRef = AutoDisposeProviderRef<int>;
 String _$sessionCompletionRateHash() =>
     r'1609f47971a5442bd35264d853190c9b3075d062';
 
-/// 课程完成率
-///
-/// Copied from [sessionCompletionRate].
+/// See also [sessionCompletionRate].
 @ProviderFor(sessionCompletionRate)
 final sessionCompletionRateProvider = AutoDisposeProvider<double>.internal(
   sessionCompletionRate,
@@ -135,9 +104,7 @@ final sessionCompletionRateProvider = AutoDisposeProvider<double>.internal(
 typedef SessionCompletionRateRef = AutoDisposeProviderRef<double>;
 String _$sessionStatisticsHash() => r'933d7f6510b425cadcb1db0c6ead6da37b06c07c';
 
-/// 课时统计
-///
-/// Copied from [sessionStatistics].
+/// See also [sessionStatistics].
 @ProviderFor(sessionStatistics)
 final sessionStatisticsProvider =
     AutoDisposeProvider<SessionStatistics>.internal(
@@ -153,7 +120,7 @@ final sessionStatisticsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionStatisticsRef = AutoDisposeProviderRef<SessionStatistics>;
-String _$sessionNotifierHash() => r'2233df1f85c11c49c37ffc22345ef90707201503';
+String _$sessionNotifierHash() => r'1641b3b64cf3742fe3710dcdabffaa8292ee084c';
 
 /// ============================================
 /// Session Notifier
@@ -173,26 +140,5 @@ final sessionNotifierProvider =
     );
 
 typedef _$SessionNotifier = AutoDisposeNotifier<SessionState>;
-String _$trainingBlockNotifierHash() =>
-    r'5fbc1a4377da32f8b00e6bc1c7574616a1d58356';
-
-/// ============================================
-/// TrainingBlockNotifier Provider
-/// ============================================
-///
-/// Copied from [TrainingBlockNotifier].
-@ProviderFor(TrainingBlockNotifier)
-final trainingBlockNotifierProvider =
-    AutoDisposeNotifierProvider<TrainingBlockNotifier, dynamic>.internal(
-      TrainingBlockNotifier.new,
-      name: r'trainingBlockNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$trainingBlockNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$TrainingBlockNotifier = AutoDisposeNotifier<dynamic>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

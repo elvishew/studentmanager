@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'item_list_page.dart';
-import 'item_form_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/providers/student_provider.dart';
+import 'package:student_manager/utils/template_loader.dart';
+import 'content_field_list_page.dart';
 import 'goal_config_list_page.dart';
 import 'goal_list_page.dart';
-import '../providers/item_provider.dart';
+import 'template_selection_page.dart';
 
-/// ============================================
 /// 系统设置主页
-/// ============================================
-
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('系统设置'),
@@ -22,19 +21,10 @@ class SettingsPage extends StatelessWidget {
         children: [
           _buildSectionHeader('基础数据管理'),
           _buildListTile(
-            icon: Icons.directions_run,
-            title: '动作管理',
-            onTap: () => _navigateTo(context, _buildActionListPage()),
-          ),
-          _buildListTile(
-            icon: Icons.fitness_center,
-            title: '器械管理',
-            onTap: () => _navigateTo(context, _buildEquipmentListPage()),
-          ),
-          _buildListTile(
-            icon: Icons.build,
-            title: '工具管理',
-            onTap: () => _navigateTo(context, _buildToolListPage()),
+            icon: Icons.view_list,
+            title: '教学内容字段',
+            subtitle: '管理教学内容表单字段',
+            onTap: () => _navigateTo(context, const ContentFieldListPage()),
           ),
           _buildListTile(
             icon: Icons.flag,
@@ -45,6 +35,14 @@ class SettingsPage extends StatelessWidget {
             icon: Icons.school,
             title: '课程目标配置',
             onTap: () => _navigateTo(context, const GoalConfigListPage()),
+          ),
+          const SizedBox(height: 24),
+          _buildSectionHeader('系统'),
+          _buildListTile(
+            icon: Icons.swap_horiz,
+            title: '切换教学模板',
+            subtitle: '重新选择模板将清空当前字段和选项',
+            onTap: () => _showSwitchTemplateDialog(context, ref),
           ),
           const SizedBox(height: 24),
           _buildSectionHeader('应用信息'),
@@ -58,55 +56,41 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionListPage() {
-    return BasicItemListPage(
-      title: '动作管理',
-      icon: Icons.directions_run,
-      searchHint: '搜索动作名称...',
-      notifierProvider: actionNotifierProvider,
-      formPageBuilder: (itemId) => BasicItemFormPage(
-        itemId: itemId,
-        title: '动作',
-        fieldLabel: '动作名称',
-        fieldHint: '请输入动作名称',
-        duplicateHint: '该动作名称已存在',
-        tableName: 'actions',
+  Future<void> _showSwitchTemplateDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning, color: Colors.orange, size: 48),
+        title: const Text('切换教学模板'),
+        content: const Text(
+          '切换模板将清空当前的教学内容字段和课程目标。\n'
+          '已有的学员和课程规划数据不会受影响，但其中的教学内容可能无法正常显示。\n\n'
+          '确定要继续吗？',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('确定切换'),
+          ),
+        ],
       ),
     );
-  }
 
-  Widget _buildEquipmentListPage() {
-    return BasicItemListPage(
-      title: '器械管理',
-      icon: Icons.fitness_center,
-      searchHint: '搜索器械名称...',
-      notifierProvider: equipmentNotifierProvider,
-      formPageBuilder: (itemId) => BasicItemFormPage(
-        itemId: itemId,
-        title: '器械',
-        fieldLabel: '器械名称',
-        fieldHint: '请输入器械名称',
-        duplicateHint: '该器械名称已存在',
-        tableName: 'equipments',
-      ),
-    );
-  }
-
-  Widget _buildToolListPage() {
-    return BasicItemListPage(
-      title: '工具管理',
-      icon: Icons.build,
-      searchHint: '搜索工具名称...',
-      notifierProvider: toolNotifierProvider,
-      formPageBuilder: (itemId) => BasicItemFormPage(
-        itemId: itemId,
-        title: '工具',
-        fieldLabel: '工具名称',
-        fieldHint: '请输入工具名称',
-        duplicateHint: '该工具名称已存在',
-        tableName: 'tools',
-      ),
-    );
+    if (confirmed == true && context.mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const TemplateSelectionPage(),
+        ),
+      );
+    }
   }
 
   Widget _buildSectionHeader(String title) {
@@ -126,11 +110,13 @@ class SettingsPage extends StatelessWidget {
   Widget _buildListTile({
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
@@ -146,18 +132,14 @@ class SettingsPage extends StatelessWidget {
       title: Text(title),
       trailing: Text(
         trailing,
-        style: TextStyle(
-          color: Colors.grey[600],
-        ),
+        style: TextStyle(color: Colors.grey[600]),
       ),
     );
   }
 
   void _navigateTo(BuildContext context, Widget page) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => page,
-      ),
+      MaterialPageRoute(builder: (context) => page),
     );
   }
 }

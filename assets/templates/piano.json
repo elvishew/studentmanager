@@ -1,0 +1,13 @@
+{
+  "id": "piano",
+  "name": "钢琴老师",
+  "contentFields": [
+    {"name": "练习类型", "type": "select", "required": true, "sortOrder": 0, "options": ["音阶练习", "琶音练习", "哈农练习", "练习曲", "乐曲", "视奏"]},
+    {"name": "曲目", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "速度要求", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "遍数", "type": "number", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["启蒙入门", "基础指法", "考级备战", "乐感培养", "乐曲演奏", "即兴伴奏"]
+}

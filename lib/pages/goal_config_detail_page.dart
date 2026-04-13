@@ -185,7 +185,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   /// 构建课时模板列表项
   Widget _buildSessionTile(GoalConfigSession session) {
     final theme = Theme.of(context);
-    final blockCount = session.trainingBlocks?.length ?? 0;
+    final blockCount = session.contentBlocks?.length ?? 0;
 
     return Dismissible(
       key: Key('gc_session_${session.id}'),

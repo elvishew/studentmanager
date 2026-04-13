@@ -1,0 +1,13 @@
+{
+  "id": "taekwondo",
+  "name": "跆拳道教练",
+  "contentFields": [
+    {"name": "训练内容", "type": "select", "required": true, "sortOrder": 0, "options": ["基本功", "品势", "对打", "击破", "特技", "体能训练"]},
+    {"name": "具体动作", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "组数", "type": "number", "required": false, "sortOrder": 2},
+    {"name": "次数/时长", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "护具", "type": "select", "required": false, "sortOrder": 4, "options": ["头盔", "护胸", "护腿", "护臂", "护齿", "手套"]},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["白黄带入门", "基础技术", "品势考核", "竞技训练", "考级备战", "体能强化"]
+}

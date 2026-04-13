@@ -1,0 +1,13 @@
+{
+  "id": "vocal",
+  "name": "声乐老师",
+  "contentFields": [
+    {"name": "练习曲目", "type": "select", "required": true, "sortOrder": 0, "options": ["发声练习", "音阶练习", "呼吸训练", "共鸣训练", "咬字练习", "视唱练耳"]},
+    {"name": "演唱曲目", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "调性", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "难度", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["基础发声", "音准提升", "气息训练", "共鸣开发", "歌曲演唱", "舞台表现", "考级备战"]
+}

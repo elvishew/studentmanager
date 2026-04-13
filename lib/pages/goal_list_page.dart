@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/item_provider.dart';
-import 'item_form_page.dart';
+import 'package:student_manager/providers/content_field_provider.dart';
 
 /// 课程目标管理列表页
 class GoalListPage extends ConsumerStatefulWidget {
@@ -28,22 +27,42 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
     super.dispose();
   }
 
-  Future<void> _navigateToForm(int? itemId) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BasicItemFormPage(
-          itemId: itemId,
-          title: '课程目标',
-          fieldLabel: '目标名称',
-          fieldHint: '请输入课程目标名称',
-          duplicateHint: '该目标名称已存在',
-          tableName: 'course_goals',
-        ),
+  Future<void> _showFormDialog(int? itemId) async {
+    String? initialValue;
+    if (itemId != null) {
+      final state = ref.read(goalNotifierProvider);
+      final item = state.items.where((i) => i.id == itemId).firstOrNull;
+      if (item != null) {
+        initialValue = item.name;
+      }
+    }
+
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => _GoalFormDialog(
+        itemId: itemId,
+        initialValue: initialValue,
       ),
     );
-    if (mounted) {
-      final query = ref.read(goalNotifierProvider).searchQuery;
-      ref.read(goalNotifierProvider.notifier).fetchAllAndSearch(query);
+
+    if (name != null && mounted) {
+      if (itemId != null) {
+        final success = await ref.read(goalNotifierProvider.notifier).update(itemId, name);
+        if (success && mounted) {
+          final query = ref.read(goalNotifierProvider).searchQuery;
+          ref.read(goalNotifierProvider.notifier).fetchAllAndSearch(query);
+        }
+      } else {
+        final id = await ref.read(goalNotifierProvider.notifier).create(name);
+        if (id != null && mounted) {
+          final query = ref.read(goalNotifierProvider).searchQuery;
+          ref.read(goalNotifierProvider.notifier).fetchAllAndSearch(query);
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('该目标名称已存在')),
+          );
+        }
+      }
     }
   }
 
@@ -152,7 +171,7 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => _navigateToForm(null),
+            onPressed: () => _showFormDialog(null),
           ),
         ],
       ),
@@ -278,7 +297,7 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
           IconButton(
             icon: const Icon(Icons.edit),
             tooltip: '编辑',
-            onPressed: () => _navigateToForm(item.id),
+            onPressed: () => _showFormDialog(item.id),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
@@ -288,7 +307,64 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
           ),
         ],
       ),
-      onTap: () => _navigateToForm(item.id),
+      onTap: () => _showFormDialog(item.id),
+    );
+  }
+}
+
+class _GoalFormDialog extends StatefulWidget {
+  final int? itemId;
+  final String? initialValue;
+
+  const _GoalFormDialog({this.itemId, this.initialValue});
+
+  @override
+  State<_GoalFormDialog> createState() => _GoalFormDialogState();
+}
+
+class _GoalFormDialogState extends State<_GoalFormDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.itemId != null ? '编辑课程目标' : '新增课程目标'),
+      content: TextField(
+        controller: _controller,
+        decoration: const InputDecoration(
+          labelText: '目标名称',
+          hintText: '请输入课程目标名称',
+          border: OutlineInputBorder(),
+        ),
+        autofocus: true,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消'),
+        ),
+        TextButton(
+          onPressed: () {
+            final value = _controller.text.trim();
+            if (value.isNotEmpty) {
+              Navigator.pop(context, value);
+            }
+          },
+          child: const Text('确定'),
+        ),
+      ],
     );
   }
 }

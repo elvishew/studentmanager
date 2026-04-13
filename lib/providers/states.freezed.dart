@@ -3017,7 +3017,7 @@ mixin _$Session {
   SessionStatus get status => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  List<TrainingBlock>? get trainingBlocks => throw _privateConstructorUsedError;
+  List<ContentBlock>? get contentBlocks => throw _privateConstructorUsedError;
 
   /// Create a copy of Session
   /// with the given fields replaced by the non-null parameter values.
@@ -3039,7 +3039,7 @@ abstract class $SessionCopyWith<$Res> {
     SessionStatus status,
     DateTime createdAt,
     DateTime updatedAt,
-    List<TrainingBlock>? trainingBlocks,
+    List<ContentBlock>? contentBlocks,
   });
 }
 
@@ -3066,7 +3066,7 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? trainingBlocks = freezed,
+    Object? contentBlocks = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -3102,10 +3102,10 @@ class _$SessionCopyWithImpl<$Res, $Val extends Session>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
-            trainingBlocks: freezed == trainingBlocks
-                ? _value.trainingBlocks
-                : trainingBlocks // ignore: cast_nullable_to_non_nullable
-                      as List<TrainingBlock>?,
+            contentBlocks: freezed == contentBlocks
+                ? _value.contentBlocks
+                : contentBlocks // ignore: cast_nullable_to_non_nullable
+                      as List<ContentBlock>?,
           )
           as $Val,
     );
@@ -3129,7 +3129,7 @@ abstract class _$$SessionImplCopyWith<$Res> implements $SessionCopyWith<$Res> {
     SessionStatus status,
     DateTime createdAt,
     DateTime updatedAt,
-    List<TrainingBlock>? trainingBlocks,
+    List<ContentBlock>? contentBlocks,
   });
 }
 
@@ -3155,7 +3155,7 @@ class __$$SessionImplCopyWithImpl<$Res>
     Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? trainingBlocks = freezed,
+    Object? contentBlocks = freezed,
   }) {
     return _then(
       _$SessionImpl(
@@ -3191,10 +3191,10 @@ class __$$SessionImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
-        trainingBlocks: freezed == trainingBlocks
-            ? _value._trainingBlocks
-            : trainingBlocks // ignore: cast_nullable_to_non_nullable
-                  as List<TrainingBlock>?,
+        contentBlocks: freezed == contentBlocks
+            ? _value._contentBlocks
+            : contentBlocks // ignore: cast_nullable_to_non_nullable
+                  as List<ContentBlock>?,
       ),
     );
   }
@@ -3212,8 +3212,8 @@ class _$SessionImpl extends _Session {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
-    final List<TrainingBlock>? trainingBlocks,
-  }) : _trainingBlocks = trainingBlocks,
+    final List<ContentBlock>? contentBlocks,
+  }) : _contentBlocks = contentBlocks,
        super._();
 
   @override
@@ -3232,19 +3232,19 @@ class _$SessionImpl extends _Session {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
-  final List<TrainingBlock>? _trainingBlocks;
+  final List<ContentBlock>? _contentBlocks;
   @override
-  List<TrainingBlock>? get trainingBlocks {
-    final value = _trainingBlocks;
+  List<ContentBlock>? get contentBlocks {
+    final value = _contentBlocks;
     if (value == null) return null;
-    if (_trainingBlocks is EqualUnmodifiableListView) return _trainingBlocks;
+    if (_contentBlocks is EqualUnmodifiableListView) return _contentBlocks;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
   String toString() {
-    return 'Session(id: $id, coursePlanId: $coursePlanId, sessionNumber: $sessionNumber, scheduledTime: $scheduledTime, durationOverride: $durationOverride, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, trainingBlocks: $trainingBlocks)';
+    return 'Session(id: $id, coursePlanId: $coursePlanId, sessionNumber: $sessionNumber, scheduledTime: $scheduledTime, durationOverride: $durationOverride, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, contentBlocks: $contentBlocks)';
   }
 
   @override
@@ -3267,8 +3267,8 @@ class _$SessionImpl extends _Session {
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
             const DeepCollectionEquality().equals(
-              other._trainingBlocks,
-              _trainingBlocks,
+              other._contentBlocks,
+              _contentBlocks,
             ));
   }
 
@@ -3283,7 +3283,7 @@ class _$SessionImpl extends _Session {
     status,
     createdAt,
     updatedAt,
-    const DeepCollectionEquality().hash(_trainingBlocks),
+    const DeepCollectionEquality().hash(_contentBlocks),
   );
 
   /// Create a copy of Session
@@ -3305,7 +3305,7 @@ abstract class _Session extends Session {
     required final SessionStatus status,
     required final DateTime createdAt,
     required final DateTime updatedAt,
-    final List<TrainingBlock>? trainingBlocks,
+    final List<ContentBlock>? contentBlocks,
   }) = _$SessionImpl;
   const _Session._() : super._();
 
@@ -3326,7 +3326,7 @@ abstract class _Session extends Session {
   @override
   DateTime get updatedAt;
   @override
-  List<TrainingBlock>? get trainingBlocks;
+  List<ContentBlock>? get contentBlocks;
 
   /// Create a copy of Session
   /// with the given fields replaced by the non-null parameter values.
@@ -3337,93 +3337,649 @@ abstract class _Session extends Session {
 }
 
 /// @nodoc
-mixin _$TrainingBlock {
+mixin _$ContentField {
   int get id => throw _privateConstructorUsedError;
-  int get sessionId => throw _privateConstructorUsedError;
-  int? get actionId => throw _privateConstructorUsedError;
-  int? get equipmentId => throw _privateConstructorUsedError;
-  int? get toolId => throw _privateConstructorUsedError;
-  String? get reps => throw _privateConstructorUsedError;
-  String? get sets => throw _privateConstructorUsedError;
-  String? get duration => throw _privateConstructorUsedError;
-  String? get intensity => throw _privateConstructorUsedError;
-  String? get notes => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  FieldType get fieldType => throw _privateConstructorUsedError;
+  bool get isRequired => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
+  bool get isDeprecated => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  Action? get action => throw _privateConstructorUsedError; // 关联的动作
-  Equipment? get equipment => throw _privateConstructorUsedError; // 关联的器械
-  Tool? get tool => throw _privateConstructorUsedError;
+  List<FieldOption>? get options => throw _privateConstructorUsedError;
 
-  /// Create a copy of TrainingBlock
+  /// Create a copy of ContentField
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $TrainingBlockCopyWith<TrainingBlock> get copyWith =>
+  $ContentFieldCopyWith<ContentField> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $TrainingBlockCopyWith<$Res> {
-  factory $TrainingBlockCopyWith(
-    TrainingBlock value,
-    $Res Function(TrainingBlock) then,
-  ) = _$TrainingBlockCopyWithImpl<$Res, TrainingBlock>;
+abstract class $ContentFieldCopyWith<$Res> {
+  factory $ContentFieldCopyWith(
+    ContentField value,
+    $Res Function(ContentField) then,
+  ) = _$ContentFieldCopyWithImpl<$Res, ContentField>;
   @useResult
   $Res call({
     int id,
-    int sessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
+    String name,
+    FieldType fieldType,
+    bool isRequired,
     int sortOrder,
+    bool isDeprecated,
     DateTime createdAt,
     DateTime updatedAt,
-    Action? action,
-    Equipment? equipment,
-    Tool? tool,
+    List<FieldOption>? options,
   });
-
-  $ActionCopyWith<$Res>? get action;
-  $EquipmentCopyWith<$Res>? get equipment;
-  $ToolCopyWith<$Res>? get tool;
 }
 
 /// @nodoc
-class _$TrainingBlockCopyWithImpl<$Res, $Val extends TrainingBlock>
-    implements $TrainingBlockCopyWith<$Res> {
-  _$TrainingBlockCopyWithImpl(this._value, this._then);
+class _$ContentFieldCopyWithImpl<$Res, $Val extends ContentField>
+    implements $ContentFieldCopyWith<$Res> {
+  _$ContentFieldCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of TrainingBlock
+  /// Create a copy of ContentField
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? fieldType = null,
+    Object? isRequired = null,
+    Object? sortOrder = null,
+    Object? isDeprecated = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? options = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            fieldType: null == fieldType
+                ? _value.fieldType
+                : fieldType // ignore: cast_nullable_to_non_nullable
+                      as FieldType,
+            isRequired: null == isRequired
+                ? _value.isRequired
+                : isRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            sortOrder: null == sortOrder
+                ? _value.sortOrder
+                : sortOrder // ignore: cast_nullable_to_non_nullable
+                      as int,
+            isDeprecated: null == isDeprecated
+                ? _value.isDeprecated
+                : isDeprecated // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            options: freezed == options
+                ? _value.options
+                : options // ignore: cast_nullable_to_non_nullable
+                      as List<FieldOption>?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$ContentFieldImplCopyWith<$Res>
+    implements $ContentFieldCopyWith<$Res> {
+  factory _$$ContentFieldImplCopyWith(
+    _$ContentFieldImpl value,
+    $Res Function(_$ContentFieldImpl) then,
+  ) = __$$ContentFieldImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    String name,
+    FieldType fieldType,
+    bool isRequired,
+    int sortOrder,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+    List<FieldOption>? options,
+  });
+}
+
+/// @nodoc
+class __$$ContentFieldImplCopyWithImpl<$Res>
+    extends _$ContentFieldCopyWithImpl<$Res, _$ContentFieldImpl>
+    implements _$$ContentFieldImplCopyWith<$Res> {
+  __$$ContentFieldImplCopyWithImpl(
+    _$ContentFieldImpl _value,
+    $Res Function(_$ContentFieldImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of ContentField
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? fieldType = null,
+    Object? isRequired = null,
+    Object? sortOrder = null,
+    Object? isDeprecated = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? options = freezed,
+  }) {
+    return _then(
+      _$ContentFieldImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        fieldType: null == fieldType
+            ? _value.fieldType
+            : fieldType // ignore: cast_nullable_to_non_nullable
+                  as FieldType,
+        isRequired: null == isRequired
+            ? _value.isRequired
+            : isRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        sortOrder: null == sortOrder
+            ? _value.sortOrder
+            : sortOrder // ignore: cast_nullable_to_non_nullable
+                  as int,
+        isDeprecated: null == isDeprecated
+            ? _value.isDeprecated
+            : isDeprecated // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        options: freezed == options
+            ? _value._options
+            : options // ignore: cast_nullable_to_non_nullable
+                  as List<FieldOption>?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$ContentFieldImpl extends _ContentField {
+  const _$ContentFieldImpl({
+    required this.id,
+    required this.name,
+    required this.fieldType,
+    this.isRequired = false,
+    required this.sortOrder,
+    this.isDeprecated = false,
+    required this.createdAt,
+    required this.updatedAt,
+    final List<FieldOption>? options,
+  }) : _options = options,
+       super._();
+
+  @override
+  final int id;
+  @override
+  final String name;
+  @override
+  final FieldType fieldType;
+  @override
+  @JsonKey()
+  final bool isRequired;
+  @override
+  final int sortOrder;
+  @override
+  @JsonKey()
+  final bool isDeprecated;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+  final List<FieldOption>? _options;
+  @override
+  List<FieldOption>? get options {
+    final value = _options;
+    if (value == null) return null;
+    if (_options is EqualUnmodifiableListView) return _options;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  String toString() {
+    return 'ContentField(id: $id, name: $name, fieldType: $fieldType, isRequired: $isRequired, sortOrder: $sortOrder, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt, options: $options)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ContentFieldImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.fieldType, fieldType) ||
+                other.fieldType == fieldType) &&
+            (identical(other.isRequired, isRequired) ||
+                other.isRequired == isRequired) &&
+            (identical(other.sortOrder, sortOrder) ||
+                other.sortOrder == sortOrder) &&
+            (identical(other.isDeprecated, isDeprecated) ||
+                other.isDeprecated == isDeprecated) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            const DeepCollectionEquality().equals(other._options, _options));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    name,
+    fieldType,
+    isRequired,
+    sortOrder,
+    isDeprecated,
+    createdAt,
+    updatedAt,
+    const DeepCollectionEquality().hash(_options),
+  );
+
+  /// Create a copy of ContentField
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ContentFieldImplCopyWith<_$ContentFieldImpl> get copyWith =>
+      __$$ContentFieldImplCopyWithImpl<_$ContentFieldImpl>(this, _$identity);
+}
+
+abstract class _ContentField extends ContentField {
+  const factory _ContentField({
+    required final int id,
+    required final String name,
+    required final FieldType fieldType,
+    final bool isRequired,
+    required final int sortOrder,
+    final bool isDeprecated,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+    final List<FieldOption>? options,
+  }) = _$ContentFieldImpl;
+  const _ContentField._() : super._();
+
+  @override
+  int get id;
+  @override
+  String get name;
+  @override
+  FieldType get fieldType;
+  @override
+  bool get isRequired;
+  @override
+  int get sortOrder;
+  @override
+  bool get isDeprecated;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+  @override
+  List<FieldOption>? get options;
+
+  /// Create a copy of ContentField
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ContentFieldImplCopyWith<_$ContentFieldImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$FieldOption {
+  int get id => throw _privateConstructorUsedError;
+  int get contentFieldId => throw _privateConstructorUsedError;
+  String get value => throw _privateConstructorUsedError;
+  bool get isDeprecated => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+
+  /// Create a copy of FieldOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $FieldOptionCopyWith<FieldOption> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $FieldOptionCopyWith<$Res> {
+  factory $FieldOptionCopyWith(
+    FieldOption value,
+    $Res Function(FieldOption) then,
+  ) = _$FieldOptionCopyWithImpl<$Res, FieldOption>;
+  @useResult
+  $Res call({
+    int id,
+    int contentFieldId,
+    String value,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
+}
+
+/// @nodoc
+class _$FieldOptionCopyWithImpl<$Res, $Val extends FieldOption>
+    implements $FieldOptionCopyWith<$Res> {
+  _$FieldOptionCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of FieldOption
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? contentFieldId = null,
+    Object? value = null,
+    Object? isDeprecated = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as int,
+            contentFieldId: null == contentFieldId
+                ? _value.contentFieldId
+                : contentFieldId // ignore: cast_nullable_to_non_nullable
+                      as int,
+            value: null == value
+                ? _value.value
+                : value // ignore: cast_nullable_to_non_nullable
+                      as String,
+            isDeprecated: null == isDeprecated
+                ? _value.isDeprecated
+                : isDeprecated // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$FieldOptionImplCopyWith<$Res>
+    implements $FieldOptionCopyWith<$Res> {
+  factory _$$FieldOptionImplCopyWith(
+    _$FieldOptionImpl value,
+    $Res Function(_$FieldOptionImpl) then,
+  ) = __$$FieldOptionImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    int id,
+    int contentFieldId,
+    String value,
+    bool isDeprecated,
+    DateTime createdAt,
+    DateTime updatedAt,
+  });
+}
+
+/// @nodoc
+class __$$FieldOptionImplCopyWithImpl<$Res>
+    extends _$FieldOptionCopyWithImpl<$Res, _$FieldOptionImpl>
+    implements _$$FieldOptionImplCopyWith<$Res> {
+  __$$FieldOptionImplCopyWithImpl(
+    _$FieldOptionImpl _value,
+    $Res Function(_$FieldOptionImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of FieldOption
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? contentFieldId = null,
+    Object? value = null,
+    Object? isDeprecated = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+  }) {
+    return _then(
+      _$FieldOptionImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as int,
+        contentFieldId: null == contentFieldId
+            ? _value.contentFieldId
+            : contentFieldId // ignore: cast_nullable_to_non_nullable
+                  as int,
+        value: null == value
+            ? _value.value
+            : value // ignore: cast_nullable_to_non_nullable
+                  as String,
+        isDeprecated: null == isDeprecated
+            ? _value.isDeprecated
+            : isDeprecated // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$FieldOptionImpl extends _FieldOption {
+  const _$FieldOptionImpl({
+    required this.id,
+    required this.contentFieldId,
+    required this.value,
+    this.isDeprecated = false,
+    required this.createdAt,
+    required this.updatedAt,
+  }) : super._();
+
+  @override
+  final int id;
+  @override
+  final int contentFieldId;
+  @override
+  final String value;
+  @override
+  @JsonKey()
+  final bool isDeprecated;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
+
+  @override
+  String toString() {
+    return 'FieldOption(id: $id, contentFieldId: $contentFieldId, value: $value, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$FieldOptionImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.contentFieldId, contentFieldId) ||
+                other.contentFieldId == contentFieldId) &&
+            (identical(other.value, value) || other.value == value) &&
+            (identical(other.isDeprecated, isDeprecated) ||
+                other.isDeprecated == isDeprecated) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    contentFieldId,
+    value,
+    isDeprecated,
+    createdAt,
+    updatedAt,
+  );
+
+  /// Create a copy of FieldOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FieldOptionImplCopyWith<_$FieldOptionImpl> get copyWith =>
+      __$$FieldOptionImplCopyWithImpl<_$FieldOptionImpl>(this, _$identity);
+}
+
+abstract class _FieldOption extends FieldOption {
+  const factory _FieldOption({
+    required final int id,
+    required final int contentFieldId,
+    required final String value,
+    final bool isDeprecated,
+    required final DateTime createdAt,
+    required final DateTime updatedAt,
+  }) = _$FieldOptionImpl;
+  const _FieldOption._() : super._();
+
+  @override
+  int get id;
+  @override
+  int get contentFieldId;
+  @override
+  String get value;
+  @override
+  bool get isDeprecated;
+  @override
+  DateTime get createdAt;
+  @override
+  DateTime get updatedAt;
+
+  /// Create a copy of FieldOption
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$FieldOptionImplCopyWith<_$FieldOptionImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$ContentBlock {
+  int get id => throw _privateConstructorUsedError;
+  int get sessionId => throw _privateConstructorUsedError;
+  int get sortOrder => throw _privateConstructorUsedError;
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get updatedAt => throw _privateConstructorUsedError;
+  Map<int, String> get values => throw _privateConstructorUsedError;
+
+  /// Create a copy of ContentBlock
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ContentBlockCopyWith<ContentBlock> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ContentBlockCopyWith<$Res> {
+  factory $ContentBlockCopyWith(
+    ContentBlock value,
+    $Res Function(ContentBlock) then,
+  ) = _$ContentBlockCopyWithImpl<$Res, ContentBlock>;
+  @useResult
+  $Res call({
+    int id,
+    int sessionId,
+    int sortOrder,
+    DateTime createdAt,
+    DateTime updatedAt,
+    Map<int, String> values,
+  });
+}
+
+/// @nodoc
+class _$ContentBlockCopyWithImpl<$Res, $Val extends ContentBlock>
+    implements $ContentBlockCopyWith<$Res> {
+  _$ContentBlockCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
     Object? sessionId = null,
-    Object? actionId = freezed,
-    Object? equipmentId = freezed,
-    Object? toolId = freezed,
-    Object? reps = freezed,
-    Object? sets = freezed,
-    Object? duration = freezed,
-    Object? intensity = freezed,
-    Object? notes = freezed,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? action = freezed,
-    Object? equipment = freezed,
-    Object? tool = freezed,
+    Object? values = null,
   }) {
     return _then(
       _value.copyWith(
@@ -3435,38 +3991,6 @@ class _$TrainingBlockCopyWithImpl<$Res, $Val extends TrainingBlock>
                 ? _value.sessionId
                 : sessionId // ignore: cast_nullable_to_non_nullable
                       as int,
-            actionId: freezed == actionId
-                ? _value.actionId
-                : actionId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            equipmentId: freezed == equipmentId
-                ? _value.equipmentId
-                : equipmentId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            toolId: freezed == toolId
-                ? _value.toolId
-                : toolId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            reps: freezed == reps
-                ? _value.reps
-                : reps // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            sets: freezed == sets
-                ? _value.sets
-                : sets // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            duration: freezed == duration
-                ? _value.duration
-                : duration // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            intensity: freezed == intensity
-                ? _value.intensity
-                : intensity // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            notes: freezed == notes
-                ? _value.notes
-                : notes // ignore: cast_nullable_to_non_nullable
-                      as String?,
             sortOrder: null == sortOrder
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -3479,135 +4003,58 @@ class _$TrainingBlockCopyWithImpl<$Res, $Val extends TrainingBlock>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
-            action: freezed == action
-                ? _value.action
-                : action // ignore: cast_nullable_to_non_nullable
-                      as Action?,
-            equipment: freezed == equipment
-                ? _value.equipment
-                : equipment // ignore: cast_nullable_to_non_nullable
-                      as Equipment?,
-            tool: freezed == tool
-                ? _value.tool
-                : tool // ignore: cast_nullable_to_non_nullable
-                      as Tool?,
+            values: null == values
+                ? _value.values
+                : values // ignore: cast_nullable_to_non_nullable
+                      as Map<int, String>,
           )
           as $Val,
     );
   }
-
-  /// Create a copy of TrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ActionCopyWith<$Res>? get action {
-    if (_value.action == null) {
-      return null;
-    }
-
-    return $ActionCopyWith<$Res>(_value.action!, (value) {
-      return _then(_value.copyWith(action: value) as $Val);
-    });
-  }
-
-  /// Create a copy of TrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EquipmentCopyWith<$Res>? get equipment {
-    if (_value.equipment == null) {
-      return null;
-    }
-
-    return $EquipmentCopyWith<$Res>(_value.equipment!, (value) {
-      return _then(_value.copyWith(equipment: value) as $Val);
-    });
-  }
-
-  /// Create a copy of TrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ToolCopyWith<$Res>? get tool {
-    if (_value.tool == null) {
-      return null;
-    }
-
-    return $ToolCopyWith<$Res>(_value.tool!, (value) {
-      return _then(_value.copyWith(tool: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
-abstract class _$$TrainingBlockImplCopyWith<$Res>
-    implements $TrainingBlockCopyWith<$Res> {
-  factory _$$TrainingBlockImplCopyWith(
-    _$TrainingBlockImpl value,
-    $Res Function(_$TrainingBlockImpl) then,
-  ) = __$$TrainingBlockImplCopyWithImpl<$Res>;
+abstract class _$$ContentBlockImplCopyWith<$Res>
+    implements $ContentBlockCopyWith<$Res> {
+  factory _$$ContentBlockImplCopyWith(
+    _$ContentBlockImpl value,
+    $Res Function(_$ContentBlockImpl) then,
+  ) = __$$ContentBlockImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
     int id,
     int sessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
-    Action? action,
-    Equipment? equipment,
-    Tool? tool,
+    Map<int, String> values,
   });
-
-  @override
-  $ActionCopyWith<$Res>? get action;
-  @override
-  $EquipmentCopyWith<$Res>? get equipment;
-  @override
-  $ToolCopyWith<$Res>? get tool;
 }
 
 /// @nodoc
-class __$$TrainingBlockImplCopyWithImpl<$Res>
-    extends _$TrainingBlockCopyWithImpl<$Res, _$TrainingBlockImpl>
-    implements _$$TrainingBlockImplCopyWith<$Res> {
-  __$$TrainingBlockImplCopyWithImpl(
-    _$TrainingBlockImpl _value,
-    $Res Function(_$TrainingBlockImpl) _then,
+class __$$ContentBlockImplCopyWithImpl<$Res>
+    extends _$ContentBlockCopyWithImpl<$Res, _$ContentBlockImpl>
+    implements _$$ContentBlockImplCopyWith<$Res> {
+  __$$ContentBlockImplCopyWithImpl(
+    _$ContentBlockImpl _value,
+    $Res Function(_$ContentBlockImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of TrainingBlock
+  /// Create a copy of ContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
     Object? sessionId = null,
-    Object? actionId = freezed,
-    Object? equipmentId = freezed,
-    Object? toolId = freezed,
-    Object? reps = freezed,
-    Object? sets = freezed,
-    Object? duration = freezed,
-    Object? intensity = freezed,
-    Object? notes = freezed,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? action = freezed,
-    Object? equipment = freezed,
-    Object? tool = freezed,
+    Object? values = null,
   }) {
     return _then(
-      _$TrainingBlockImpl(
+      _$ContentBlockImpl(
         id: null == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
@@ -3616,38 +4063,6 @@ class __$$TrainingBlockImplCopyWithImpl<$Res>
             ? _value.sessionId
             : sessionId // ignore: cast_nullable_to_non_nullable
                   as int,
-        actionId: freezed == actionId
-            ? _value.actionId
-            : actionId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        equipmentId: freezed == equipmentId
-            ? _value.equipmentId
-            : equipmentId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        toolId: freezed == toolId
-            ? _value.toolId
-            : toolId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        reps: freezed == reps
-            ? _value.reps
-            : reps // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        sets: freezed == sets
-            ? _value.sets
-            : sets // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        duration: freezed == duration
-            ? _value.duration
-            : duration // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        intensity: freezed == intensity
-            ? _value.intensity
-            : intensity // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        notes: freezed == notes
-            ? _value.notes
-            : notes // ignore: cast_nullable_to_non_nullable
-                  as String?,
         sortOrder: null == sortOrder
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -3660,18 +4075,10 @@ class __$$TrainingBlockImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
-        action: freezed == action
-            ? _value.action
-            : action // ignore: cast_nullable_to_non_nullable
-                  as Action?,
-        equipment: freezed == equipment
-            ? _value.equipment
-            : equipment // ignore: cast_nullable_to_non_nullable
-                  as Equipment?,
-        tool: freezed == tool
-            ? _value.tool
-            : tool // ignore: cast_nullable_to_non_nullable
-                  as Tool?,
+        values: null == values
+            ? _value._values
+            : values // ignore: cast_nullable_to_non_nullable
+                  as Map<int, String>,
       ),
     );
   }
@@ -3679,96 +4086,56 @@ class __$$TrainingBlockImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$TrainingBlockImpl extends _TrainingBlock {
-  const _$TrainingBlockImpl({
+class _$ContentBlockImpl extends _ContentBlock {
+  const _$ContentBlockImpl({
     required this.id,
     required this.sessionId,
-    this.actionId,
-    this.equipmentId,
-    this.toolId,
-    this.reps,
-    this.sets,
-    this.duration,
-    this.intensity,
-    this.notes,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
-    this.action,
-    this.equipment,
-    this.tool,
-  }) : super._();
+    final Map<int, String> values = const {},
+  }) : _values = values,
+       super._();
 
   @override
   final int id;
   @override
   final int sessionId;
   @override
-  final int? actionId;
-  @override
-  final int? equipmentId;
-  @override
-  final int? toolId;
-  @override
-  final String? reps;
-  @override
-  final String? sets;
-  @override
-  final String? duration;
-  @override
-  final String? intensity;
-  @override
-  final String? notes;
-  @override
   final int sortOrder;
   @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  final Map<int, String> _values;
   @override
-  final Action? action;
-  // 关联的动作
-  @override
-  final Equipment? equipment;
-  // 关联的器械
-  @override
-  final Tool? tool;
+  @JsonKey()
+  Map<int, String> get values {
+    if (_values is EqualUnmodifiableMapView) return _values;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_values);
+  }
 
   @override
   String toString() {
-    return 'TrainingBlock(id: $id, sessionId: $sessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
+    return 'ContentBlock(id: $id, sessionId: $sessionId, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, values: $values)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$TrainingBlockImpl &&
+            other is _$ContentBlockImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.sessionId, sessionId) ||
                 other.sessionId == sessionId) &&
-            (identical(other.actionId, actionId) ||
-                other.actionId == actionId) &&
-            (identical(other.equipmentId, equipmentId) ||
-                other.equipmentId == equipmentId) &&
-            (identical(other.toolId, toolId) || other.toolId == toolId) &&
-            (identical(other.reps, reps) || other.reps == reps) &&
-            (identical(other.sets, sets) || other.sets == sets) &&
-            (identical(other.duration, duration) ||
-                other.duration == duration) &&
-            (identical(other.intensity, intensity) ||
-                other.intensity == intensity) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.action, action) || other.action == action) &&
-            (identical(other.equipment, equipment) ||
-                other.equipment == equipment) &&
-            (identical(other.tool, tool) || other.tool == tool));
+            const DeepCollectionEquality().equals(other._values, _values));
   }
 
   @override
@@ -3776,72 +4143,36 @@ class _$TrainingBlockImpl extends _TrainingBlock {
     runtimeType,
     id,
     sessionId,
-    actionId,
-    equipmentId,
-    toolId,
-    reps,
-    sets,
-    duration,
-    intensity,
-    notes,
     sortOrder,
     createdAt,
     updatedAt,
-    action,
-    equipment,
-    tool,
+    const DeepCollectionEquality().hash(_values),
   );
 
-  /// Create a copy of TrainingBlock
+  /// Create a copy of ContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$TrainingBlockImplCopyWith<_$TrainingBlockImpl> get copyWith =>
-      __$$TrainingBlockImplCopyWithImpl<_$TrainingBlockImpl>(this, _$identity);
+  _$$ContentBlockImplCopyWith<_$ContentBlockImpl> get copyWith =>
+      __$$ContentBlockImplCopyWithImpl<_$ContentBlockImpl>(this, _$identity);
 }
 
-abstract class _TrainingBlock extends TrainingBlock {
-  const factory _TrainingBlock({
+abstract class _ContentBlock extends ContentBlock {
+  const factory _ContentBlock({
     required final int id,
     required final int sessionId,
-    final int? actionId,
-    final int? equipmentId,
-    final int? toolId,
-    final String? reps,
-    final String? sets,
-    final String? duration,
-    final String? intensity,
-    final String? notes,
     required final int sortOrder,
     required final DateTime createdAt,
     required final DateTime updatedAt,
-    final Action? action,
-    final Equipment? equipment,
-    final Tool? tool,
-  }) = _$TrainingBlockImpl;
-  const _TrainingBlock._() : super._();
+    final Map<int, String> values,
+  }) = _$ContentBlockImpl;
+  const _ContentBlock._() : super._();
 
   @override
   int get id;
   @override
   int get sessionId;
-  @override
-  int? get actionId;
-  @override
-  int? get equipmentId;
-  @override
-  int? get toolId;
-  @override
-  String? get reps;
-  @override
-  String? get sets;
-  @override
-  String? get duration;
-  @override
-  String? get intensity;
-  @override
-  String? get notes;
   @override
   int get sortOrder;
   @override
@@ -3849,692 +4180,13 @@ abstract class _TrainingBlock extends TrainingBlock {
   @override
   DateTime get updatedAt;
   @override
-  Action? get action; // 关联的动作
-  @override
-  Equipment? get equipment; // 关联的器械
-  @override
-  Tool? get tool;
+  Map<int, String> get values;
 
-  /// Create a copy of TrainingBlock
+  /// Create a copy of ContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TrainingBlockImplCopyWith<_$TrainingBlockImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-mixin _$Action {
-  int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  bool get isDeprecated => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
-
-  /// Create a copy of Action
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ActionCopyWith<Action> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $ActionCopyWith<$Res> {
-  factory $ActionCopyWith(Action value, $Res Function(Action) then) =
-      _$ActionCopyWithImpl<$Res, Action>;
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class _$ActionCopyWithImpl<$Res, $Val extends Action>
-    implements $ActionCopyWith<$Res> {
-  _$ActionCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Action
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isDeprecated: null == isDeprecated
-                ? _value.isDeprecated
-                : isDeprecated // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            updatedAt: null == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
-}
-
-/// @nodoc
-abstract class _$$ActionImplCopyWith<$Res> implements $ActionCopyWith<$Res> {
-  factory _$$ActionImplCopyWith(
-    _$ActionImpl value,
-    $Res Function(_$ActionImpl) then,
-  ) = __$$ActionImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class __$$ActionImplCopyWithImpl<$Res>
-    extends _$ActionCopyWithImpl<$Res, _$ActionImpl>
-    implements _$$ActionImplCopyWith<$Res> {
-  __$$ActionImplCopyWithImpl(
-    _$ActionImpl _value,
-    $Res Function(_$ActionImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Action
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _$ActionImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isDeprecated: null == isDeprecated
-            ? _value.isDeprecated
-            : isDeprecated // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        updatedAt: null == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$ActionImpl extends _Action {
-  const _$ActionImpl({
-    required this.id,
-    required this.name,
-    required this.isDeprecated,
-    required this.createdAt,
-    required this.updatedAt,
-  }) : super._();
-
-  @override
-  final int id;
-  @override
-  final String name;
-  @override
-  final bool isDeprecated;
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-
-  @override
-  String toString() {
-    return 'Action(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ActionImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.isDeprecated, isDeprecated) ||
-                other.isDeprecated == isDeprecated) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
-
-  /// Create a copy of Action
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ActionImplCopyWith<_$ActionImpl> get copyWith =>
-      __$$ActionImplCopyWithImpl<_$ActionImpl>(this, _$identity);
-}
-
-abstract class _Action extends Action {
-  const factory _Action({
-    required final int id,
-    required final String name,
-    required final bool isDeprecated,
-    required final DateTime createdAt,
-    required final DateTime updatedAt,
-  }) = _$ActionImpl;
-  const _Action._() : super._();
-
-  @override
-  int get id;
-  @override
-  String get name;
-  @override
-  bool get isDeprecated;
-  @override
-  DateTime get createdAt;
-  @override
-  DateTime get updatedAt;
-
-  /// Create a copy of Action
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ActionImplCopyWith<_$ActionImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-mixin _$Equipment {
-  int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  bool get isDeprecated => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
-
-  /// Create a copy of Equipment
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $EquipmentCopyWith<Equipment> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $EquipmentCopyWith<$Res> {
-  factory $EquipmentCopyWith(Equipment value, $Res Function(Equipment) then) =
-      _$EquipmentCopyWithImpl<$Res, Equipment>;
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class _$EquipmentCopyWithImpl<$Res, $Val extends Equipment>
-    implements $EquipmentCopyWith<$Res> {
-  _$EquipmentCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Equipment
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isDeprecated: null == isDeprecated
-                ? _value.isDeprecated
-                : isDeprecated // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            updatedAt: null == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
-}
-
-/// @nodoc
-abstract class _$$EquipmentImplCopyWith<$Res>
-    implements $EquipmentCopyWith<$Res> {
-  factory _$$EquipmentImplCopyWith(
-    _$EquipmentImpl value,
-    $Res Function(_$EquipmentImpl) then,
-  ) = __$$EquipmentImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class __$$EquipmentImplCopyWithImpl<$Res>
-    extends _$EquipmentCopyWithImpl<$Res, _$EquipmentImpl>
-    implements _$$EquipmentImplCopyWith<$Res> {
-  __$$EquipmentImplCopyWithImpl(
-    _$EquipmentImpl _value,
-    $Res Function(_$EquipmentImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Equipment
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _$EquipmentImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isDeprecated: null == isDeprecated
-            ? _value.isDeprecated
-            : isDeprecated // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        updatedAt: null == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$EquipmentImpl extends _Equipment {
-  const _$EquipmentImpl({
-    required this.id,
-    required this.name,
-    required this.isDeprecated,
-    required this.createdAt,
-    required this.updatedAt,
-  }) : super._();
-
-  @override
-  final int id;
-  @override
-  final String name;
-  @override
-  final bool isDeprecated;
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-
-  @override
-  String toString() {
-    return 'Equipment(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$EquipmentImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.isDeprecated, isDeprecated) ||
-                other.isDeprecated == isDeprecated) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
-
-  /// Create a copy of Equipment
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$EquipmentImplCopyWith<_$EquipmentImpl> get copyWith =>
-      __$$EquipmentImplCopyWithImpl<_$EquipmentImpl>(this, _$identity);
-}
-
-abstract class _Equipment extends Equipment {
-  const factory _Equipment({
-    required final int id,
-    required final String name,
-    required final bool isDeprecated,
-    required final DateTime createdAt,
-    required final DateTime updatedAt,
-  }) = _$EquipmentImpl;
-  const _Equipment._() : super._();
-
-  @override
-  int get id;
-  @override
-  String get name;
-  @override
-  bool get isDeprecated;
-  @override
-  DateTime get createdAt;
-  @override
-  DateTime get updatedAt;
-
-  /// Create a copy of Equipment
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$EquipmentImplCopyWith<_$EquipmentImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-mixin _$Tool {
-  int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  bool get isDeprecated => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
-
-  /// Create a copy of Tool
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ToolCopyWith<Tool> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $ToolCopyWith<$Res> {
-  factory $ToolCopyWith(Tool value, $Res Function(Tool) then) =
-      _$ToolCopyWithImpl<$Res, Tool>;
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class _$ToolCopyWithImpl<$Res, $Val extends Tool>
-    implements $ToolCopyWith<$Res> {
-  _$ToolCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Tool
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isDeprecated: null == isDeprecated
-                ? _value.isDeprecated
-                : isDeprecated // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            updatedAt: null == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
-}
-
-/// @nodoc
-abstract class _$$ToolImplCopyWith<$Res> implements $ToolCopyWith<$Res> {
-  factory _$$ToolImplCopyWith(
-    _$ToolImpl value,
-    $Res Function(_$ToolImpl) then,
-  ) = __$$ToolImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    int id,
-    String name,
-    bool isDeprecated,
-    DateTime createdAt,
-    DateTime updatedAt,
-  });
-}
-
-/// @nodoc
-class __$$ToolImplCopyWithImpl<$Res>
-    extends _$ToolCopyWithImpl<$Res, _$ToolImpl>
-    implements _$$ToolImplCopyWith<$Res> {
-  __$$ToolImplCopyWithImpl(_$ToolImpl _value, $Res Function(_$ToolImpl) _then)
-    : super(_value, _then);
-
-  /// Create a copy of Tool
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? isDeprecated = null,
-    Object? createdAt = null,
-    Object? updatedAt = null,
-  }) {
-    return _then(
-      _$ToolImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isDeprecated: null == isDeprecated
-            ? _value.isDeprecated
-            : isDeprecated // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        updatedAt: null == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$ToolImpl extends _Tool {
-  const _$ToolImpl({
-    required this.id,
-    required this.name,
-    required this.isDeprecated,
-    required this.createdAt,
-    required this.updatedAt,
-  }) : super._();
-
-  @override
-  final int id;
-  @override
-  final String name;
-  @override
-  final bool isDeprecated;
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-
-  @override
-  String toString() {
-    return 'Tool(id: $id, name: $name, isDeprecated: $isDeprecated, createdAt: $createdAt, updatedAt: $updatedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ToolImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.isDeprecated, isDeprecated) ||
-                other.isDeprecated == isDeprecated) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, isDeprecated, createdAt, updatedAt);
-
-  /// Create a copy of Tool
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ToolImplCopyWith<_$ToolImpl> get copyWith =>
-      __$$ToolImplCopyWithImpl<_$ToolImpl>(this, _$identity);
-}
-
-abstract class _Tool extends Tool {
-  const factory _Tool({
-    required final int id,
-    required final String name,
-    required final bool isDeprecated,
-    required final DateTime createdAt,
-    required final DateTime updatedAt,
-  }) = _$ToolImpl;
-  const _Tool._() : super._();
-
-  @override
-  int get id;
-  @override
-  String get name;
-  @override
-  bool get isDeprecated;
-  @override
-  DateTime get createdAt;
-  @override
-  DateTime get updatedAt;
-
-  /// Create a copy of Tool
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ToolImplCopyWith<_$ToolImpl> get copyWith =>
+  _$$ContentBlockImplCopyWith<_$ContentBlockImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -5503,7 +5155,7 @@ mixin _$GoalConfigSession {
   int get sessionNumber => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  List<GoalConfigTrainingBlock>? get trainingBlocks =>
+  List<GoalConfigContentBlock>? get contentBlocks =>
       throw _privateConstructorUsedError;
 
   /// Create a copy of GoalConfigSession
@@ -5526,7 +5178,7 @@ abstract class $GoalConfigSessionCopyWith<$Res> {
     int sessionNumber,
     DateTime createdAt,
     DateTime updatedAt,
-    List<GoalConfigTrainingBlock>? trainingBlocks,
+    List<GoalConfigContentBlock>? contentBlocks,
   });
 }
 
@@ -5550,7 +5202,7 @@ class _$GoalConfigSessionCopyWithImpl<$Res, $Val extends GoalConfigSession>
     Object? sessionNumber = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? trainingBlocks = freezed,
+    Object? contentBlocks = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -5574,10 +5226,10 @@ class _$GoalConfigSessionCopyWithImpl<$Res, $Val extends GoalConfigSession>
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
-            trainingBlocks: freezed == trainingBlocks
-                ? _value.trainingBlocks
-                : trainingBlocks // ignore: cast_nullable_to_non_nullable
-                      as List<GoalConfigTrainingBlock>?,
+            contentBlocks: freezed == contentBlocks
+                ? _value.contentBlocks
+                : contentBlocks // ignore: cast_nullable_to_non_nullable
+                      as List<GoalConfigContentBlock>?,
           )
           as $Val,
     );
@@ -5599,7 +5251,7 @@ abstract class _$$GoalConfigSessionImplCopyWith<$Res>
     int sessionNumber,
     DateTime createdAt,
     DateTime updatedAt,
-    List<GoalConfigTrainingBlock>? trainingBlocks,
+    List<GoalConfigContentBlock>? contentBlocks,
   });
 }
 
@@ -5622,7 +5274,7 @@ class __$$GoalConfigSessionImplCopyWithImpl<$Res>
     Object? sessionNumber = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? trainingBlocks = freezed,
+    Object? contentBlocks = freezed,
   }) {
     return _then(
       _$GoalConfigSessionImpl(
@@ -5646,10 +5298,10 @@ class __$$GoalConfigSessionImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
-        trainingBlocks: freezed == trainingBlocks
-            ? _value._trainingBlocks
-            : trainingBlocks // ignore: cast_nullable_to_non_nullable
-                  as List<GoalConfigTrainingBlock>?,
+        contentBlocks: freezed == contentBlocks
+            ? _value._contentBlocks
+            : contentBlocks // ignore: cast_nullable_to_non_nullable
+                  as List<GoalConfigContentBlock>?,
       ),
     );
   }
@@ -5664,8 +5316,8 @@ class _$GoalConfigSessionImpl extends _GoalConfigSession {
     required this.sessionNumber,
     required this.createdAt,
     required this.updatedAt,
-    final List<GoalConfigTrainingBlock>? trainingBlocks,
-  }) : _trainingBlocks = trainingBlocks,
+    final List<GoalConfigContentBlock>? contentBlocks,
+  }) : _contentBlocks = contentBlocks,
        super._();
 
   @override
@@ -5678,19 +5330,19 @@ class _$GoalConfigSessionImpl extends _GoalConfigSession {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
-  final List<GoalConfigTrainingBlock>? _trainingBlocks;
+  final List<GoalConfigContentBlock>? _contentBlocks;
   @override
-  List<GoalConfigTrainingBlock>? get trainingBlocks {
-    final value = _trainingBlocks;
+  List<GoalConfigContentBlock>? get contentBlocks {
+    final value = _contentBlocks;
     if (value == null) return null;
-    if (_trainingBlocks is EqualUnmodifiableListView) return _trainingBlocks;
+    if (_contentBlocks is EqualUnmodifiableListView) return _contentBlocks;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(value);
   }
 
   @override
   String toString() {
-    return 'GoalConfigSession(id: $id, goalConfigId: $goalConfigId, sessionNumber: $sessionNumber, createdAt: $createdAt, updatedAt: $updatedAt, trainingBlocks: $trainingBlocks)';
+    return 'GoalConfigSession(id: $id, goalConfigId: $goalConfigId, sessionNumber: $sessionNumber, createdAt: $createdAt, updatedAt: $updatedAt, contentBlocks: $contentBlocks)';
   }
 
   @override
@@ -5708,8 +5360,8 @@ class _$GoalConfigSessionImpl extends _GoalConfigSession {
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
             const DeepCollectionEquality().equals(
-              other._trainingBlocks,
-              _trainingBlocks,
+              other._contentBlocks,
+              _contentBlocks,
             ));
   }
 
@@ -5721,7 +5373,7 @@ class _$GoalConfigSessionImpl extends _GoalConfigSession {
     sessionNumber,
     createdAt,
     updatedAt,
-    const DeepCollectionEquality().hash(_trainingBlocks),
+    const DeepCollectionEquality().hash(_contentBlocks),
   );
 
   /// Create a copy of GoalConfigSession
@@ -5743,7 +5395,7 @@ abstract class _GoalConfigSession extends GoalConfigSession {
     required final int sessionNumber,
     required final DateTime createdAt,
     required final DateTime updatedAt,
-    final List<GoalConfigTrainingBlock>? trainingBlocks,
+    final List<GoalConfigContentBlock>? contentBlocks,
   }) = _$GoalConfigSessionImpl;
   const _GoalConfigSession._() : super._();
 
@@ -5758,7 +5410,7 @@ abstract class _GoalConfigSession extends GoalConfigSession {
   @override
   DateTime get updatedAt;
   @override
-  List<GoalConfigTrainingBlock>? get trainingBlocks;
+  List<GoalConfigContentBlock>? get contentBlocks;
 
   /// Create a copy of GoalConfigSession
   /// with the given fields replaced by the non-null parameter values.
@@ -5769,96 +5421,62 @@ abstract class _GoalConfigSession extends GoalConfigSession {
 }
 
 /// @nodoc
-mixin _$GoalConfigTrainingBlock {
+mixin _$GoalConfigContentBlock {
   int get id => throw _privateConstructorUsedError;
   int get goalConfigSessionId => throw _privateConstructorUsedError;
-  int? get actionId => throw _privateConstructorUsedError;
-  int? get equipmentId => throw _privateConstructorUsedError;
-  int? get toolId => throw _privateConstructorUsedError;
-  String? get reps => throw _privateConstructorUsedError;
-  String? get sets => throw _privateConstructorUsedError;
-  String? get duration => throw _privateConstructorUsedError;
-  String? get intensity => throw _privateConstructorUsedError;
-  String? get notes => throw _privateConstructorUsedError;
   int get sortOrder => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  Action? get action => throw _privateConstructorUsedError;
-  Equipment? get equipment => throw _privateConstructorUsedError;
-  Tool? get tool => throw _privateConstructorUsedError;
+  Map<int, String> get values => throw _privateConstructorUsedError;
 
-  /// Create a copy of GoalConfigTrainingBlock
+  /// Create a copy of GoalConfigContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $GoalConfigTrainingBlockCopyWith<GoalConfigTrainingBlock> get copyWith =>
+  $GoalConfigContentBlockCopyWith<GoalConfigContentBlock> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $GoalConfigTrainingBlockCopyWith<$Res> {
-  factory $GoalConfigTrainingBlockCopyWith(
-    GoalConfigTrainingBlock value,
-    $Res Function(GoalConfigTrainingBlock) then,
-  ) = _$GoalConfigTrainingBlockCopyWithImpl<$Res, GoalConfigTrainingBlock>;
+abstract class $GoalConfigContentBlockCopyWith<$Res> {
+  factory $GoalConfigContentBlockCopyWith(
+    GoalConfigContentBlock value,
+    $Res Function(GoalConfigContentBlock) then,
+  ) = _$GoalConfigContentBlockCopyWithImpl<$Res, GoalConfigContentBlock>;
   @useResult
   $Res call({
     int id,
     int goalConfigSessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
-    Action? action,
-    Equipment? equipment,
-    Tool? tool,
+    Map<int, String> values,
   });
-
-  $ActionCopyWith<$Res>? get action;
-  $EquipmentCopyWith<$Res>? get equipment;
-  $ToolCopyWith<$Res>? get tool;
 }
 
 /// @nodoc
-class _$GoalConfigTrainingBlockCopyWithImpl<
+class _$GoalConfigContentBlockCopyWithImpl<
   $Res,
-  $Val extends GoalConfigTrainingBlock
+  $Val extends GoalConfigContentBlock
 >
-    implements $GoalConfigTrainingBlockCopyWith<$Res> {
-  _$GoalConfigTrainingBlockCopyWithImpl(this._value, this._then);
+    implements $GoalConfigContentBlockCopyWith<$Res> {
+  _$GoalConfigContentBlockCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of GoalConfigTrainingBlock
+  /// Create a copy of GoalConfigContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
     Object? goalConfigSessionId = null,
-    Object? actionId = freezed,
-    Object? equipmentId = freezed,
-    Object? toolId = freezed,
-    Object? reps = freezed,
-    Object? sets = freezed,
-    Object? duration = freezed,
-    Object? intensity = freezed,
-    Object? notes = freezed,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? action = freezed,
-    Object? equipment = freezed,
-    Object? tool = freezed,
+    Object? values = null,
   }) {
     return _then(
       _value.copyWith(
@@ -5870,38 +5488,6 @@ class _$GoalConfigTrainingBlockCopyWithImpl<
                 ? _value.goalConfigSessionId
                 : goalConfigSessionId // ignore: cast_nullable_to_non_nullable
                       as int,
-            actionId: freezed == actionId
-                ? _value.actionId
-                : actionId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            equipmentId: freezed == equipmentId
-                ? _value.equipmentId
-                : equipmentId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            toolId: freezed == toolId
-                ? _value.toolId
-                : toolId // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            reps: freezed == reps
-                ? _value.reps
-                : reps // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            sets: freezed == sets
-                ? _value.sets
-                : sets // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            duration: freezed == duration
-                ? _value.duration
-                : duration // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            intensity: freezed == intensity
-                ? _value.intensity
-                : intensity // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            notes: freezed == notes
-                ? _value.notes
-                : notes // ignore: cast_nullable_to_non_nullable
-                      as String?,
             sortOrder: null == sortOrder
                 ? _value.sortOrder
                 : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -5914,139 +5500,59 @@ class _$GoalConfigTrainingBlockCopyWithImpl<
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
-            action: freezed == action
-                ? _value.action
-                : action // ignore: cast_nullable_to_non_nullable
-                      as Action?,
-            equipment: freezed == equipment
-                ? _value.equipment
-                : equipment // ignore: cast_nullable_to_non_nullable
-                      as Equipment?,
-            tool: freezed == tool
-                ? _value.tool
-                : tool // ignore: cast_nullable_to_non_nullable
-                      as Tool?,
+            values: null == values
+                ? _value.values
+                : values // ignore: cast_nullable_to_non_nullable
+                      as Map<int, String>,
           )
           as $Val,
     );
   }
-
-  /// Create a copy of GoalConfigTrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ActionCopyWith<$Res>? get action {
-    if (_value.action == null) {
-      return null;
-    }
-
-    return $ActionCopyWith<$Res>(_value.action!, (value) {
-      return _then(_value.copyWith(action: value) as $Val);
-    });
-  }
-
-  /// Create a copy of GoalConfigTrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EquipmentCopyWith<$Res>? get equipment {
-    if (_value.equipment == null) {
-      return null;
-    }
-
-    return $EquipmentCopyWith<$Res>(_value.equipment!, (value) {
-      return _then(_value.copyWith(equipment: value) as $Val);
-    });
-  }
-
-  /// Create a copy of GoalConfigTrainingBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ToolCopyWith<$Res>? get tool {
-    if (_value.tool == null) {
-      return null;
-    }
-
-    return $ToolCopyWith<$Res>(_value.tool!, (value) {
-      return _then(_value.copyWith(tool: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
-abstract class _$$GoalConfigTrainingBlockImplCopyWith<$Res>
-    implements $GoalConfigTrainingBlockCopyWith<$Res> {
-  factory _$$GoalConfigTrainingBlockImplCopyWith(
-    _$GoalConfigTrainingBlockImpl value,
-    $Res Function(_$GoalConfigTrainingBlockImpl) then,
-  ) = __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>;
+abstract class _$$GoalConfigContentBlockImplCopyWith<$Res>
+    implements $GoalConfigContentBlockCopyWith<$Res> {
+  factory _$$GoalConfigContentBlockImplCopyWith(
+    _$GoalConfigContentBlockImpl value,
+    $Res Function(_$GoalConfigContentBlockImpl) then,
+  ) = __$$GoalConfigContentBlockImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
     int id,
     int goalConfigSessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
     int sortOrder,
     DateTime createdAt,
     DateTime updatedAt,
-    Action? action,
-    Equipment? equipment,
-    Tool? tool,
+    Map<int, String> values,
   });
-
-  @override
-  $ActionCopyWith<$Res>? get action;
-  @override
-  $EquipmentCopyWith<$Res>? get equipment;
-  @override
-  $ToolCopyWith<$Res>? get tool;
 }
 
 /// @nodoc
-class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
+class __$$GoalConfigContentBlockImplCopyWithImpl<$Res>
     extends
-        _$GoalConfigTrainingBlockCopyWithImpl<
-          $Res,
-          _$GoalConfigTrainingBlockImpl
-        >
-    implements _$$GoalConfigTrainingBlockImplCopyWith<$Res> {
-  __$$GoalConfigTrainingBlockImplCopyWithImpl(
-    _$GoalConfigTrainingBlockImpl _value,
-    $Res Function(_$GoalConfigTrainingBlockImpl) _then,
+        _$GoalConfigContentBlockCopyWithImpl<$Res, _$GoalConfigContentBlockImpl>
+    implements _$$GoalConfigContentBlockImplCopyWith<$Res> {
+  __$$GoalConfigContentBlockImplCopyWithImpl(
+    _$GoalConfigContentBlockImpl _value,
+    $Res Function(_$GoalConfigContentBlockImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of GoalConfigTrainingBlock
+  /// Create a copy of GoalConfigContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
     Object? goalConfigSessionId = null,
-    Object? actionId = freezed,
-    Object? equipmentId = freezed,
-    Object? toolId = freezed,
-    Object? reps = freezed,
-    Object? sets = freezed,
-    Object? duration = freezed,
-    Object? intensity = freezed,
-    Object? notes = freezed,
     Object? sortOrder = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? action = freezed,
-    Object? equipment = freezed,
-    Object? tool = freezed,
+    Object? values = null,
   }) {
     return _then(
-      _$GoalConfigTrainingBlockImpl(
+      _$GoalConfigContentBlockImpl(
         id: null == id
             ? _value.id
             : id // ignore: cast_nullable_to_non_nullable
@@ -6055,38 +5561,6 @@ class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
             ? _value.goalConfigSessionId
             : goalConfigSessionId // ignore: cast_nullable_to_non_nullable
                   as int,
-        actionId: freezed == actionId
-            ? _value.actionId
-            : actionId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        equipmentId: freezed == equipmentId
-            ? _value.equipmentId
-            : equipmentId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        toolId: freezed == toolId
-            ? _value.toolId
-            : toolId // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        reps: freezed == reps
-            ? _value.reps
-            : reps // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        sets: freezed == sets
-            ? _value.sets
-            : sets // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        duration: freezed == duration
-            ? _value.duration
-            : duration // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        intensity: freezed == intensity
-            ? _value.intensity
-            : intensity // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        notes: freezed == notes
-            ? _value.notes
-            : notes // ignore: cast_nullable_to_non_nullable
-                  as String?,
         sortOrder: null == sortOrder
             ? _value.sortOrder
             : sortOrder // ignore: cast_nullable_to_non_nullable
@@ -6099,18 +5573,10 @@ class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
-        action: freezed == action
-            ? _value.action
-            : action // ignore: cast_nullable_to_non_nullable
-                  as Action?,
-        equipment: freezed == equipment
-            ? _value.equipment
-            : equipment // ignore: cast_nullable_to_non_nullable
-                  as Equipment?,
-        tool: freezed == tool
-            ? _value.tool
-            : tool // ignore: cast_nullable_to_non_nullable
-                  as Tool?,
+        values: null == values
+            ? _value._values
+            : values // ignore: cast_nullable_to_non_nullable
+                  as Map<int, String>,
       ),
     );
   }
@@ -6118,94 +5584,56 @@ class __$$GoalConfigTrainingBlockImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
-  const _$GoalConfigTrainingBlockImpl({
+class _$GoalConfigContentBlockImpl extends _GoalConfigContentBlock {
+  const _$GoalConfigContentBlockImpl({
     required this.id,
     required this.goalConfigSessionId,
-    this.actionId,
-    this.equipmentId,
-    this.toolId,
-    this.reps,
-    this.sets,
-    this.duration,
-    this.intensity,
-    this.notes,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
-    this.action,
-    this.equipment,
-    this.tool,
-  }) : super._();
+    final Map<int, String> values = const {},
+  }) : _values = values,
+       super._();
 
   @override
   final int id;
   @override
   final int goalConfigSessionId;
   @override
-  final int? actionId;
-  @override
-  final int? equipmentId;
-  @override
-  final int? toolId;
-  @override
-  final String? reps;
-  @override
-  final String? sets;
-  @override
-  final String? duration;
-  @override
-  final String? intensity;
-  @override
-  final String? notes;
-  @override
   final int sortOrder;
   @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  final Map<int, String> _values;
   @override
-  final Action? action;
-  @override
-  final Equipment? equipment;
-  @override
-  final Tool? tool;
+  @JsonKey()
+  Map<int, String> get values {
+    if (_values is EqualUnmodifiableMapView) return _values;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_values);
+  }
 
   @override
   String toString() {
-    return 'GoalConfigTrainingBlock(id: $id, goalConfigSessionId: $goalConfigSessionId, actionId: $actionId, equipmentId: $equipmentId, toolId: $toolId, reps: $reps, sets: $sets, duration: $duration, intensity: $intensity, notes: $notes, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, action: $action, equipment: $equipment, tool: $tool)';
+    return 'GoalConfigContentBlock(id: $id, goalConfigSessionId: $goalConfigSessionId, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt, values: $values)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$GoalConfigTrainingBlockImpl &&
+            other is _$GoalConfigContentBlockImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.goalConfigSessionId, goalConfigSessionId) ||
                 other.goalConfigSessionId == goalConfigSessionId) &&
-            (identical(other.actionId, actionId) ||
-                other.actionId == actionId) &&
-            (identical(other.equipmentId, equipmentId) ||
-                other.equipmentId == equipmentId) &&
-            (identical(other.toolId, toolId) || other.toolId == toolId) &&
-            (identical(other.reps, reps) || other.reps == reps) &&
-            (identical(other.sets, sets) || other.sets == sets) &&
-            (identical(other.duration, duration) ||
-                other.duration == duration) &&
-            (identical(other.intensity, intensity) ||
-                other.intensity == intensity) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.sortOrder, sortOrder) ||
                 other.sortOrder == sortOrder) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.action, action) || other.action == action) &&
-            (identical(other.equipment, equipment) ||
-                other.equipment == equipment) &&
-            (identical(other.tool, tool) || other.tool == tool));
+            const DeepCollectionEquality().equals(other._values, _values));
   }
 
   @override
@@ -6213,75 +5641,40 @@ class _$GoalConfigTrainingBlockImpl extends _GoalConfigTrainingBlock {
     runtimeType,
     id,
     goalConfigSessionId,
-    actionId,
-    equipmentId,
-    toolId,
-    reps,
-    sets,
-    duration,
-    intensity,
-    notes,
     sortOrder,
     createdAt,
     updatedAt,
-    action,
-    equipment,
-    tool,
+    const DeepCollectionEquality().hash(_values),
   );
 
-  /// Create a copy of GoalConfigTrainingBlock
+  /// Create a copy of GoalConfigContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$GoalConfigTrainingBlockImplCopyWith<_$GoalConfigTrainingBlockImpl>
+  _$$GoalConfigContentBlockImplCopyWith<_$GoalConfigContentBlockImpl>
   get copyWith =>
-      __$$GoalConfigTrainingBlockImplCopyWithImpl<
-        _$GoalConfigTrainingBlockImpl
-      >(this, _$identity);
+      __$$GoalConfigContentBlockImplCopyWithImpl<_$GoalConfigContentBlockImpl>(
+        this,
+        _$identity,
+      );
 }
 
-abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
-  const factory _GoalConfigTrainingBlock({
+abstract class _GoalConfigContentBlock extends GoalConfigContentBlock {
+  const factory _GoalConfigContentBlock({
     required final int id,
     required final int goalConfigSessionId,
-    final int? actionId,
-    final int? equipmentId,
-    final int? toolId,
-    final String? reps,
-    final String? sets,
-    final String? duration,
-    final String? intensity,
-    final String? notes,
     required final int sortOrder,
     required final DateTime createdAt,
     required final DateTime updatedAt,
-    final Action? action,
-    final Equipment? equipment,
-    final Tool? tool,
-  }) = _$GoalConfigTrainingBlockImpl;
-  const _GoalConfigTrainingBlock._() : super._();
+    final Map<int, String> values,
+  }) = _$GoalConfigContentBlockImpl;
+  const _GoalConfigContentBlock._() : super._();
 
   @override
   int get id;
   @override
   int get goalConfigSessionId;
-  @override
-  int? get actionId;
-  @override
-  int? get equipmentId;
-  @override
-  int? get toolId;
-  @override
-  String? get reps;
-  @override
-  String? get sets;
-  @override
-  String? get duration;
-  @override
-  String? get intensity;
-  @override
-  String? get notes;
   @override
   int get sortOrder;
   @override
@@ -6289,17 +5682,13 @@ abstract class _GoalConfigTrainingBlock extends GoalConfigTrainingBlock {
   @override
   DateTime get updatedAt;
   @override
-  Action? get action;
-  @override
-  Equipment? get equipment;
-  @override
-  Tool? get tool;
+  Map<int, String> get values;
 
-  /// Create a copy of GoalConfigTrainingBlock
+  /// Create a copy of GoalConfigContentBlock
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$GoalConfigTrainingBlockImplCopyWith<_$GoalConfigTrainingBlockImpl>
+  _$$GoalConfigContentBlockImplCopyWith<_$GoalConfigContentBlockImpl>
   get copyWith => throw _privateConstructorUsedError;
 }
 

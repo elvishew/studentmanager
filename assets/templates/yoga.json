@@ -1,0 +1,13 @@
+{
+  "id": "yoga",
+  "name": "瑜伽教练",
+  "contentFields": [
+    {"name": "体式", "type": "select", "required": true, "sortOrder": 0, "options": ["山式", "下犬式", "战士一式", "战士二式", "三角式", "树式", "鸽子式", "眼镜蛇式", "婴儿式", "摊尸式"]},
+    {"name": "辅具", "type": "select", "required": false, "sortOrder": 1, "options": ["瑜伽砖", "瑜伽带", "瑜伽毯", "泡沫轴", "瑜伽轮"]},
+    {"name": "保持时长", "type": "number", "required": false, "sortOrder": 2},
+    {"name": "重复次数", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "注意事项", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["柔韧提升", "力量训练", "体态矫正", "减压放松", "冥想入门", "产后修复"]
+}

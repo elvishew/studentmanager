@@ -1,0 +1,13 @@
+{
+  "id": "english",
+  "name": "英语辅导",
+  "contentFields": [
+    {"name": "学习模块", "type": "select", "required": true, "sortOrder": 0, "options": ["听力", "口语", "阅读", "写作", "语法", "词汇", "翻译"]},
+    {"name": "教材/资料", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "学习时长", "type": "number", "required": false, "sortOrder": 2},
+    {"name": "作业内容", "type": "text", "required": false, "sortOrder": 3},
+    {"name": "完成情况", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+  ],
+  "courseGoals": ["零基础入门", "日常交流", "考试冲刺", "雅思/托福", "商务英语", "英语启蒙"]
+}

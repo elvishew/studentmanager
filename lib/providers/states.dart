@@ -3,6 +3,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'states.freezed.dart';
 
 /// ============================================
+/// 字段类型枚举
+/// ============================================
+
+enum FieldType { select, number, text, multiline }
+
+/// ============================================
 /// 学员状态
 /// ============================================
 
@@ -160,7 +166,7 @@ class Session with _$Session {
     required SessionStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,
-    List<TrainingBlock>? trainingBlocks, // 关联的训练块列表
+    List<ContentBlock>? contentBlocks, // 关联的内容块列表
   }) = _Session;
 
   /// 从数据库 Map 转换
@@ -220,174 +226,108 @@ enum SessionStatus {
 }
 
 /// ============================================
-/// 训练块数据模型
+/// 内容字段定义
 /// ============================================
 
 @freezed
-class TrainingBlock with _$TrainingBlock {
-  const TrainingBlock._();
+class ContentField with _$ContentField {
+  const ContentField._();
 
-  const factory TrainingBlock({
+  const factory ContentField({
+    required int id,
+    required String name,
+    required FieldType fieldType,
+    @Default(false) bool isRequired,
+    required int sortOrder,
+    @Default(false) bool isDeprecated,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    List<FieldOption>? options, // 关联的选项列表
+  }) = _ContentField;
+
+  factory ContentField.fromMap(Map<String, dynamic> map) {
+    return ContentField(
+      id: map['id'] as int,
+      name: map['name'] as String,
+      fieldType: _parseFieldType(map['field_type'] as String),
+      isRequired: (map['is_required'] ?? 0) == 1,
+      sortOrder: map['sort_order'] as int? ?? 0,
+      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  static FieldType _parseFieldType(String type) {
+    switch (type) {
+      case 'select':
+        return FieldType.select;
+      case 'number':
+        return FieldType.number;
+      case 'text':
+        return FieldType.text;
+      case 'multiline':
+        return FieldType.multiline;
+      default:
+        return FieldType.text;
+    }
+  }
+}
+
+/// ============================================
+/// 字段选项
+/// ============================================
+
+@freezed
+class FieldOption with _$FieldOption {
+  const FieldOption._();
+
+  const factory FieldOption({
+    required int id,
+    required int contentFieldId,
+    required String value,
+    @Default(false) bool isDeprecated,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _FieldOption;
+
+  factory FieldOption.fromMap(Map<String, dynamic> map) {
+    return FieldOption(
+      id: map['id'] as int,
+      contentFieldId: map['content_field_id'] as int,
+      value: map['value'] as String,
+      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+}
+
+/// ============================================
+/// 内容块
+/// ============================================
+
+@freezed
+class ContentBlock with _$ContentBlock {
+  const ContentBlock._();
+
+  const factory ContentBlock({
     required int id,
     required int sessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
-    Action? action, // 关联的动作
-    Equipment? equipment, // 关联的器械
-    Tool? tool, // 关联的工具
-  }) = _TrainingBlock;
+    @Default({}) Map<int, String> values, // contentFieldId -> value
+  }) = _ContentBlock;
 
-  /// 从数据库 Map 转换
-  factory TrainingBlock.fromMap(Map<String, dynamic> map) {
-    return TrainingBlock(
+  factory ContentBlock.fromMap(Map<String, dynamic> map) {
+    return ContentBlock(
       id: map['id'] as int,
       sessionId: map['session_id'] as int,
-      actionId: map['action_id'] as int?,
-      equipmentId: map['equipment_id'] as int?,
-      toolId: map['tool_id'] as int?,
-      reps: map['reps'] as String?,
-      sets: map['sets'] as String?,
-      duration: map['duration'] as String?,
-      intensity: map['intensity'] as String?,
-      notes: map['notes'] as String?,
-      sortOrder: map['sort_order'] as int,
+      sortOrder: map['sort_order'] as int? ?? 0,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
-  }
-
-  /// 转换为数据库 Map
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'session_id': sessionId,
-      'action_id': actionId,
-      'equipment_id': equipmentId,
-      'tool_id': toolId,
-      'reps': reps,
-      'sets': sets,
-      'duration': duration,
-      'intensity': intensity,
-      'notes': notes,
-      'sort_order': sortOrder,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-}
-
-/// ============================================
-/// 基础数据模型
-/// ============================================
-
-/// 动作
-@freezed
-class Action with _$Action {
-  const Action._();
-
-  const factory Action({
-    required int id,
-    required String name,
-    required bool isDeprecated,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) = _Action;
-
-  factory Action.fromMap(Map<String, dynamic> map) {
-    return Action(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'is_deprecated': isDeprecated ? 1 : 0,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-}
-
-/// 器械
-@freezed
-class Equipment with _$Equipment {
-  const Equipment._();
-
-  const factory Equipment({
-    required int id,
-    required String name,
-    required bool isDeprecated,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) = _Equipment;
-
-  factory Equipment.fromMap(Map<String, dynamic> map) {
-    return Equipment(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'is_deprecated': isDeprecated ? 1 : 0,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-}
-
-/// 工具
-@freezed
-class Tool with _$Tool {
-  const Tool._();
-
-  const factory Tool({
-    required int id,
-    required String name,
-    required bool isDeprecated,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) = _Tool;
-
-  factory Tool.fromMap(Map<String, dynamic> map) {
-    return Tool(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      isDeprecated: (map['is_deprecated'] ?? 0) == 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'is_deprecated': isDeprecated ? 1 : 0,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
   }
 }
 
@@ -456,7 +396,7 @@ class GoalConfigSession with _$GoalConfigSession {
     required int sessionNumber,
     required DateTime createdAt,
     required DateTime updatedAt,
-    List<GoalConfigTrainingBlock>? trainingBlocks,
+    List<GoalConfigContentBlock>? contentBlocks,
   }) = _GoalConfigSession;
 
   factory GoalConfigSession.fromMap(Map<String, dynamic> map) {
@@ -480,64 +420,28 @@ class GoalConfigSession with _$GoalConfigSession {
   }
 }
 
-/// 课程目标配置训练块模板
+/// 默认配置内容块
 @freezed
-class GoalConfigTrainingBlock with _$GoalConfigTrainingBlock {
-  const GoalConfigTrainingBlock._();
+class GoalConfigContentBlock with _$GoalConfigContentBlock {
+  const GoalConfigContentBlock._();
 
-  const factory GoalConfigTrainingBlock({
+  const factory GoalConfigContentBlock({
     required int id,
     required int goalConfigSessionId,
-    int? actionId,
-    int? equipmentId,
-    int? toolId,
-    String? reps,
-    String? sets,
-    String? duration,
-    String? intensity,
-    String? notes,
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
-    Action? action,
-    Equipment? equipment,
-    Tool? tool,
-  }) = _GoalConfigTrainingBlock;
+    @Default({}) Map<int, String> values, // contentFieldId -> value
+  }) = _GoalConfigContentBlock;
 
-  factory GoalConfigTrainingBlock.fromMap(Map<String, dynamic> map) {
-    return GoalConfigTrainingBlock(
+  factory GoalConfigContentBlock.fromMap(Map<String, dynamic> map) {
+    return GoalConfigContentBlock(
       id: map['id'] as int,
       goalConfigSessionId: map['goal_config_session_id'] as int,
-      actionId: map['action_id'] as int?,
-      equipmentId: map['equipment_id'] as int?,
-      toolId: map['tool_id'] as int?,
-      reps: map['reps'] as String?,
-      sets: map['sets'] as String?,
-      duration: map['duration'] as String?,
-      intensity: map['intensity'] as String?,
-      notes: map['notes'] as String?,
-      sortOrder: map['sort_order'] as int,
+      sortOrder: map['sort_order'] as int? ?? 0,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'goal_config_session_id': goalConfigSessionId,
-      'action_id': actionId,
-      'equipment_id': equipmentId,
-      'tool_id': toolId,
-      'reps': reps,
-      'sets': sets,
-      'duration': duration,
-      'intensity': intensity,
-      'notes': notes,
-      'sort_order': sortOrder,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
   }
 }
 
