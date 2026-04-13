@@ -38,12 +38,12 @@ class ContentFieldNotifier extends _$ContentFieldNotifier {
 
   @override
   List<ContentField> build() {
-    _repository = ref.watch(contentFieldRepositoryProvider);
+    _repository = ref.read(contentFieldRepositoryProvider);
     return [];
   }
 
   /// 加载所有字段及选项
-  Future<void> loadFields() async {
+  Future<List<ContentField>> loadFields() async {
     final fieldsMap = await _repository.getAllFieldsWithOptions();
     final fields = fieldsMap.map((map) {
       final options = (map['options'] as List?)
@@ -52,6 +52,7 @@ class ContentFieldNotifier extends _$ContentFieldNotifier {
       return ContentField.fromMap(map).copyWith(options: options);
     }).toList();
     state = fields;
+    return fields;
   }
 
   /// 创建字段（重名返回 null）

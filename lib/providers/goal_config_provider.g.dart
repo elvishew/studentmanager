@@ -30,7 +30,7 @@ final coursePlanRepositoryProvider =
 // ignore: unused_element
 typedef CoursePlanRepositoryRef = AutoDisposeProviderRef<CoursePlanRepository>;
 String _$goalConfigNotifierHash() =>
-    r'01a90bf2d2550f5f17608e02770c85dc0d225439';
+    r'895a02dd9240698fa0c7c488f49281ed8c2d11e9';
 
 /// ============================================
 /// GoalConfig Notifier

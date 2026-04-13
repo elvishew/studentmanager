@@ -39,10 +39,10 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
 
   Future<void> _loadContentFields() async {
     final notifier = ref.read(contentFieldNotifierProvider.notifier);
-    await notifier.loadFields();
+    final fields = await notifier.loadFields();
     if (mounted) {
       setState(() {
-        _contentFields = ref.read(contentFieldNotifierProvider);
+        _contentFields = fields;
       });
     }
   }

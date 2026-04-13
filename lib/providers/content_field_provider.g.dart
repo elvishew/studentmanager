@@ -74,7 +74,7 @@ final activeGoalsProvider = AutoDisposeFutureProvider<List<GoalItem>>.internal(
 // ignore: unused_element
 typedef ActiveGoalsRef = AutoDisposeFutureProviderRef<List<GoalItem>>;
 String _$contentFieldNotifierHash() =>
-    r'48cc3543b301e653eb55ce92a7840f70bf93bd91';
+    r'7e87dce203e43a385276dcd1ead27bbf799d3256';
 
 /// ============================================
 /// ContentFieldNotifier

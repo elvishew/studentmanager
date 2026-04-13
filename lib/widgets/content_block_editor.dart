@@ -75,29 +75,29 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
   }
 
   Future<void> _loadData() async {
-    // 加载所有字段
-    final fieldNotifier = ref.read(contentFieldNotifierProvider.notifier);
-    await fieldNotifier.loadFields();
-    _fields = ref.read(contentFieldNotifierProvider);
+    try {
+      final fieldNotifier = ref.read(contentFieldNotifierProvider.notifier);
+      _fields = await fieldNotifier.loadFields();
 
-    // 编辑模式：加载已有值
-    if (widget.blockId != null) {
-      await _loadExistingValues();
-    }
+      if (widget.blockId != null) {
+        await _loadExistingValues();
+      }
 
-    // 初始化控制器
-    if (mounted) {
-      setState(() {
-        for (final field in _fields) {
-          if (field.fieldType == FieldType.select) {
-            _selectedOptions[field.id] = _existingValues[field.id];
-          } else {
-            _controllers[field.id] = TextEditingController(
-              text: _existingValues[field.id] ?? '',
-            );
+      if (mounted) {
+        setState(() {
+          for (final field in _fields) {
+            if (field.fieldType == FieldType.select) {
+              _selectedOptions[field.id] = _existingValues[field.id];
+            } else {
+              _controllers[field.id] = TextEditingController(
+                text: _existingValues[field.id] ?? '',
+              );
+            }
           }
-        }
-      });
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() {});
     }
   }
 
@@ -262,7 +262,23 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: ref.read(contentFieldRepositoryProvider).getActiveFieldOptions(field.id),
       builder: (context, snapshot) {
-        final options = snapshot.data ?? [];
+        if (!snapshot.hasData) {
+          return Column(
+            children: [
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: label,
+                  border: const OutlineInputBorder(),
+                ),
+                items: const [],
+                onChanged: null,
+              ),
+              const SizedBox(height: 16),
+            ],
+          );
+        }
+
+        final options = snapshot.data!;
 
         // 编辑模式：将弃用但已选的选项补入列表
         final existingValue = _existingValues[field.id];
