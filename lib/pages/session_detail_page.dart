@@ -788,7 +788,7 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
             )
           else
             TextButton(
-              onPressed: _save,
+              onPressed: _selectedActionId != null ? _save : null,
               child: const Text('保存'),
             ),
         ],
@@ -802,9 +802,13 @@ class _TrainingBlockFormPageState extends ConsumerState<TrainingBlockFormPage> {
             DropdownButtonFormField<int>(
               value: _selectedActionId,
               decoration: const InputDecoration(
-                labelText: '动作',
+                labelText: '动作 *',
                 border: OutlineInputBorder(),
               ),
+              validator: (value) {
+                if (value == null) return '请选择动作';
+                return null;
+              },
               items: _actions.map<DropdownMenuItem<int>>((action) {
                 return DropdownMenuItem<int>(
                   value: action['id'] as int,
