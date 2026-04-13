@@ -57,6 +57,7 @@ lib/
 | `goal_configs` | 课程目标默认配置 (默认蓝图) |
 | `goal_config_sessions` | 默认配置中的课时模板 |
 | `goal_config_training_blocks` | 默认配置中的训练块模板 |
+| `course_goals` | 课程目标 (name UNIQUE, is_deprecated 软删除) |
 | `albums` | 相册 (FK → students, CASCADE) |
 | `album_photos` | 相册照片 (FK → albums, CASCADE; file_path 存储在 App 沙盒) |
 
@@ -65,20 +66,21 @@ lib/
 - **Student** / **CoursePlan** / **Session** / **TrainingBlock** - Freezed 模型，含 fromMap/toMap
 - **Action** / **Equipment** / **Tool** - 基础数据，isDeprecated 软删除
 - **Album** / **AlbumPhoto** - 相册模型，Album 含 photoCount 计算字段
-- **CourseGoal** 枚举 - 9种课程目标（含"自定义"）
+- **CourseGoal** - 数据库表模型（name, isDeprecated），支持动态管理
 - **SessionStatus** 枚举 - pending/completed/skipped
 - 状态类：StudentState / CoursePlanState / SessionState / AlbumState（initial/loading/data/error）
 
 ## 已实现功能
 
 - [x] 学员 CRUD + 搜索
-- [x] 课程规划创建（非自定义目标自动填充12节课模板）
+- [x] 课程规划创建（有默认配置的目标自动填充12节课模板）
 - [x] 课程规划编辑（修改目标、蓝图）
 - [x] 课时管理（新增/删除/排序）
-- [x] 训练块编辑（动作/器械/工具/次数/组数/时长/强度/备注/自定义标记）
+- [x] 训练块编辑（动作/器械/工具/次数/组数/时长/强度/备注）
 - [x] 排课与消课（设置时间、标记完成/跳过）
 - [x] 进度统计（已完成/剩余课时）
 - [x] 课时时长管理（课程规划默认时长 + 课时可选覆盖）
+- [x] 课程目标管理（CRUD + 软删除/恢复）
 - [x] 动作/器械/工具管理（CRUD + 软删除/恢复）
 - [x] 课程目标默认配置数据层（goal_configs 表 + Repository）
 - [x] 学员相册（创建/删除相册、拍照/选取照片、查看/删除照片）
