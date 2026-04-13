@@ -389,7 +389,9 @@ class CoursePlanRepository {
         orderBy: 'sort_order ASC',
       );
 
-      for (final block in blocks) {
+      final mutableBlocks = <Map<String, dynamic>>[];
+      for (final rawBlock in blocks) {
+        final block = Map<String, dynamic>.from(rawBlock);
         final values = await database.rawQuery('''
           SELECT gcbv.content_field_id, gcbv.value, cf.name as field_name, cf.field_type
           FROM goal_config_content_block_values gcbv
@@ -398,9 +400,10 @@ class CoursePlanRepository {
         ''', [block['id']]);
 
         block['values'] = values;
+        mutableBlocks.add(block);
       }
 
-      s['content_blocks'] = blocks;
+      s['content_blocks'] = mutableBlocks;
       return s;
     }));
 

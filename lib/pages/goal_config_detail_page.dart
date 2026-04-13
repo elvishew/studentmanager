@@ -23,25 +23,27 @@ class GoalConfigDetailPage extends ConsumerStatefulWidget {
 
 class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   GoalConfig? _config;
+  int? _configId; // 独立于 _config，即使解析失败也不丢失
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _configId = widget.goalConfigId;
     _loadDetail();
   }
 
   Future<void> _loadDetail() async {
     setState(() => _isLoading = true);
 
-    // 优先使用 _config（可能由 _ensureConfig 惰性创建），其次使用 widget.goalConfigId
-    final configId = _config?.id ?? widget.goalConfigId;
+    final configId = _configId ?? _config?.id ?? widget.goalConfigId;
 
     if (configId != null) {
       final detail = await ref.read(goalConfigNotifierProvider.notifier).fetchDetail(configId);
       if (mounted) {
         setState(() {
           _config = detail;
+          if (detail != null) _configId = detail.id;
           _isLoading = false;
         });
       }
@@ -54,11 +56,12 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
   /// 确保配置记录存在，返回 configId（惰性创建）
   Future<int> _ensureConfig() async {
-    if (_config != null) return _config!.id;
+    if (_configId != null) return _configId!;
     final id = await ref.read(goalConfigNotifierProvider.notifier).upsertConfig(
           goalId: widget.goalId,
           blueprint: null,
         );
+    _configId = id;
     final detail = await ref.read(goalConfigNotifierProvider.notifier).fetchDetail(id);
     if (mounted) {
       setState(() => _config = detail);
@@ -373,15 +376,24 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
     if (result != null && mounted) {
       final configId = await _ensureConfig();
-      await ref.read(goalConfigNotifierProvider.notifier).addSession(
-            goalConfigId: configId,
-            sessionNumber: result,
+      try {
+        await ref.read(goalConfigNotifierProvider.notifier).addSession(
+              goalConfigId: configId,
+              sessionNumber: result,
+            );
+        await _loadDetail();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('课时模板已添加')),
           );
-      await _loadDetail();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课时模板已添加')),
-        );
+        }
+      } catch (e) {
+        await _loadDetail();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('添加失败，该课时序号已存在'), backgroundColor: Colors.red),
+          );
+        }
       }
     }
   }

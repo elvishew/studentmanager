@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
@@ -36,16 +37,24 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
   List<ContentField> _fields = [];
   Map<int, String> _existingValues = {};
 
-  /// 所有必填字段均已填写时才可保存
+  /// 所有必填字段均已填写且数字字段值合法时才可保存
   bool get _canSave {
     if (_fields.isEmpty) return false;
     for (final field in _fields) {
-      if (!field.isRequired || field.isDeprecated) continue;
+      if (field.isDeprecated) continue;
       if (field.fieldType == FieldType.select) {
-        if (_selectedOptions[field.id] == null || _selectedOptions[field.id]!.isEmpty) return false;
+        if (field.isRequired &&
+            (_selectedOptions[field.id] == null || _selectedOptions[field.id]!.isEmpty)) {
+          return false;
+        }
       } else {
         final controller = _controllers[field.id];
-        if (controller == null || controller.text.trim().isEmpty) return false;
+        final text = controller?.text.trim() ?? '';
+        if (field.isRequired && text.isEmpty) return false;
+        // 数字类型字段：非空时必须是合法数字
+        if (field.fieldType == FieldType.number && text.isNotEmpty) {
+          if (double.tryParse(text) == null) return false;
+        }
       }
     }
     return true;
@@ -300,7 +309,11 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
             labelText: label,
             border: const OutlineInputBorder(),
           ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\d.\-]')),
+          ],
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
       ],

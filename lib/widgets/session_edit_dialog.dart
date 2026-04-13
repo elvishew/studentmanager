@@ -202,6 +202,7 @@ class _SessionEditDialogState extends State<SessionEditDialog> {
   }
 
   /// 保存
+  void _handleSave() {
     Navigator.of(context).pop({
       'scheduledTime': _scheduledTime,
       'status': _selectedStatus,

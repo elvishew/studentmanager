@@ -42,33 +42,51 @@ class GoalConfigNotifier extends _$GoalConfigNotifier {
   }
 
   Future<GoalConfig?> fetchDetail(int id) async {
+    Map<String, dynamic>? map;
     try {
-      final map = await _repository.fetchGoalConfigDetail(id);
-      if (map == null) return null;
-
-      final config = GoalConfig.fromMap(map);
-
-      final sessions = (map['sessions'] as List).map((s) {
-        final session = GoalConfigSession.fromMap(s as Map<String, dynamic>);
-
-        final blocks = (s['content_blocks'] as List).map((b) {
-          final blockMap = b as Map<String, dynamic>;
-          final block = GoalConfigContentBlock.fromMap(blockMap);
-          final valuesList = blockMap['values'] as List;
-          final values = <int, String>{};
-          for (final v in valuesList) {
-            values[v['content_field_id'] as int] = v['value'] as String? ?? '';
-          }
-          return block.copyWith(values: values);
-        }).toList();
-
-        return session.copyWith(contentBlocks: blocks);
-      }).toList();
-
-      return config.copyWith(sessions: sessions);
-    } catch (e) {
+      map = await _repository.fetchGoalConfigDetail(id);
+    } catch (_) {
       return null;
     }
+    if (map == null) return null;
+
+    // 解析配置基础信息
+    GoalConfig config;
+    try {
+      config = GoalConfig.fromMap(map);
+    } catch (_) {
+      return null;
+    }
+
+    // 逐个解析课时模板，单个失败不影响其余
+    final sessions = <GoalConfigSession>[];
+    final sessionsRaw = map['sessions'] as List? ?? [];
+
+    for (var i = 0; i < sessionsRaw.length; i++) {
+      final s = sessionsRaw[i];
+      try {
+        final session = GoalConfigSession.fromMap(s as Map<String, dynamic>);
+
+        final blocks = <GoalConfigContentBlock>[];
+        final blocksRaw = (s['content_blocks'] as List? ?? []) as List;
+        for (var j = 0; j < blocksRaw.length; j++) {
+          try {
+            final blockMap = blocksRaw[j] as Map<String, dynamic>;
+            final block = GoalConfigContentBlock.fromMap(blockMap);
+            final valuesList = blockMap['values'] as List? ?? [];
+            final values = <int, String>{};
+            for (final v in valuesList) {
+              values[v['content_field_id'] as int] = v['value'] as String? ?? '';
+            }
+            blocks.add(block.copyWith(values: values));
+          } catch (_) {}
+        }
+
+        sessions.add(session.copyWith(contentBlocks: blocks));
+      } catch (_) {}
+    }
+
+    return config.copyWith(sessions: sessions);
   }
 
   Future<int> upsertConfig({

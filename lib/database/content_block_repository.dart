@@ -170,7 +170,9 @@ class ContentBlockRepository {
       orderBy: 'sort_order ASC',
     );
 
-    for (final block in blocks) {
+    final result = <Map<String, dynamic>>[];
+    for (final rawBlock in blocks) {
+      final block = Map<String, dynamic>.from(rawBlock);
       final blockId = block['id'] as int;
       final values = await database.rawQuery('''
         SELECT cbv.content_field_id, cbv.value, cf.name as field_name, cf.field_type
@@ -180,9 +182,10 @@ class ContentBlockRepository {
       ''', [blockId]);
 
       block['values'] = values;
+      result.add(block);
     }
 
-    return blocks;
+    return result;
   }
 
   /// 复制内容块
