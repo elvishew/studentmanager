@@ -7,7 +7,7 @@ part of 'course_plan_provider.dart';
 // **************************************************************************
 
 String _$coursePlanRepositoryHash() =>
-    r'f76613d4323b3910d30cfa9fd3af3092880f8a22';
+    r'154cbd8190690409744c1486373c19f0ee59ea14';
 
 /// ============================================
 /// CoursePlanRepository Provider
@@ -15,20 +15,19 @@ String _$coursePlanRepositoryHash() =>
 ///
 /// Copied from [coursePlanRepository].
 @ProviderFor(coursePlanRepository)
-final coursePlanRepositoryProvider =
-    AutoDisposeProvider<CoursePlanRepository>.internal(
-      coursePlanRepository,
-      name: r'coursePlanRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$coursePlanRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final coursePlanRepositoryProvider = Provider<CoursePlanRepository>.internal(
+  coursePlanRepository,
+  name: r'coursePlanRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$coursePlanRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CoursePlanRepositoryRef = AutoDisposeProviderRef<CoursePlanRepository>;
+typedef CoursePlanRepositoryRef = ProviderRef<CoursePlanRepository>;
 String _$selectedCoursePlanHash() =>
     r'5c24187d217bcf995669918d0a73b1e9882298e5';
 
@@ -86,7 +85,7 @@ final filteredStudentIdProvider = AutoDisposeProvider<int?>.internal(
 // ignore: unused_element
 typedef FilteredStudentIdRef = AutoDisposeProviderRef<int?>;
 String _$coursePlanNotifierHash() =>
-    r'7ef67a90a73eec948cf083e229c047eba1cb9cc0';
+    r'6b8456197c7a3f456418325b1abc46f6cbea626e';
 
 /// ============================================
 /// CoursePlan Notifier
@@ -95,7 +94,7 @@ String _$coursePlanNotifierHash() =>
 /// Copied from [CoursePlanNotifier].
 @ProviderFor(CoursePlanNotifier)
 final coursePlanNotifierProvider =
-    AutoDisposeNotifierProvider<CoursePlanNotifier, CoursePlanState>.internal(
+    NotifierProvider<CoursePlanNotifier, CoursePlanState>.internal(
       CoursePlanNotifier.new,
       name: r'coursePlanNotifierProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -105,6 +104,6 @@ final coursePlanNotifierProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$CoursePlanNotifier = AutoDisposeNotifier<CoursePlanState>;
+typedef _$CoursePlanNotifier = Notifier<CoursePlanState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

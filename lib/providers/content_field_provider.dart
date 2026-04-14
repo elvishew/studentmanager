@@ -12,7 +12,7 @@ part 'content_field_provider.g.dart';
 /// ContentFieldRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 ContentFieldRepository contentFieldRepository(ContentFieldRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return ContentFieldRepository(database: database);
@@ -22,7 +22,7 @@ ContentFieldRepository contentFieldRepository(ContentFieldRepositoryRef ref) {
 /// ContentBlockRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 ContentBlockRepository contentBlockRepository(ContentBlockRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return ContentBlockRepository(database: database);
@@ -32,7 +32,7 @@ ContentBlockRepository contentBlockRepository(ContentBlockRepositoryRef ref) {
 /// ContentFieldNotifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ContentFieldNotifier extends _$ContentFieldNotifier {
   late final ContentFieldRepository _repository;
 
@@ -124,7 +124,7 @@ class ContentFieldNotifier extends _$ContentFieldNotifier {
 /// ContentBlockNotifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ContentBlockNotifier extends _$ContentBlockNotifier {
   late final ContentBlockRepository _repository;
 

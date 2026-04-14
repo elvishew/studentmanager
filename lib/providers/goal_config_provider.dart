@@ -9,7 +9,7 @@ part 'goal_config_provider.g.dart';
 /// CoursePlanRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 CoursePlanRepository coursePlanRepository(CoursePlanRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return CoursePlanRepository(database: database);
@@ -19,7 +19,7 @@ CoursePlanRepository coursePlanRepository(CoursePlanRepositoryRef ref) {
 /// GoalConfig Notifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class GoalConfigNotifier extends _$GoalConfigNotifier {
   late final CoursePlanRepository _repository;
 

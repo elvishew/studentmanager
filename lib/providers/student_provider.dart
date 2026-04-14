@@ -9,7 +9,7 @@ part 'student_provider.g.dart';
 /// Database Provider（依赖注入）
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 Database database(DatabaseRef ref) {
   throw UnimplementedError('Database must be provided in main()');
 }
@@ -18,7 +18,7 @@ Database database(DatabaseRef ref) {
 /// Student Notifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class StudentNotifier extends _$StudentNotifier {
   late final Database _database;
 

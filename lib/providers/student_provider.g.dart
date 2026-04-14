@@ -6,7 +6,7 @@ part of 'student_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$databaseHash() => r'5f2c763885f8a29584de88e300bde20fa026a948';
+String _$databaseHash() => r'eb65676ceec5f8072f8af683cf4293c706fb469a';
 
 /// ============================================
 /// Database Provider（依赖注入）
@@ -14,7 +14,7 @@ String _$databaseHash() => r'5f2c763885f8a29584de88e300bde20fa026a948';
 ///
 /// Copied from [database].
 @ProviderFor(database)
-final databaseProvider = AutoDisposeProvider<Database>.internal(
+final databaseProvider = Provider<Database>.internal(
   database,
   name: r'databaseProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -26,7 +26,7 @@ final databaseProvider = AutoDisposeProvider<Database>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef DatabaseRef = AutoDisposeProviderRef<Database>;
+typedef DatabaseRef = ProviderRef<Database>;
 String _$studentCountHash() => r'91d5900e04bb1e02b5fe8777bc4eb7c38cfd7f4d';
 
 /// ============================================
@@ -68,7 +68,7 @@ final filteredStudentsProvider = AutoDisposeProvider<List<Student>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef FilteredStudentsRef = AutoDisposeProviderRef<List<Student>>;
-String _$studentNotifierHash() => r'd20b3ffa40179274cc183d0a571c145605266c5e';
+String _$studentNotifierHash() => r'a8d7d53b12d4684dc495efec999007bbfb847260';
 
 /// ============================================
 /// Student Notifier
@@ -77,7 +77,7 @@ String _$studentNotifierHash() => r'd20b3ffa40179274cc183d0a571c145605266c5e';
 /// Copied from [StudentNotifier].
 @ProviderFor(StudentNotifier)
 final studentNotifierProvider =
-    AutoDisposeNotifierProvider<StudentNotifier, StudentState>.internal(
+    NotifierProvider<StudentNotifier, StudentState>.internal(
       StudentNotifier.new,
       name: r'studentNotifierProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -87,6 +87,6 @@ final studentNotifierProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$StudentNotifier = AutoDisposeNotifier<StudentState>;
+typedef _$StudentNotifier = Notifier<StudentState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

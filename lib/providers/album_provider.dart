@@ -10,7 +10,7 @@ part 'album_provider.g.dart';
 /// AlbumRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 AlbumRepository albumRepository(AlbumRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return AlbumRepository(database: database);
@@ -20,7 +20,7 @@ AlbumRepository albumRepository(AlbumRepositoryRef ref) {
 /// Album Notifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AlbumNotifier extends _$AlbumNotifier {
   late final Database _database;
   late final AlbumRepository _repository;

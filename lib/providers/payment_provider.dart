@@ -10,7 +10,7 @@ part 'payment_provider.g.dart';
 /// PaymentRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 PaymentRepository paymentRepository(PaymentRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return PaymentRepository(database: database);
@@ -20,7 +20,7 @@ PaymentRepository paymentRepository(PaymentRepositoryRef ref) {
 /// PaymentNotifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PaymentNotifier extends _$PaymentNotifier {
   late final PaymentRepository _repository;
 

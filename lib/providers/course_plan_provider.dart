@@ -10,7 +10,7 @@ part 'course_plan_provider.g.dart';
 /// CoursePlanRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 CoursePlanRepository coursePlanRepository(CoursePlanRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return CoursePlanRepository(database: database);
@@ -20,7 +20,7 @@ CoursePlanRepository coursePlanRepository(CoursePlanRepositoryRef ref) {
 /// CoursePlan Notifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CoursePlanNotifier extends _$CoursePlanNotifier {
   late final Database _database;
   late final CoursePlanRepository _repository;

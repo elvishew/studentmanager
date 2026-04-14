@@ -6,7 +6,7 @@ part of 'session_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$sessionRepositoryHash() => r'14fe77eb741499c86afb3bee628038ac326affcc';
+String _$sessionRepositoryHash() => r'3521856b1515660b5be955a31c02bb85dbf918ac';
 
 /// ============================================
 /// SessionRepository Provider
@@ -14,20 +14,19 @@ String _$sessionRepositoryHash() => r'14fe77eb741499c86afb3bee628038ac326affcc';
 ///
 /// Copied from [sessionRepository].
 @ProviderFor(sessionRepository)
-final sessionRepositoryProvider =
-    AutoDisposeProvider<SessionRepository>.internal(
-      sessionRepository,
-      name: r'sessionRepositoryProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$sessionRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final sessionRepositoryProvider = Provider<SessionRepository>.internal(
+  sessionRepository,
+  name: r'sessionRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$sessionRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef SessionRepositoryRef = AutoDisposeProviderRef<SessionRepository>;
+typedef SessionRepositoryRef = ProviderRef<SessionRepository>;
 String _$selectedSessionHash() => r'239ce22f4e63f25fbf982979cafb5ed4f6059778';
 
 /// ============================================
@@ -120,7 +119,7 @@ final sessionStatisticsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionStatisticsRef = AutoDisposeProviderRef<SessionStatistics>;
-String _$sessionNotifierHash() => r'd02f8820485c1837ce848a50430e9c312458bc21';
+String _$sessionNotifierHash() => r'82213b5158876993f0944baf466ca65a576ffbed';
 
 /// ============================================
 /// Session Notifier
@@ -129,7 +128,7 @@ String _$sessionNotifierHash() => r'd02f8820485c1837ce848a50430e9c312458bc21';
 /// Copied from [SessionNotifier].
 @ProviderFor(SessionNotifier)
 final sessionNotifierProvider =
-    AutoDisposeNotifierProvider<SessionNotifier, SessionState>.internal(
+    NotifierProvider<SessionNotifier, SessionState>.internal(
       SessionNotifier.new,
       name: r'sessionNotifierProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -139,6 +138,6 @@ final sessionNotifierProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$SessionNotifier = AutoDisposeNotifier<SessionState>;
+typedef _$SessionNotifier = Notifier<SessionState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

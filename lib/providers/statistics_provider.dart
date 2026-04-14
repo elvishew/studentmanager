@@ -24,7 +24,7 @@ enum StatisticsRange {
 /// 统计时间范围 Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class StatisticsDateRange extends _$StatisticsDateRange {
   @override
   DateTimeRange build() {

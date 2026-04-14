@@ -10,7 +10,7 @@ part 'scheduled_class_provider.g.dart';
 /// ScheduledClassRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 ScheduledClassRepository scheduledClassRepository(ScheduledClassRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return ScheduledClassRepository(database: database);
@@ -20,7 +20,7 @@ ScheduledClassRepository scheduledClassRepository(ScheduledClassRepositoryRef re
 /// ScheduledClassNotifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ScheduledClassNotifier extends _$ScheduledClassNotifier {
   late final ScheduledClassRepository _repository;
 
@@ -198,7 +198,7 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
 /// ============================================
 
 /// 选中日期
-@riverpod
+@Riverpod(keepAlive: true)
 class SelectedDate extends _$SelectedDate {
   @override
   DateTime build() => DateTime.now();
@@ -211,7 +211,7 @@ class SelectedDate extends _$SelectedDate {
 /// 当前视图模式
 enum ScheduleViewMode { day, week, month }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ScheduleView extends _$ScheduleView {
   @override
   ScheduleViewMode build() => ScheduleViewMode.day;

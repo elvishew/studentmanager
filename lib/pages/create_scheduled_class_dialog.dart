@@ -55,7 +55,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
       _initialized = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        // 确保课程类型数据已加载（AutoDispose provider 可能被回收）
+        // 确保课程类型数据已加载
         ref.read(courseTypeNotifierProvider.notifier).fetchAll();
         // 如果有预选学员，自动添加为参与人
         if (widget.preselectedStudentId != null) {

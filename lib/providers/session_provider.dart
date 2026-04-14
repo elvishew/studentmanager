@@ -12,7 +12,7 @@ part 'session_provider.g.dart';
 /// SessionRepository Provider
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 SessionRepository sessionRepository(SessionRepositoryRef ref) {
   final database = ref.watch(databaseProvider);
   return SessionRepository(database: database);
@@ -22,7 +22,7 @@ SessionRepository sessionRepository(SessionRepositoryRef ref) {
 /// Session Notifier
 /// ============================================
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SessionNotifier extends _$SessionNotifier {
   late final Database _database;
   late final SessionRepository _sessionRepository;

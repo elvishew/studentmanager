@@ -29,7 +29,7 @@ final statisticsDataProvider =
 // ignore: unused_element
 typedef StatisticsDataRef = AutoDisposeFutureProviderRef<StatisticsData>;
 String _$statisticsDateRangeHash() =>
-    r'45064a280ef0aebc1e4822d508631c27d7f9909f';
+    r'95c04fc7ba5d81eea8fbf20293463242ea8e8213';
 
 /// ============================================
 /// 统计时间范围 Provider
@@ -38,7 +38,7 @@ String _$statisticsDateRangeHash() =>
 /// Copied from [StatisticsDateRange].
 @ProviderFor(StatisticsDateRange)
 final statisticsDateRangeProvider =
-    AutoDisposeNotifierProvider<StatisticsDateRange, DateTimeRange>.internal(
+    NotifierProvider<StatisticsDateRange, DateTimeRange>.internal(
       StatisticsDateRange.new,
       name: r'statisticsDateRangeProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -48,6 +48,6 @@ final statisticsDateRangeProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$StatisticsDateRange = AutoDisposeNotifier<DateTimeRange>;
+typedef _$StatisticsDateRange = Notifier<DateTimeRange>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

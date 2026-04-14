@@ -7,7 +7,7 @@ part of 'scheduled_class_provider.dart';
 // **************************************************************************
 
 String _$scheduledClassRepositoryHash() =>
-    r'd817235b28b05f5bdf6224c677b50b9b0dab815d';
+    r'70fed5a195b6974fb1899b8bf788147b593cf8ab';
 
 /// ============================================
 /// ScheduledClassRepository Provider
@@ -16,7 +16,7 @@ String _$scheduledClassRepositoryHash() =>
 /// Copied from [scheduledClassRepository].
 @ProviderFor(scheduledClassRepository)
 final scheduledClassRepositoryProvider =
-    AutoDisposeProvider<ScheduledClassRepository>.internal(
+    Provider<ScheduledClassRepository>.internal(
       scheduledClassRepository,
       name: r'scheduledClassRepositoryProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -28,10 +28,9 @@ final scheduledClassRepositoryProvider =
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ScheduledClassRepositoryRef =
-    AutoDisposeProviderRef<ScheduledClassRepository>;
+typedef ScheduledClassRepositoryRef = ProviderRef<ScheduledClassRepository>;
 String _$scheduledClassNotifierHash() =>
-    r'b6e8cf79c66a35e8c2b9b3e7a896b8d691e64d6d';
+    r'3985222610f4f01bd920f0b2241fec56e9da82ba';
 
 /// ============================================
 /// ScheduledClassNotifier
@@ -40,10 +39,7 @@ String _$scheduledClassNotifierHash() =>
 /// Copied from [ScheduledClassNotifier].
 @ProviderFor(ScheduledClassNotifier)
 final scheduledClassNotifierProvider =
-    AutoDisposeNotifierProvider<
-      ScheduledClassNotifier,
-      ScheduledClassState
-    >.internal(
+    NotifierProvider<ScheduledClassNotifier, ScheduledClassState>.internal(
       ScheduledClassNotifier.new,
       name: r'scheduledClassNotifierProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -53,8 +49,8 @@ final scheduledClassNotifierProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$ScheduledClassNotifier = AutoDisposeNotifier<ScheduledClassState>;
-String _$selectedDateHash() => r'e2247a92a2cf7027f53985680596ffb4580be458';
+typedef _$ScheduledClassNotifier = Notifier<ScheduledClassState>;
+String _$selectedDateHash() => r'6c5aaff4ab7a60d19b71fad710e7ae68079b053d';
 
 /// ============================================
 /// 计算属性
@@ -63,24 +59,23 @@ String _$selectedDateHash() => r'e2247a92a2cf7027f53985680596ffb4580be458';
 ///
 /// Copied from [SelectedDate].
 @ProviderFor(SelectedDate)
-final selectedDateProvider =
-    AutoDisposeNotifierProvider<SelectedDate, DateTime>.internal(
-      SelectedDate.new,
-      name: r'selectedDateProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$selectedDateHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final selectedDateProvider = NotifierProvider<SelectedDate, DateTime>.internal(
+  SelectedDate.new,
+  name: r'selectedDateProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedDateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-typedef _$SelectedDate = AutoDisposeNotifier<DateTime>;
-String _$scheduleViewHash() => r'3ed1f4e3e1592f5c32f3936d823c38487b304f1b';
+typedef _$SelectedDate = Notifier<DateTime>;
+String _$scheduleViewHash() => r'80e3b2de4b056a11ed2d5461e1fefd4f83505369';
 
 /// See also [ScheduleView].
 @ProviderFor(ScheduleView)
 final scheduleViewProvider =
-    AutoDisposeNotifierProvider<ScheduleView, ScheduleViewMode>.internal(
+    NotifierProvider<ScheduleView, ScheduleViewMode>.internal(
       ScheduleView.new,
       name: r'scheduleViewProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -90,6 +85,6 @@ final scheduleViewProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$ScheduleView = AutoDisposeNotifier<ScheduleViewMode>;
+typedef _$ScheduleView = Notifier<ScheduleViewMode>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
