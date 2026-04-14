@@ -5,12 +5,52 @@ import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
-/// 周视图：7 列网格
-class ScheduleWeekView extends ConsumerWidget {
+/// 周视图：7 列网格，支持左右滑动切换周
+class ScheduleWeekView extends ConsumerStatefulWidget {
   const ScheduleWeekView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScheduleWeekView> createState() => _ScheduleWeekViewState();
+}
+
+class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
+  late PageController _pageController;
+  late DateTime _baseWeekStart;
+  static const int _initialPage = 5200; // 足够大的中间页
+
+  @override
+  void initState() {
+    super.initState();
+    final selectedDate = ref.read(selectedDateProvider);
+    _baseWeekStart = _weekStart(selectedDate);
+    _pageController = PageController(initialPage: _initialPage);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  /// 获取某天所在周的周一
+  DateTime _weekStart(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1));
+  }
+
+  /// 根据 page index 计算该周的起始日期
+  DateTime _weekStartFromIndex(int index) {
+    return _baseWeekStart.add(Duration(days: (index - _initialPage) * 7));
+  }
+
+  void _onPageChanged(int index) {
+    final weekStart = _weekStartFromIndex(index);
+    final midWeek = weekStart.add(const Duration(days: 3));
+    ref.read(selectedDateProvider.notifier).setDate(midWeek);
+    ref.read(scheduledClassNotifierProvider.notifier).fetchByWeek(weekStart);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(scheduledClassNotifierProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
@@ -19,47 +59,59 @@ class ScheduleWeekView extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('加载失败: $e')),
       data: (classes, _) {
-        final startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+        final startOfWeek = _weekStart(selectedDate);
 
         return Column(
           children: [
             // 星期标题行
             _buildWeekHeader(context, startOfWeek),
-            // 课程网格
+            // 可滑动的周内容
             Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(7, (i) {
-                  final date = startOfWeek.add(Duration(days: i));
-                  final dayClasses = classes.where((sc) =>
-                    sc.startTime.year == date.year &&
-                    sc.startTime.month == date.month &&
-                    sc.startTime.day == date.day
-                  ).toList();
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                itemBuilder: (context, page) {
+                  final weekStart = _weekStartFromIndex(page);
+                  // 只对当前周使用实际数据，其他周显示空（滑动后会加载）
+                  final isCurrentWeek = weekStart.year == startOfWeek.year &&
+                      weekStart.month == startOfWeek.month &&
+                      weekStart.day == startOfWeek.day;
+                  final displayClasses = isCurrentWeek ? classes : <ScheduledClass>[];
 
-                  return Expanded(
-                    child: GestureDetector(
-                      // 点击空白区域 → 新建排课
-                      onTap: () => _showCreateForDate(context, ref, date),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            right: BorderSide(
-                              color: Theme.of(context).dividerColor.withOpacity(0.2),
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(7, (i) {
+                      final date = weekStart.add(Duration(days: i));
+                      final dayClasses = displayClasses.where((sc) =>
+                        sc.startTime.year == date.year &&
+                        sc.startTime.month == date.month &&
+                        sc.startTime.day == date.day
+                      ).toList();
+
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => _showCreateForDate(context, date),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                right: BorderSide(
+                                  color: Theme.of(context).dividerColor.withOpacity(0.2),
+                                ),
+                              ),
+                            ),
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(4),
+                              itemCount: dayClasses.length,
+                              itemBuilder: (context, index) {
+                                return _buildWeekClassTile(context, dayClasses[index]);
+                              },
                             ),
                           ),
                         ),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(4),
-                          itemCount: dayClasses.length,
-                          itemBuilder: (context, index) {
-                            return _buildWeekClassTile(context, dayClasses[index]);
-                          },
-                        ),
-                      ),
-                    ),
+                      );
+                    }),
                   );
-                }),
+                },
               ),
             ),
           ],
@@ -68,8 +120,7 @@ class ScheduleWeekView extends ConsumerWidget {
     );
   }
 
-  /// 点击空白区域，设置选中日期并打开新建排课
-  void _showCreateForDate(BuildContext context, WidgetRef ref, DateTime date) {
+  void _showCreateForDate(BuildContext context, DateTime date) {
     ref.read(selectedDateProvider.notifier).setDate(date);
     showModalBottomSheet(
       context: context,

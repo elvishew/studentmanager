@@ -62,6 +62,22 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
     }
   }
 
+  /// 按周查询排课（weekStart 为周一）
+  Future<void> fetchByWeek(DateTime weekStart) async {
+    state = const ScheduledClassState.loading();
+    try {
+      final weekEnd = weekStart.add(const Duration(days: 7));
+      final maps = await _repository.getByDateRange(
+        startDate: '${weekStart.toIso8601String().substring(0, 10)}T00:00:00',
+        endDate: '${weekEnd.toIso8601String().substring(0, 10)}T00:00:00',
+      );
+      final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+      state = ScheduledClassState.data(scheduledClasses: classes);
+    } catch (e, st) {
+      state = ScheduledClassState.error(e, st);
+    }
+  }
+
   /// 创建排课
   Future<int?> createScheduledClass({
     required int courseTypeId,

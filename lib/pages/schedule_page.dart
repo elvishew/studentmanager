@@ -27,8 +27,15 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
 
   void _loadData() {
     final selectedDate = ref.read(selectedDateProvider);
+    final viewMode = ref.read(scheduleViewProvider);
     final notifier = ref.read(scheduledClassNotifierProvider.notifier);
-    notifier.fetchByDate(selectedDate);
+    // 根据当前视图加载对应范围的数据
+    if (viewMode == ScheduleViewMode.week) {
+      final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+      notifier.fetchByWeek(weekStart);
+    } else {
+      notifier.fetchByDate(selectedDate);
+    }
     // 确保课程类型数据已加载
     ref.read(courseTypeNotifierProvider.notifier).fetchAll();
   }
@@ -115,7 +122,17 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
       ],
       selected: {currentMode},
       onSelectionChanged: (modes) {
-        ref.read(scheduleViewProvider.notifier).setMode(modes.first);
+        final mode = modes.first;
+        ref.read(scheduleViewProvider.notifier).setMode(mode);
+        // 切换视图时重新加载对应范围数据
+        final selectedDate = ref.read(selectedDateProvider);
+        final notifier = ref.read(scheduledClassNotifierProvider.notifier);
+        if (mode == ScheduleViewMode.week) {
+          final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+          notifier.fetchByWeek(weekStart);
+        } else {
+          notifier.fetchByDate(selectedDate);
+        }
       },
     );
   }
@@ -193,9 +210,17 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
 
   void _changeDate(int days) {
     final current = ref.read(selectedDateProvider);
-    final newDate = current.add(Duration(days: days));
+    final viewMode = ref.read(scheduleViewProvider);
+    final step = viewMode == ScheduleViewMode.week ? days * 7 : days;
+    final newDate = current.add(Duration(days: step));
     ref.read(selectedDateProvider.notifier).setDate(newDate);
-    ref.read(scheduledClassNotifierProvider.notifier).fetchByDate(newDate);
+    final notifier = ref.read(scheduledClassNotifierProvider.notifier);
+    if (viewMode == ScheduleViewMode.week) {
+      final weekStart = newDate.subtract(Duration(days: newDate.weekday - 1));
+      notifier.fetchByWeek(weekStart);
+    } else {
+      notifier.fetchByDate(newDate);
+    }
   }
 
   void _showCreateDialog(BuildContext context) {
