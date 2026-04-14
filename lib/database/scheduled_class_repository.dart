@@ -174,6 +174,20 @@ class ScheduledClassRepository {
     return count > 0;
   }
 
+  /// 恢复排课（回到 scheduled 状态）
+  Future<bool> restoreClass(int id) async {
+    final count = await database.update(
+      'scheduled_classes',
+      {
+        'status': 'scheduled',
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ? AND status IN (?, ?)',
+      whereArgs: [id, 'cancelled', 'no_show'],
+    );
+    return count > 0;
+  }
+
   /// 标记未到
   Future<bool> markNoShow(int id) async {
     final count = await database.update(

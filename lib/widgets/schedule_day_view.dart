@@ -199,6 +199,16 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
 
   Widget _buildClassBlock(ScheduledClass sc) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
+    final isCancelled = sc.status == ScheduledClassStatus.cancelled;
+    final isCompleted = sc.status == ScheduledClassStatus.completed;
+    final isNoShow = sc.status == ScheduledClassStatus.noShow;
+    final blockColor = isCancelled
+        ? Colors.grey
+        : isCompleted
+            ? Colors.green
+            : isNoShow
+                ? Colors.orange
+                : color;
 
     return GestureDetector(
       onTap: () {
@@ -208,50 +218,77 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 1),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color.withOpacity(0.4), width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              sc.title ?? sc.courseTypeName ?? '未命名课程',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      child: Opacity(
+        opacity: isCancelled ? 0.5 : 1.0,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: blockColor.withOpacity(isCancelled ? 0.08 : 0.15),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: blockColor.withOpacity(isCancelled ? 0.2 : 0.4),
+              width: 1,
             ),
-            Text(
-              '${_formatTime(sc.startTime)} - ${_formatTime(sc.endTime)}',
-              style: TextStyle(
-                fontSize: 10,
-                color: color.withOpacity(0.8),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      sc.title ?? sc.courseTypeName ?? '未命名',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: blockColor,
+                        decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${_formatTime(sc.startTime)} - ${_formatTime(sc.endTime)}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: blockColor.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              if (isCancelled)
+                Text('已取消', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+              if (isNoShow)
+                Text('未到', style: TextStyle(fontSize: 10, color: Colors.orange.shade700)),
+              if (isCompleted)
+                Text('已完成', style: TextStyle(fontSize: 10, color: Colors.green.shade700)),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildDaySummary(List<ScheduledClass> classes) {
-    final completed = classes.where((c) => c.status == ScheduledClassStatus.completed).length;
-    final scheduled = classes.where((c) => c.status == ScheduledClassStatus.scheduled).length;
+    // 取消的课不算入活跃统计
+    final active = classes.where((c) => c.status != ScheduledClassStatus.cancelled).toList();
+    final completed = active.where((c) => c.status == ScheduledClassStatus.completed).length;
+    final scheduled = active.where((c) => c.status == ScheduledClassStatus.scheduled).length;
+    final noShow = active.where((c) => c.status == ScheduledClassStatus.noShow).length;
+    final cancelled = classes.where((c) => c.status == ScheduledClassStatus.cancelled).length;
+
+    final parts = ['今日 ${active.length} 节课 / 已完成 $completed / 待上 $scheduled'];
+    if (noShow > 0) parts.add('未到 $noShow');
+    if (cancelled > 0) parts.add('已取消 $cancelled');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Theme.of(context).colorScheme.surface,
       child: Text(
-        '今日 ${classes.length} 节课 / 已完成 $completed / 待上 $scheduled',
+        parts.join(' / '),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.outline,
         ),

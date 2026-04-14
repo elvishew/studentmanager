@@ -129,6 +129,16 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
     }
   }
 
+  /// 恢复排课（cancelled/no_show → scheduled）
+  Future<bool> restoreClass(int id) async {
+    try {
+      return await _repository.restoreClass(id);
+    } catch (e, st) {
+      state = ScheduledClassState.error(e, st);
+      return false;
+    }
+  }
+
   /// 标记未到
   Future<bool> markNoShow(int id) async {
     try {
@@ -196,6 +206,36 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
       return await _repository.getDetail(id);
     } catch (e) {
       return null;
+    }
+  }
+
+  /// 状态变更后静默刷新当前数据（不触发 loading 状态）
+  Future<void> refreshAfterMutation() async {
+    try {
+      final selectedDate = ref.read(selectedDateProvider);
+      final viewMode = ref.read(scheduleViewProvider);
+      List<Map<String, dynamic>> maps;
+
+      if (viewMode == ScheduleViewMode.week) {
+        final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+        final weekEnd = weekStart.add(const Duration(days: 7));
+        maps = await _repository.getByDateRange(
+          startDate: '${weekStart.toIso8601String().substring(0, 10)}T00:00:00',
+          endDate: '${weekEnd.toIso8601String().substring(0, 10)}T00:00:00',
+        );
+      } else {
+        final dateStr = selectedDate.toIso8601String().substring(0, 10);
+        final nextDay = selectedDate.add(const Duration(days: 1));
+        maps = await _repository.getByDateRange(
+          startDate: '${dateStr}T00:00:00',
+          endDate: '${nextDay.toIso8601String().substring(0, 10)}T00:00:00',
+        );
+      }
+
+      final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+      state = ScheduledClassState.data(scheduledClasses: classes);
+    } catch (_) {
+      // 静默刷新失败，不打断 UI
     }
   }
 

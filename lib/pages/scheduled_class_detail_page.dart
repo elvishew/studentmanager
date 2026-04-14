@@ -72,9 +72,13 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
             itemBuilder: (context) => [
               if (status == 'scheduled') ...[
                 const PopupMenuItem(value: 'complete', child: Text('完成上课（消课）')),
-                const PopupMenuItem(value: 'cancel', child: Text('取消课程')),
+                const PopupMenuItem(value: 'cancel', child: Text('取消排课')),
                 const PopupMenuItem(value: 'noshow', child: Text('标记未到')),
               ],
+              if (status == 'cancelled' || status == 'no_show')
+                const PopupMenuItem(value: 'restore', child: Text('恢复为待上课')),
+              if (status == 'completed')
+                const PopupMenuItem(value: 'restore', child: Text('撤销完成')),
               const PopupMenuItem(value: 'delete', child: Text('删除', style: TextStyle(color: Colors.red))),
             ],
           ),
@@ -208,7 +212,7 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
 
   (String, Color) _getStatusInfo(String status) {
     switch (status) {
-      case 'scheduled': return ('已排课', Colors.blue);
+      case 'scheduled': return ('待上课', Colors.blue);
       case 'completed': return ('已完成', Colors.green);
       case 'cancelled': return ('已取消', Colors.grey);
       case 'no_show': return ('未到', Colors.orange);
@@ -270,54 +274,97 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
 
     switch (action) {
       case 'complete':
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('确认消课'),
-            content: const Text('确认标记此课程为已完成？关联的课时也会自动标记完成。'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('确认')),
-            ],
-          ),
+        final confirmed = await _showConfirmDialog(
+          title: '确认消课',
+          content: '确认标记此排课为已完成？关联的课时也会自动标记完成。',
         );
         if (confirmed == true) {
           await notifier.completeClass(widget.classId);
           if (mounted) {
-            Navigator.pop(context, true);
+            notifier.refreshAfterMutation();
+            _loadDetail();
           }
         }
         break;
       case 'cancel':
-        await notifier.cancelClass(widget.classId);
-        if (mounted) Navigator.pop(context, true);
+        final confirmed = await _showConfirmDialog(
+          title: '取消排课',
+          content: '确定要取消此排课吗？取消后可以随时恢复。',
+          confirmText: '确认取消',
+          isDangerous: true,
+        );
+        if (confirmed == true) {
+          await notifier.cancelClass(widget.classId);
+          if (mounted) {
+            notifier.refreshAfterMutation();
+            _loadDetail();
+          }
+        }
         break;
       case 'noshow':
-        await notifier.markNoShow(widget.classId);
-        if (mounted) Navigator.pop(context, true);
+        final confirmed = await _showConfirmDialog(
+          title: '标记未到',
+          content: '确定要将此排课标记为学员未到吗？',
+        );
+        if (confirmed == true) {
+          await notifier.markNoShow(widget.classId);
+          if (mounted) {
+            notifier.refreshAfterMutation();
+            _loadDetail();
+          }
+        }
+        break;
+      case 'restore':
+        final confirmed = await _showConfirmDialog(
+          title: '恢复排课',
+          content: '确定要将此排课恢复为待上课状态吗？',
+        );
+        if (confirmed == true) {
+          await notifier.restoreClass(widget.classId);
+          if (mounted) {
+            notifier.refreshAfterMutation();
+            _loadDetail();
+          }
+        }
         break;
       case 'delete':
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('确认删除'),
-            content: const Text('确定要删除此排课记录吗？此操作不可撤销。'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('删除'),
-              ),
-            ],
-          ),
+        final confirmed = await _showConfirmDialog(
+          title: '确认删除',
+          content: '确定要删除此排课记录吗？此操作不可撤销。',
+          isDangerous: true,
         );
         if (confirmed == true) {
           await notifier.deleteClass(widget.classId);
-          if (mounted) Navigator.pop(context, true);
+          if (mounted) {
+            notifier.refreshAfterMutation();
+            Navigator.pop(context, true);
+          }
         }
         break;
     }
+  }
+
+  Future<bool?> _showConfirmDialog({
+    required String title,
+    required String content,
+    String confirmText = '确认',
+    bool isDangerous = false,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: isDangerous ? FilledButton.styleFrom(backgroundColor: Colors.red) : null,
+            child: Text(confirmText),
+          ),
+        ],
+      ),
+    );
   }
 
   String _formatDateTime(DateTime dt) {

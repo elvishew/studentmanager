@@ -28,7 +28,7 @@ enum SessionStatus {
 /// ============================================
 
 enum ScheduledClassStatus {
-  scheduled('已排课', 'scheduled'),
+  scheduled('待上课', 'scheduled'),
   completed('已完成', 'completed'),
   cancelled('已取消', 'cancelled'),
   noShow('未到', 'no_show');

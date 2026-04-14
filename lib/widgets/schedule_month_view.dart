@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 
 /// 月视图：日历网格 + 课时数徽章
@@ -20,9 +21,10 @@ class ScheduleMonthView extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('加载失败: $e')),
       data: (classes, _) {
-        // 按日分组
+        // 按日分组（取消的课不计入徽章）
         final classesByDay = <int, int>{};
         for (final sc in classes) {
+          if (sc.status == ScheduledClassStatus.cancelled) continue;
           final day = sc.startTime.day;
           classesByDay[day] = (classesByDay[day] ?? 0) + 1;
         }
