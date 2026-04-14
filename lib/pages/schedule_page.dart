@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/providers/course_type_provider.dart';
 import 'package:student_manager/widgets/schedule_day_view.dart';
 import 'package:student_manager/widgets/schedule_week_view.dart';
 import 'package:student_manager/widgets/schedule_month_view.dart';
@@ -28,6 +29,8 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
     final selectedDate = ref.read(selectedDateProvider);
     final notifier = ref.read(scheduledClassNotifierProvider.notifier);
     notifier.fetchByDate(selectedDate);
+    // 确保课程类型数据已加载
+    ref.read(courseTypeNotifierProvider.notifier).fetchAll();
   }
 
   @override

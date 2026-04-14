@@ -274,7 +274,6 @@ class CoursePlanRepository {
         {
           'course_plan_id': coursePlanId,
           'session_number': sessionNumber,
-          'scheduled_time': null,
           'status': 'pending',
           'created_at': now,
           'updated_at': now,
@@ -327,7 +326,6 @@ class CoursePlanRepository {
         {
           'course_plan_id': coursePlanId,
           'session_number': i,
-          'scheduled_time': null,
           'status': 'pending',
           'created_at': now,
           'updated_at': now,

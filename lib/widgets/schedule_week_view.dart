@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
+import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
 /// 周视图：7 列网格
 class ScheduleWeekView extends ConsumerWidget {
@@ -37,20 +38,24 @@ class ScheduleWeekView extends ConsumerWidget {
                   ).toList();
 
                   return Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          right: BorderSide(
-                            color: Theme.of(context).dividerColor.withOpacity(0.2),
+                    child: GestureDetector(
+                      // 点击空白区域 → 新建排课
+                      onTap: () => _showCreateForDate(context, ref, date),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            right: BorderSide(
+                              color: Theme.of(context).dividerColor.withOpacity(0.2),
+                            ),
                           ),
                         ),
-                      ),
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(4),
-                        itemCount: dayClasses.length,
-                        itemBuilder: (context, index) {
-                          return _buildWeekClassTile(context, dayClasses[index]);
-                        },
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(4),
+                          itemCount: dayClasses.length,
+                          itemBuilder: (context, index) {
+                            return _buildWeekClassTile(context, dayClasses[index]);
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -60,6 +65,17 @@ class ScheduleWeekView extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+
+  /// 点击空白区域，设置选中日期并打开新建排课
+  void _showCreateForDate(BuildContext context, WidgetRef ref, DateTime date) {
+    ref.read(selectedDateProvider.notifier).setDate(date);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => CreateScheduledClassDialog(),
     );
   }
 

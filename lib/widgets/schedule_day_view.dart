@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
+import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
 /// 日视图：0-24h 时间轴
 class ScheduleDayView extends ConsumerStatefulWidget {
@@ -90,68 +91,75 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                 ),
                 // 课程块列
                 Expanded(
-                  child: Stack(
-                    children: [
-                      // 小时网格线
-                      ...List.generate(24, (index) {
-                        return Positioned(
-                          top: index * _hourHeight,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            height: _hourHeight,
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: Theme.of(context).dividerColor.withOpacity(0.2),
-                                  width: 0.5,
+                  child: GestureDetector(
+                    // 点击空白区域 → 新建排课
+                    onTapUp: (details) {
+                      final hour = (details.localPosition.dy / _hourHeight).clamp(0, 23).floor();
+                      _showCreateDialog(hour);
+                    },
+                    child: Stack(
+                      children: [
+                        // 小时网格线
+                        ...List.generate(24, (index) {
+                          return Positioned(
+                            top: index * _hourHeight,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: _hourHeight,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(
+                                    color: Theme.of(context).dividerColor.withOpacity(0.2),
+                                    width: 0.5,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      }),
-                      // 课程色块
-                      ...classes.map((sc) {
-                        final startHour = sc.startTime.hour + sc.startTime.minute / 60;
-                        final durationHours = sc.endTime.difference(sc.startTime).inMinutes / 60;
-                        final top = startHour * _hourHeight;
-                        final height = durationHours * _hourHeight;
+                          );
+                        }),
+                        // 课程色块
+                        ...classes.map((sc) {
+                          final startHour = sc.startTime.hour + sc.startTime.minute / 60;
+                          final durationHours = sc.endTime.difference(sc.startTime).inMinutes / 60;
+                          final top = startHour * _hourHeight;
+                          final height = durationHours * _hourHeight;
 
-                        return Positioned(
-                          top: top,
-                          left: 4,
-                          right: 4,
-                          height: height.clamp(32.0, double.infinity),
-                          child: _buildClassBlock(sc),
-                        );
-                      }),
-                      // 当前时间指示线
-                      if (isToday)
-                        Positioned(
-                          top: (now.hour + now.minute / 60) * _hourHeight,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
+                          return Positioned(
+                            top: top,
+                            left: 4,
+                            right: 4,
+                            height: height.clamp(32.0, double.infinity),
+                            child: _buildClassBlock(sc),
+                          );
+                        }),
+                        // 当前时间指示线
+                        if (isToday)
+                          Positioned(
+                            top: (now.hour + now.minute / 60) * _hourHeight,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  height: 2,
-                                  color: Colors.red,
+                                Expanded(
+                                  child: Container(
+                                    height: 2,
+                                    color: Colors.red,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -167,6 +175,23 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
           ],
         );
       },
+    );
+  }
+
+  /// 点击空白区域时，根据点击位置推算时间，打开新建排课对话框
+  void _showCreateDialog(int startHour) {
+    final selectedDate = ref.read(selectedDateProvider);
+    // 将选中日期的小时设为点击位置对应的时间
+    ref.read(selectedDateProvider.notifier).setDate(
+      DateTime(selectedDate.year, selectedDate.month, selectedDate.day, startHour),
+    );
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => CreateScheduledClassDialog(
+        initialStartHour: startHour,
+      ),
     );
   }
 

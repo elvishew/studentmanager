@@ -6,6 +6,7 @@ import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/widgets/session_action_dialogs.dart';
 import 'edit_course_plan_dialog.dart';
 import 'session_detail_page.dart';
+import 'create_scheduled_class_dialog.dart';
 
 /// 课程规划页
 class CoursePlanPage extends ConsumerStatefulWidget {
@@ -416,6 +417,13 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // 排课按钮（仅未开始的课时显示）
+            if (session.status == SessionStatus.pending)
+              _buildActionButton(
+                icon: Icons.schedule,
+                tooltip: '排课',
+                onTap: () => _handleScheduleSession(session, displayNumber),
+              ),
             // 完成按钮
             _buildActionButton(
               icon: Icons.check_circle_outline,
@@ -606,6 +614,22 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     if (mounted) {
       _showResultSnackBar(success, '已标记为跳过');
     }
+  }
+
+  /// 排课：为课时创建排课记录
+  Future<void> _handleScheduleSession(Session session, int displayNumber) async {
+    // 获取学员 ID
+    final studentId = _coursePlan?.studentId;
+    if (studentId == null) return;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => CreateScheduledClassDialog(
+        preselectedSessionId: session.id,
+        preselectedStudentId: studentId,
+      ),
+    );
   }
 
   /// 显示操作结果

@@ -4,11 +4,22 @@ import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
-import 'package:student_manager/providers/course_plan_provider.dart';
 
 /// 快速排课底部面板
 class CreateScheduledClassDialog extends ConsumerStatefulWidget {
-  const CreateScheduledClassDialog({super.key});
+  /// 预选的课程规划 session ID（从课程规划页排课时传入）
+  final int? preselectedSessionId;
+  /// 预选的参与学员 ID（从课程规划页排课时传入）
+  final int? preselectedStudentId;
+  /// 初始开始时间的小时（从日视图空白区域点击时传入）
+  final int? initialStartHour;
+
+  const CreateScheduledClassDialog({
+    super.key,
+    this.preselectedSessionId,
+    this.preselectedStudentId,
+    this.initialStartHour,
+  });
 
   @override
   ConsumerState<CreateScheduledClassDialog> createState() => _CreateScheduledClassDialogState();
@@ -16,15 +27,57 @@ class CreateScheduledClassDialog extends ConsumerStatefulWidget {
 
 class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClassDialog> {
   CourseType? _selectedCourseType;
-  DateTime _startTime = DateTime.now().add(const Duration(hours: 1));
-  DateTime _endTime = DateTime.now().add(const Duration(hours: 2));
+  late DateTime _startTime;
+  late DateTime _endTime;
   final List<Map<String, dynamic>> _participants = [];
-  int? _selectedSessionId;
+  late int? _selectedSessionId;
   String? _title;
   String? _location;
   String? _notes;
   final _guestNameController = TextEditingController();
   bool _isSubmitting = false;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    final hour = widget.initialStartHour ?? now.hour + 1;
+    _startTime = DateTime(now.year, now.month, now.day, hour, 0);
+    _endTime = DateTime(now.year, now.month, now.day, hour + 1, 0);
+    _selectedSessionId = widget.preselectedSessionId;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        // 确保课程类型数据已加载（AutoDispose provider 可能被回收）
+        ref.read(courseTypeNotifierProvider.notifier).fetchAll();
+        // 如果有预选学员，自动添加为参与人
+        if (widget.preselectedStudentId != null) {
+          _autoAddPreselectedStudent();
+        }
+      });
+    }
+  }
+
+  Future<void> _autoAddPreselectedStudent() async {
+    final notifier = ref.read(studentNotifierProvider.notifier);
+    final student = await notifier.getById(widget.preselectedStudentId!);
+    if (student != null && mounted) {
+      setState(() {
+        _participants.add({
+          'student_id': student.id,
+          'guest_name': null,
+          'name': student.name,
+        });
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -73,10 +126,19 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               // 课程类型选择
               Text('课程类型', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: courseTypes.map((ct) {
+              if (courseTypes.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(child: SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: courseTypes.map((ct) {
                   final isSelected = _selectedCourseType?.id == ct.id;
                   final color = _parseColor(ct.color) ?? Theme.of(context).colorScheme.primary;
                   return ChoiceChip(
