@@ -87,7 +87,7 @@ class SettingsPage extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const TemplateSelectionPage(),
+          builder: (context) => const TemplateSelectionPage(isSwitching: true),
         ),
       );
     }

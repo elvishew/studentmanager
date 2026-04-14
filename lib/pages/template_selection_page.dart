@@ -6,7 +6,9 @@ import 'student_list_page.dart';
 
 /// 模板选择页
 class TemplateSelectionPage extends ConsumerStatefulWidget {
-  const TemplateSelectionPage({super.key});
+  final bool isSwitching;
+
+  const TemplateSelectionPage({super.key, this.isSwitching = false});
 
   @override
   ConsumerState<TemplateSelectionPage> createState() => _TemplateSelectionPageState();
@@ -37,7 +39,11 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
     setState(() => _isApplying = true);
     try {
       final db = ref.read(databaseProvider);
-      await TemplateLoader.applyTemplate(db, template.id);
+      if (widget.isSwitching) {
+        await TemplateLoader.switchTemplate(db, template.id);
+      } else {
+        await TemplateLoader.applyTemplate(db, template.id);
+      }
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const StudentListPage()),
