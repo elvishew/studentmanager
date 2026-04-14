@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/utils/template_loader.dart';
-import 'student_list_page.dart';
+import 'main_shell_page.dart';
 
 /// 模板选择页
 class TemplateSelectionPage extends ConsumerStatefulWidget {
@@ -46,7 +46,7 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
       }
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const StudentListPage()),
+          MaterialPageRoute(builder: (context) => const MainShellPage()),
         );
       }
     } catch (e) {

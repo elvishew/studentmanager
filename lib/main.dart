@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'pages/student_list_page.dart';
+import 'pages/main_shell_page.dart';
 import 'pages/template_selection_page.dart';
 import 'providers/student_provider.dart';
 import 'utils/template_loader.dart';
@@ -10,7 +10,6 @@ import 'utils/template_loader.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化数据库
   final database = await _initDatabase();
 
   runApp(
@@ -23,7 +22,6 @@ void main() async {
   );
 }
 
-/// 初始化数据库
 Future<Database> _initDatabase() async {
   final dbPath = await getDatabasesPath();
   final path = join(dbPath, 'student_manager.db');
@@ -108,7 +106,30 @@ Future<Database> _initDatabase() async {
       ''');
 
       // ============================================
-      // 课程规划表
+      // 课程类型表
+      // ============================================
+      await db.execute('''
+        CREATE TABLE course_types (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          icon TEXT,
+          color TEXT,
+          default_duration INTEGER NOT NULL DEFAULT 60,
+          is_group INTEGER NOT NULL DEFAULT 0,
+          max_students INTEGER,
+          default_student_price REAL NOT NULL DEFAULT 0,
+          default_session_fee REAL NOT NULL DEFAULT 0,
+          default_commission_type TEXT NOT NULL DEFAULT 'none' CHECK(default_commission_type IN ('none', 'fixed', 'percent')),
+          default_commission_value REAL NOT NULL DEFAULT 0,
+          sort_order INTEGER NOT NULL DEFAULT 0,
+          is_deprecated INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // ============================================
+      // 课程规划表 (移除 default_duration)
       // ============================================
       await db.execute('''
         CREATE TABLE course_plans (
@@ -116,7 +137,6 @@ Future<Database> _initDatabase() async {
           student_id INTEGER NOT NULL,
           goal_id INTEGER NOT NULL,
           blueprint TEXT,
-          default_duration INTEGER NOT NULL DEFAULT 60,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -125,15 +145,13 @@ Future<Database> _initDatabase() async {
       ''');
 
       // ============================================
-      // 课时表
+      // 课时表 (移除 scheduled_time, duration_override)
       // ============================================
       await db.execute('''
         CREATE TABLE sessions (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           course_plan_id INTEGER NOT NULL,
           session_number INTEGER NOT NULL,
-          scheduled_time TEXT,
-          duration_override INTEGER,
           status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'skipped')),
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -143,7 +161,7 @@ Future<Database> _initDatabase() async {
       ''');
 
       // ============================================
-      // 内容块（替代 training_blocks）
+      // 内容块
       // ============================================
       await db.execute('''
         CREATE TABLE content_blocks (
@@ -170,6 +188,71 @@ Future<Database> _initDatabase() async {
           FOREIGN KEY (content_block_id) REFERENCES content_blocks(id) ON DELETE CASCADE,
           FOREIGN KEY (content_field_id) REFERENCES content_fields(id) ON DELETE CASCADE,
           UNIQUE(content_block_id, content_field_id)
+        )
+      ''');
+
+      // ============================================
+      // 排课记录表
+      // ============================================
+      await db.execute('''
+        CREATE TABLE scheduled_classes (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          course_type_id INTEGER NOT NULL,
+          title TEXT,
+          start_time TEXT NOT NULL,
+          end_time TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled', 'completed', 'cancelled', 'no_show')),
+          session_id INTEGER,
+          location TEXT,
+          notes TEXT,
+          teacher_session_fee REAL NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (course_type_id) REFERENCES course_types(id),
+          FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL
+        )
+      ''');
+
+      // ============================================
+      // 参与人表（支持正式学员和临时人员）
+      // ============================================
+      await db.execute('''
+        CREATE TABLE class_participants (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          scheduled_class_id INTEGER NOT NULL,
+          student_id INTEGER,
+          guest_name TEXT,
+          attendance TEXT NOT NULL DEFAULT 'pending' CHECK(attendance IN ('pending', 'present', 'absent', 'late')),
+          notes TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (scheduled_class_id) REFERENCES scheduled_classes(id) ON DELETE CASCADE,
+          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+          CHECK(student_id IS NOT NULL OR guest_name IS NOT NULL)
+        )
+      ''');
+
+      // ============================================
+      // 学员付费记录表
+      // ============================================
+      await db.execute('''
+        CREATE TABLE student_payments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id INTEGER NOT NULL,
+          course_type_id INTEGER,
+          course_plan_id INTEGER,
+          amount REAL NOT NULL DEFAULT 0,
+          description TEXT,
+          commission_type TEXT NOT NULL DEFAULT 'none' CHECK(commission_type IN ('none', 'fixed', 'percent')),
+          commission_value REAL NOT NULL DEFAULT 0,
+          commission_earned REAL NOT NULL DEFAULT 0,
+          paid_at TEXT NOT NULL,
+          notes TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+          FOREIGN KEY (course_type_id) REFERENCES course_types(id) ON DELETE SET NULL,
+          FOREIGN KEY (course_plan_id) REFERENCES course_plans(id) ON DELETE SET NULL
         )
       ''');
 
@@ -265,6 +348,7 @@ Future<Database> _initDatabase() async {
       // ============================================
       // 创建索引
       // ============================================
+      // 原有索引
       await db.execute('CREATE INDEX idx_content_fields_sort ON content_fields(sort_order)');
       await db.execute('CREATE INDEX idx_field_options_field ON field_options(content_field_id)');
       await db.execute('CREATE INDEX idx_content_blocks_session ON content_blocks(session_id)');
@@ -275,9 +359,18 @@ Future<Database> _initDatabase() async {
       await db.execute('CREATE INDEX idx_course_plans_student ON course_plans(student_id)');
       await db.execute('CREATE INDEX idx_goal_config_sessions_config ON goal_config_sessions(goal_config_id)');
       await db.execute('CREATE INDEX idx_sessions_status ON sessions(status)');
-      await db.execute('CREATE INDEX idx_sessions_scheduled_time ON sessions(scheduled_time)');
       await db.execute('CREATE INDEX idx_albums_student ON albums(student_id)');
       await db.execute('CREATE INDEX idx_album_photos_album ON album_photos(album_id)');
+
+      // 新增索引
+      await db.execute('CREATE INDEX idx_scheduled_classes_start_time ON scheduled_classes(start_time)');
+      await db.execute('CREATE INDEX idx_scheduled_classes_course_type ON scheduled_classes(course_type_id)');
+      await db.execute('CREATE INDEX idx_scheduled_classes_status ON scheduled_classes(status)');
+      await db.execute('CREATE INDEX idx_scheduled_classes_session ON scheduled_classes(session_id)');
+      await db.execute('CREATE INDEX idx_class_participants_class ON class_participants(scheduled_class_id)');
+      await db.execute('CREATE INDEX idx_class_participants_student ON class_participants(student_id)');
+      await db.execute('CREATE INDEX idx_student_payments_student ON student_payments(student_id)');
+      await db.execute('CREATE INDEX idx_student_payments_paid_at ON student_payments(paid_at)');
     },
   );
 
@@ -342,7 +435,7 @@ class _AppHome extends ConsumerWidget {
         if (selectedTemplate == null || selectedTemplate.isEmpty) {
           return const TemplateSelectionPage();
         }
-        return const StudentListPage();
+        return const MainShellPage();
       },
     );
   }

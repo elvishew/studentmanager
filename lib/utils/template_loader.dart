@@ -156,7 +156,10 @@ class TemplateLoader {
         });
       }
 
-      // 3. 记录已选择的模板
+      // 3. 创建默认课程类型
+      await _createDefaultCourseTypes(txn, now);
+
+      // 4. 记录已选择的模板
       await txn.insert('app_settings', {
         'key': 'selected_template',
         'value': templateId,
@@ -191,7 +194,6 @@ class TemplateLoader {
 
       // 删除旧的配置数据
       await txn.delete('goal_configs');
-      await txn.delete('course_goals');
 
       // 应用新模板
       final template = await loadTemplate(templateId);
@@ -252,5 +254,59 @@ class TemplateLoader {
         });
       }
     });
+  }
+
+  /// 创建默认课程类型
+  static Future<void> _createDefaultCourseTypes(dynamic txn, String now) async {
+    final defaultTypes = [
+      {
+        'name': '一对一私教',
+        'icon': 'person',
+        'color': '#2196F3',
+        'default_duration': 60,
+        'is_group': 0,
+        'max_students': null,
+        'default_student_price': 0,
+        'default_session_fee': 0,
+        'default_commission_type': 'none',
+        'default_commission_value': 0,
+        'sort_order': 0,
+      },
+      {
+        'name': '团课',
+        'icon': 'groups',
+        'color': '#4CAF50',
+        'default_duration': 60,
+        'is_group': 1,
+        'max_students': 10,
+        'default_student_price': 0,
+        'default_session_fee': 0,
+        'default_commission_type': 'none',
+        'default_commission_value': 0,
+        'sort_order': 1,
+      },
+      {
+        'name': '体验课',
+        'icon': 'card_giftcard',
+        'color': '#FF9800',
+        'default_duration': 30,
+        'is_group': 0,
+        'max_students': null,
+        'default_student_price': 0,
+        'default_session_fee': 0,
+        'default_commission_type': 'none',
+        'default_commission_value': 0,
+        'sort_order': 2,
+      },
+    ];
+
+    for (final type in defaultTypes) {
+      await txn.insert('course_types', {
+        ...type,
+        'is_deprecated': 0,
+        'created_at': now,
+        'updated_at': now,
+      });
+    }
   }
 }

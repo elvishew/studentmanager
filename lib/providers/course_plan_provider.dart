@@ -32,12 +32,9 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     return const CoursePlanState.initial();
   }
 
-  /// ============================================
   /// 查询指定学员的所有课程规划
-  /// ============================================
-
   Future<void> fetchByStudentId(int studentId) async {
-    state = CoursePlanState.loading();
+    state = const CoursePlanState.loading();
 
     try {
       final List<Map<String, dynamic>> maps = await _database.rawQuery('''
@@ -65,10 +62,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 查询所有课程规划
-  /// ============================================
-
   Future<void> fetchAll() async {
     state = const CoursePlanState.loading();
 
@@ -97,17 +91,13 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 创建课程规划（带默认配置）
-  /// ============================================
-
   Future<int?> create({
     required int studentId,
     required int goalId,
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
-    int? defaultDuration,
   }) async {
     try {
       final coursePlanId = await _repository.createCoursePlan(
@@ -116,10 +106,8 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
         sessionCount: sessionCount,
         customBlueprint: customBlueprint,
         useTemplate: useTemplate,
-        defaultDuration: defaultDuration,
       );
 
-      // 重新加载当前学员的课程规划
       await fetchByStudentId(studentId);
 
       return coursePlanId;
@@ -129,15 +117,11 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 更新课程规划
-  /// ============================================
-
   Future<bool> update({
     required int id,
     int? goalId,
     String? blueprint,
-    int? defaultDuration,
   }) async {
     try {
       final updateData = <String, dynamic>{
@@ -152,10 +136,6 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
         updateData['blueprint'] = blueprint;
       }
 
-      if (defaultDuration != null) {
-        updateData['default_duration'] = defaultDuration;
-      }
-
       final count = await _database.update(
         'course_plans',
         updateData,
@@ -164,19 +144,16 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
       );
 
       if (count > 0) {
-        // 更新状态中的数据
         state.when(
           initial: () => state = const CoursePlanState.initial(),
           loading: () => state = const CoursePlanState.loading(),
           error: (error, stackTrace) => state = CoursePlanState.error(error, stackTrace),
           data: (coursePlans, selectedCoursePlan, selectedStudentId) {
-            // 如果目标改了，需要查新目标名
             final updatedPlans = coursePlans.map((plan) {
               if (plan.id == id) {
                 return plan.copyWith(
                   goalId: goalId ?? plan.goalId,
                   blueprint: blueprint ?? plan.blueprint,
-                  defaultDuration: defaultDuration ?? plan.defaultDuration,
                   updatedAt: DateTime.now(),
                 );
               }
@@ -201,10 +178,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 删除课程规划
-  /// ============================================
-
   Future<bool> delete(int id) async {
     try {
       final count = await _database.delete(
@@ -214,7 +188,6 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
       );
 
       if (count > 0) {
-        // 从状态中移除
         state.when(
           initial: () => state = const CoursePlanState.initial(),
           loading: () => state = const CoursePlanState.loading(),
@@ -242,10 +215,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 选择课程规划
-  /// ============================================
-
   void selectCoursePlan(int? id) {
     state.when(
       initial: () => state = const CoursePlanState.initial(),
@@ -275,10 +245,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     );
   }
 
-  /// ============================================
   /// 根据 ID 获取课程规划详情（含课时）
-  /// ============================================
-
   Future<CoursePlan?> getDetailById(int id) async {
     try {
       final List<Map<String, dynamic>> maps = await _database.rawQuery('''
@@ -297,15 +264,11 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     }
   }
 
-  /// ============================================
   /// 丰富课程规划数据（关联查询）
-  /// ============================================
-
   Future<CoursePlan> _enrichCoursePlan(
     CoursePlan coursePlan, {
     bool includeSessions = false,
   }) async {
-    // 查询学员信息
     final List<Map<String, dynamic>> studentMaps = await _database.query(
       'students',
       where: 'id = ?',
@@ -323,7 +286,6 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     int? completedSessions;
 
     if (includeSessions) {
-      // 查询课时列表
       final List<Map<String, dynamic>> sessionMaps = await _database.query(
         'sessions',
         where: 'course_plan_id = ?',
@@ -335,7 +297,6 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
       totalSessions = sessions.length;
       completedSessions = sessions.where((s) => s.status == SessionStatus.completed).length;
     } else {
-      // 只统计数量
       final result = await _database.rawQuery('''
         SELECT
           COUNT(*) as total,
@@ -358,10 +319,7 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
     );
   }
 
-  /// ============================================
   /// 重置状态
-  /// ============================================
-
   void reset() {
     state = const CoursePlanState.initial();
   }
@@ -371,7 +329,6 @@ class CoursePlanNotifier extends _$CoursePlanNotifier {
 /// CoursePlan 计算属性 Provider
 /// ============================================
 
-/// 当前选中的课程规划
 @riverpod
 CoursePlan? selectedCoursePlan(SelectedCoursePlanRef ref) {
   final coursePlanState = ref.watch(coursePlanNotifierProvider);
@@ -381,7 +338,6 @@ CoursePlan? selectedCoursePlan(SelectedCoursePlanRef ref) {
   );
 }
 
-/// 课程规划总数
 @riverpod
 int coursePlanCount(CoursePlanCountRef ref) {
   final coursePlanState = ref.watch(coursePlanNotifierProvider);
@@ -391,7 +347,6 @@ int coursePlanCount(CoursePlanCountRef ref) {
   );
 }
 
-/// 当前筛选的学员ID
 @riverpod
 int? filteredStudentId(FilteredStudentIdRef ref) {
   final coursePlanState = ref.watch(coursePlanNotifierProvider);

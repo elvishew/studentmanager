@@ -9,6 +9,68 @@ part 'states.freezed.dart';
 enum FieldType { select, number, text, multiline }
 
 /// ============================================
+/// 课时状态枚举
+/// ============================================
+
+enum SessionStatus {
+  pending('未开始', 'pending'),
+  completed('已完成', 'completed'),
+  skipped('已跳过', 'skipped');
+
+  final String label;
+  final String value;
+
+  const SessionStatus(this.label, this.value);
+}
+
+/// ============================================
+/// 排课状态枚举
+/// ============================================
+
+enum ScheduledClassStatus {
+  scheduled('已排课', 'scheduled'),
+  completed('已完成', 'completed'),
+  cancelled('已取消', 'cancelled'),
+  noShow('未到', 'no_show');
+
+  final String label;
+  final String value;
+
+  const ScheduledClassStatus(this.label, this.value);
+}
+
+/// ============================================
+/// 出勤状态枚举
+/// ============================================
+
+enum AttendanceStatus {
+  pending('待记录', 'pending'),
+  present('出勤', 'present'),
+  absent('缺勤', 'absent'),
+  late('迟到', 'late');
+
+  final String label;
+  final String value;
+
+  const AttendanceStatus(this.label, this.value);
+}
+
+/// ============================================
+/// 提成类型枚举
+/// ============================================
+
+enum CommissionType {
+  none('无', 'none'),
+  fixed('固定金额', 'fixed'),
+  percent('百分比', 'percent');
+
+  final String label;
+  final String value;
+
+  const CommissionType(this.label, this.value);
+}
+
+/// ============================================
 /// 学员状态
 /// ============================================
 
@@ -18,7 +80,7 @@ class StudentState with _$StudentState {
   const factory StudentState.loading() = _StudentLoading;
   const factory StudentState.data({
     required List<Student> students,
-    required List<Student> filteredStudents, // 搜索过滤后的结果
+    required List<Student> filteredStudents,
     @Default('') String searchQuery,
   }) = _StudentData;
   const factory StudentState.error(Object error, StackTrace stackTrace) = _StudentError;
@@ -39,7 +101,6 @@ class Student with _$Student {
     required DateTime updatedAt,
   }) = _Student;
 
-  /// 从数据库 Map 转换
   factory Student.fromMap(Map<String, dynamic> map) {
     return Student(
       id: map['id'] as int,
@@ -52,7 +113,6 @@ class Student with _$Student {
     );
   }
 
-  /// 转换为数据库 Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -67,6 +127,95 @@ class Student with _$Student {
 }
 
 /// ============================================
+/// 课程类型状态
+/// ============================================
+
+@freezed
+class CourseTypeState with _$CourseTypeState {
+  const factory CourseTypeState.initial() = _CourseTypeInitial;
+  const factory CourseTypeState.loading() = _CourseTypeLoading;
+  const factory CourseTypeState.data({
+    required List<CourseType> courseTypes,
+  }) = _CourseTypeData;
+  const factory CourseTypeState.error(Object error, StackTrace stackTrace) = _CourseTypeError;
+}
+
+/// 课程类型数据模型
+@freezed
+class CourseType with _$CourseType {
+  const CourseType._();
+
+  const factory CourseType({
+    required int id,
+    required String name,
+    String? icon,
+    String? color,
+    @Default(60) int defaultDuration,
+    @Default(false) bool isGroup,
+    int? maxStudents,
+    @Default(0) double defaultStudentPrice,
+    @Default(0) double defaultSessionFee,
+    @Default(CommissionType.none) CommissionType defaultCommissionType,
+    @Default(0) double defaultCommissionValue,
+    @Default(0) int sortOrder,
+    @Default(false) bool isDeprecated,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _CourseType;
+
+  factory CourseType.fromMap(Map<String, dynamic> map) {
+    return CourseType(
+      id: map['id'] as int,
+      name: map['name'] as String,
+      icon: map['icon'] as String?,
+      color: map['color'] as String?,
+      defaultDuration: map['default_duration'] as int? ?? 60,
+      isGroup: (map['is_group'] as int? ?? 0) == 1,
+      maxStudents: map['max_students'] as int?,
+      defaultStudentPrice: (map['default_student_price'] as num?)?.toDouble() ?? 0,
+      defaultSessionFee: (map['default_session_fee'] as num?)?.toDouble() ?? 0,
+      defaultCommissionType: _parseCommissionType(map['default_commission_type'] as String?),
+      defaultCommissionValue: (map['default_commission_value'] as num?)?.toDouble() ?? 0,
+      sortOrder: map['sort_order'] as int? ?? 0,
+      isDeprecated: (map['is_deprecated'] as int? ?? 0) == 1,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'icon': icon,
+      'color': color,
+      'default_duration': defaultDuration,
+      'is_group': isGroup ? 1 : 0,
+      'max_students': maxStudents,
+      'default_student_price': defaultStudentPrice,
+      'default_session_fee': defaultSessionFee,
+      'default_commission_type': defaultCommissionType.value,
+      'default_commission_value': defaultCommissionValue,
+      'sort_order': sortOrder,
+      'is_deprecated': isDeprecated ? 1 : 0,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  static CommissionType _parseCommissionType(String? value) {
+    switch (value) {
+      case 'fixed':
+        return CommissionType.fixed;
+      case 'percent':
+        return CommissionType.percent;
+      default:
+        return CommissionType.none;
+    }
+  }
+}
+
+/// ============================================
 /// 课程规划状态
 /// ============================================
 
@@ -76,8 +225,8 @@ class CoursePlanState with _$CoursePlanState {
   const factory CoursePlanState.loading() = _CoursePlanLoading;
   const factory CoursePlanState.data({
     required List<CoursePlan> coursePlans,
-    CoursePlan? selectedCoursePlan, // 当前选中的课程规划
-    @Default(null) int? selectedStudentId, // 当前筛选的学员ID
+    CoursePlan? selectedCoursePlan,
+    @Default(null) int? selectedStudentId,
   }) = _CoursePlanData;
   const factory CoursePlanState.error(Object error, StackTrace stackTrace) = _CoursePlanError;
 }
@@ -93,16 +242,14 @@ class CoursePlan with _$CoursePlan {
     required int goalId,
     String? goalName,
     String? blueprint,
-    @Default(60) int? defaultDuration,
     required DateTime createdAt,
     required DateTime updatedAt,
-    Student? student, // 关联的学员信息
-    List<Session>? sessions, // 关联的课时列表
-    int? totalSessions, // 总课时数
-    int? completedSessions, // 已完成课时数
+    Student? student,
+    List<Session>? sessions,
+    int? totalSessions,
+    int? completedSessions,
   }) = _CoursePlan;
 
-  /// 从数据库 Map 转换
   factory CoursePlan.fromMap(Map<String, dynamic> map) {
     return CoursePlan(
       id: map['id'] as int,
@@ -110,26 +257,22 @@ class CoursePlan with _$CoursePlan {
       goalId: map['goal_id'] as int? ?? 0,
       goalName: map['goal_name'] as String?,
       blueprint: map['blueprint'] as String?,
-      defaultDuration: map['default_duration'] as int? ?? 60,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
 
-  /// 转换为数据库 Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'student_id': studentId,
       'goal_id': goalId,
       'blueprint': blueprint,
-      'default_duration': defaultDuration,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
   }
 
-  /// 计算完成率
   double get completionRate {
     if (totalSessions == null || totalSessions == 0) return 0.0;
     return (completedSessions ?? 0) / totalSessions!;
@@ -146,8 +289,8 @@ class SessionState with _$SessionState {
   const factory SessionState.loading() = _SessionLoading;
   const factory SessionState.data({
     required List<Session> sessions,
-    Session? selectedSession, // 当前选中的课时
-    @Default(null) int? coursePlanId, // 所属的课程规划ID
+    Session? selectedSession,
+    @Default(null) int? coursePlanId,
   }) = _SessionData;
   const factory SessionState.error(Object error, StackTrace stackTrace) = _SessionError;
 }
@@ -161,38 +304,28 @@ class Session with _$Session {
     required int id,
     required int coursePlanId,
     required int sessionNumber,
-    DateTime? scheduledTime,
-    int? durationOverride,
     required SessionStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,
-    List<ContentBlock>? contentBlocks, // 关联的内容块列表
+    List<ContentBlock>? contentBlocks,
   }) = _Session;
 
-  /// 从数据库 Map 转换
   factory Session.fromMap(Map<String, dynamic> map) {
     return Session(
       id: map['id'] as int,
       coursePlanId: map['course_plan_id'] as int,
       sessionNumber: map['session_number'] as int,
-      scheduledTime: map['scheduled_time'] != null
-          ? DateTime.parse(map['scheduled_time'] as String)
-          : null,
-      durationOverride: map['duration_override'] as int?,
       status: _parseSessionStatus(map['status'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
 
-  /// 转换为数据库 Map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'course_plan_id': coursePlanId,
       'session_number': sessionNumber,
-      'scheduled_time': scheduledTime?.toIso8601String(),
-      'duration_override': durationOverride,
       'status': status.value,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -213,16 +346,322 @@ class Session with _$Session {
   }
 }
 
-/// 课时状态枚举
-enum SessionStatus {
-  pending('未开始', 'pending'),
-  completed('已完成', 'completed'),
-  skipped('已跳过', 'skipped');
+/// ============================================
+/// 排课状态
+/// ============================================
 
-  final String label;
-  final String value;
+@freezed
+class ScheduledClassState with _$ScheduledClassState {
+  const factory ScheduledClassState.initial() = _ScheduledClassInitial;
+  const factory ScheduledClassState.loading() = _ScheduledClassLoading;
+  const factory ScheduledClassState.data({
+    required List<ScheduledClass> scheduledClasses,
+    ScheduledClass? selectedClass,
+  }) = _ScheduledClassData;
+  const factory ScheduledClassState.error(Object error, StackTrace stackTrace) = _ScheduledClassError;
+}
 
-  const SessionStatus(this.label, this.value);
+/// 排课数据模型
+@freezed
+class ScheduledClass with _$ScheduledClass {
+  const ScheduledClass._();
+
+  const factory ScheduledClass({
+    required int id,
+    required int courseTypeId,
+    String? courseTypeName,
+    String? courseTypeColor,
+    String? title,
+    required DateTime startTime,
+    required DateTime endTime,
+    @Default(ScheduledClassStatus.scheduled) ScheduledClassStatus status,
+    int? sessionId,
+    String? location,
+    String? notes,
+    @Default(0) double teacherSessionFee,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    List<ClassParticipant>? participants,
+    CourseType? courseType,
+  }) = _ScheduledClass;
+
+  factory ScheduledClass.fromMap(Map<String, dynamic> map) {
+    return ScheduledClass(
+      id: map['id'] as int,
+      courseTypeId: map['course_type_id'] as int,
+      courseTypeName: map['course_type_name'] as String?,
+      courseTypeColor: map['course_type_color'] as String?,
+      title: map['title'] as String?,
+      startTime: DateTime.parse(map['start_time'] as String),
+      endTime: DateTime.parse(map['end_time'] as String),
+      status: _parseScheduledClassStatus(map['status'] as String? ?? 'scheduled'),
+      sessionId: map['session_id'] as int?,
+      location: map['location'] as String?,
+      notes: map['notes'] as String?,
+      teacherSessionFee: (map['teacher_session_fee'] as num?)?.toDouble() ?? 0,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'course_type_id': courseTypeId,
+      'title': title,
+      'start_time': startTime.toIso8601String(),
+      'end_time': endTime.toIso8601String(),
+      'status': status.value,
+      'session_id': sessionId,
+      'location': location,
+      'notes': notes,
+      'teacher_session_fee': teacherSessionFee,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  /// 时长（分钟）
+  int get durationInMinutes {
+    return endTime.difference(startTime).inMinutes;
+  }
+
+  static ScheduledClassStatus _parseScheduledClassStatus(String value) {
+    switch (value) {
+      case 'completed':
+        return ScheduledClassStatus.completed;
+      case 'cancelled':
+        return ScheduledClassStatus.cancelled;
+      case 'no_show':
+        return ScheduledClassStatus.noShow;
+      default:
+        return ScheduledClassStatus.scheduled;
+    }
+  }
+}
+
+/// ============================================
+/// 参与人数据模型
+/// ============================================
+
+@freezed
+class ClassParticipant with _$ClassParticipant {
+  const ClassParticipant._();
+
+  const factory ClassParticipant({
+    required int id,
+    required int scheduledClassId,
+    int? studentId,
+    String? guestName,
+    @Default(AttendanceStatus.pending) AttendanceStatus attendance,
+    String? notes,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    String? studentName, // 关联查询时的学员姓名
+  }) = _ClassParticipant;
+
+  factory ClassParticipant.fromMap(Map<String, dynamic> map) {
+    return ClassParticipant(
+      id: map['id'] as int,
+      scheduledClassId: map['scheduled_class_id'] as int,
+      studentId: map['student_id'] as int?,
+      guestName: map['guest_name'] as String?,
+      attendance: _parseAttendanceStatus(map['attendance'] as String? ?? 'pending'),
+      notes: map['notes'] as String?,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+      studentName: map['student_name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'scheduled_class_id': scheduledClassId,
+      'student_id': studentId,
+      'guest_name': guestName,
+      'attendance': attendance.value,
+      'notes': notes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  /// 显示名称
+  String get displayName {
+    if (studentName != null) return studentName!;
+    if (guestName != null) return guestName!;
+    return '未知';
+  }
+
+  /// 是否是临时人员
+  bool get isGuest => studentId == null && guestName != null;
+
+  static AttendanceStatus _parseAttendanceStatus(String value) {
+    switch (value) {
+      case 'present':
+        return AttendanceStatus.present;
+      case 'absent':
+        return AttendanceStatus.absent;
+      case 'late':
+        return AttendanceStatus.late;
+      default:
+        return AttendanceStatus.pending;
+    }
+  }
+}
+
+/// ============================================
+/// 学员付费状态
+/// ============================================
+
+@freezed
+class PaymentState with _$PaymentState {
+  const factory PaymentState.initial() = _PaymentInitial;
+  const factory PaymentState.loading() = _PaymentLoading;
+  const factory PaymentState.data({
+    required List<StudentPayment> payments,
+  }) = _PaymentData;
+  const factory PaymentState.error(Object error, StackTrace stackTrace) = _PaymentError;
+}
+
+/// 学员付费数据模型
+@freezed
+class StudentPayment with _$StudentPayment {
+  const StudentPayment._();
+
+  const factory StudentPayment({
+    required int id,
+    required int studentId,
+    int? courseTypeId,
+    int? coursePlanId,
+    @Default(0) double amount,
+    String? description,
+    @Default(CommissionType.none) CommissionType commissionType,
+    @Default(0) double commissionValue,
+    @Default(0) double commissionEarned,
+    required DateTime paidAt,
+    String? notes,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    String? studentName,
+    String? courseTypeName,
+  }) = _StudentPayment;
+
+  factory StudentPayment.fromMap(Map<String, dynamic> map) {
+    return StudentPayment(
+      id: map['id'] as int,
+      studentId: map['student_id'] as int,
+      courseTypeId: map['course_type_id'] as int?,
+      coursePlanId: map['course_plan_id'] as int?,
+      amount: (map['amount'] as num?)?.toDouble() ?? 0,
+      description: map['description'] as String?,
+      commissionType: _parseCommissionType(map['commission_type'] as String?),
+      commissionValue: (map['commission_value'] as num?)?.toDouble() ?? 0,
+      commissionEarned: (map['commission_earned'] as num?)?.toDouble() ?? 0,
+      paidAt: DateTime.parse(map['paid_at'] as String),
+      notes: map['notes'] as String?,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+      studentName: map['student_name'] as String?,
+      courseTypeName: map['course_type_name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'student_id': studentId,
+      'course_type_id': courseTypeId,
+      'course_plan_id': coursePlanId,
+      'amount': amount,
+      'description': description,
+      'commission_type': commissionType.value,
+      'commission_value': commissionValue,
+      'commission_earned': commissionEarned,
+      'paid_at': paidAt.toIso8601String(),
+      'notes': notes,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  static CommissionType _parseCommissionType(String? value) {
+    switch (value) {
+      case 'fixed':
+        return CommissionType.fixed;
+      case 'percent':
+        return CommissionType.percent;
+      default:
+        return CommissionType.none;
+    }
+  }
+}
+
+/// ============================================
+/// 统计数据
+/// ============================================
+
+class StatisticsData {
+  final int totalClasses;
+  final double totalStudentPayment;
+  final double totalTeacherIncome;
+  final double attendanceRate;
+  final List<CourseTypeDistribution> courseTypeDistribution;
+  final List<StudentRanking> studentRankings;
+  final List<IncomeTrend> incomeTrends;
+
+  const StatisticsData({
+    this.totalClasses = 0,
+    this.totalStudentPayment = 0,
+    this.totalTeacherIncome = 0,
+    this.attendanceRate = 0,
+    this.courseTypeDistribution = const [],
+    this.studentRankings = const [],
+    this.incomeTrends = const [],
+  });
+}
+
+class CourseTypeDistribution {
+  final String name;
+  final String? color;
+  final int count;
+  final double percentage;
+
+  const CourseTypeDistribution({
+    required this.name,
+    this.color,
+    required this.count,
+    required this.percentage,
+  });
+}
+
+class StudentRanking {
+  final int studentId;
+  final String studentName;
+  final double totalAmount;
+  final int classCount;
+
+  const StudentRanking({
+    required this.studentId,
+    required this.studentName,
+    required this.totalAmount,
+    required this.classCount,
+  });
+}
+
+class IncomeTrend {
+  final String label; // week/month label
+  final double commissionIncome;
+  final double sessionFeeIncome;
+
+  const IncomeTrend({
+    required this.label,
+    required this.commissionIncome,
+    required this.sessionFeeIncome,
+  });
+
+  double get total => commissionIncome + sessionFeeIncome;
 }
 
 /// ============================================
@@ -242,7 +681,7 @@ class ContentField with _$ContentField {
     @Default(false) bool isDeprecated,
     required DateTime createdAt,
     required DateTime updatedAt,
-    List<FieldOption>? options, // 关联的选项列表
+    List<FieldOption>? options,
   }) = _ContentField;
 
   factory ContentField.fromMap(Map<String, dynamic> map) {
@@ -317,7 +756,7 @@ class ContentBlock with _$ContentBlock {
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
-    @Default({}) Map<int, String> values, // contentFieldId -> value
+    @Default({}) Map<int, String> values,
   }) = _ContentBlock;
 
   factory ContentBlock.fromMap(Map<String, dynamic> map) {
@@ -335,7 +774,6 @@ class ContentBlock with _$ContentBlock {
 /// 课程目标默认配置
 /// ============================================
 
-/// 课程目标配置状态
 @freezed
 class GoalConfigState with _$GoalConfigState {
   const factory GoalConfigState.initial() = _GoalConfigInitial;
@@ -346,7 +784,6 @@ class GoalConfigState with _$GoalConfigState {
   const factory GoalConfigState.error(Object error, StackTrace stackTrace) = _GoalConfigError;
 }
 
-/// 课程目标配置
 @freezed
 class GoalConfig with _$GoalConfig {
   const GoalConfig._();
@@ -385,7 +822,6 @@ class GoalConfig with _$GoalConfig {
   }
 }
 
-/// 课程目标配置课时模板
 @freezed
 class GoalConfigSession with _$GoalConfigSession {
   const GoalConfigSession._();
@@ -420,7 +856,6 @@ class GoalConfigSession with _$GoalConfigSession {
   }
 }
 
-/// 默认配置内容块
 @freezed
 class GoalConfigContentBlock with _$GoalConfigContentBlock {
   const GoalConfigContentBlock._();
@@ -431,7 +866,7 @@ class GoalConfigContentBlock with _$GoalConfigContentBlock {
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
-    @Default({}) Map<int, String> values, // contentFieldId -> value
+    @Default({}) Map<int, String> values,
   }) = _GoalConfigContentBlock;
 
   factory GoalConfigContentBlock.fromMap(Map<String, dynamic> map) {
@@ -460,7 +895,6 @@ class AlbumState with _$AlbumState {
   const factory AlbumState.error(Object error, StackTrace stackTrace) = _AlbumError;
 }
 
-/// 相册数据模型
 @freezed
 class Album with _$Album {
   const Album._();
@@ -499,7 +933,6 @@ class Album with _$Album {
   }
 }
 
-/// 相册照片数据模型
 @freezed
 class AlbumPhoto with _$AlbumPhoto {
   const AlbumPhoto._();

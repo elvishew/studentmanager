@@ -38,7 +38,7 @@ class SessionNotifier extends _$SessionNotifier {
 
   /// 查询指定课程规划的所有课时
   Future<void> fetchByCoursePlanId(int coursePlanId) async {
-    state = SessionState.loading();
+    state = const SessionState.loading();
 
     try {
       final List<Map<String, dynamic>> maps = await _database.query(
@@ -114,20 +114,15 @@ class SessionNotifier extends _$SessionNotifier {
     }
   }
 
-  Future<bool> updateSession({
+  /// 更新课时状态
+  Future<bool> updateSessionStatus({
     required int sessionId,
-    DateTime? scheduledTime,
-    SessionStatus? status,
-    int? durationOverride,
-    bool clearDurationOverride = false,
+    required SessionStatus status,
   }) async {
     try {
-      final count = await _sessionRepository.updateSession(
+      final count = await _sessionRepository.updateSessionStatus(
         sessionId: sessionId,
-        scheduledTime: scheduledTime?.toIso8601String(),
-        status: status?.value,
-        durationOverride: durationOverride,
-        clearDurationOverride: clearDurationOverride,
+        status: status.value,
       );
 
       if (count > 0) {
@@ -139,9 +134,7 @@ class SessionNotifier extends _$SessionNotifier {
             final updatedSessions = sessions.map((s) {
               if (s.id == sessionId) {
                 return s.copyWith(
-                  scheduledTime: scheduledTime ?? s.scheduledTime,
-                  status: status ?? s.status,
-                  durationOverride: clearDurationOverride ? null : (durationOverride ?? s.durationOverride),
+                  status: status,
                   updatedAt: DateTime.now(),
                 );
               }
@@ -286,6 +279,11 @@ class SessionNotifier extends _$SessionNotifier {
     return session.copyWith(contentBlocks: contentBlocks);
   }
 
+  /// 通过排课完成来标记 session 完成
+  Future<void> completeFromScheduledClass(int sessionId) async {
+    await _sessionRepository.completeFromScheduledClass(sessionId);
+  }
+
   void reset() {
     state = const SessionState.initial();
   }
@@ -335,9 +333,9 @@ SessionStatistics sessionStatistics(SessionStatisticsRef ref) {
   final sessionState = ref.watch(sessionNotifierProvider);
 
   return sessionState.when(
-    initial: () => SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
-    loading: () => SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
-    error: (_, __) => SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
+    initial: () => const SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
+    loading: () => const SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
+    error: (_, __) => const SessionStatistics(total: 0, completed: 0, pending: 0, skipped: 0, completionRate: 0.0),
     data: (sessions, _, __) {
       final total = sessions.length;
       final completed = sessions.where((s) => s.status == SessionStatus.completed).length;

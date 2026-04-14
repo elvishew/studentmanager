@@ -102,7 +102,7 @@ final sessionCompletionRateProvider = AutoDisposeProvider<double>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionCompletionRateRef = AutoDisposeProviderRef<double>;
-String _$sessionStatisticsHash() => r'933d7f6510b425cadcb1db0c6ead6da37b06c07c';
+String _$sessionStatisticsHash() => r'282a50134ee4d0d73b07e57699fc8fd31a99a6b8';
 
 /// See also [sessionStatistics].
 @ProviderFor(sessionStatistics)
@@ -120,7 +120,7 @@ final sessionStatisticsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SessionStatisticsRef = AutoDisposeProviderRef<SessionStatistics>;
-String _$sessionNotifierHash() => r'1641b3b64cf3742fe3710dcdabffaa8292ee084c';
+String _$sessionNotifierHash() => r'd02f8820485c1837ce848a50430e9c312458bc21';
 
 /// ============================================
 /// Session Notifier

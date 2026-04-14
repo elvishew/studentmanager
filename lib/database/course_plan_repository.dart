@@ -54,7 +54,6 @@ class CoursePlanRepository {
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
-    int? defaultDuration,
   }) async {
     return await database.transaction((txn) async {
       int coursePlanId = await txn.insert(
@@ -63,7 +62,6 @@ class CoursePlanRepository {
           'student_id': studentId,
           'goal_id': goalId,
           'blueprint': customBlueprint,
-          'default_duration': defaultDuration ?? 60,
           'created_at': DateTime.now().toIso8601String(),
           'updated_at': DateTime.now().toIso8601String(),
         },
@@ -121,7 +119,6 @@ class CoursePlanRepository {
           {
             'course_plan_id': coursePlanId,
             'session_number': sessionNumber,
-            'scheduled_time': null,
             'status': 'pending',
             'created_at': now,
             'updated_at': now,
@@ -178,7 +175,6 @@ class CoursePlanRepository {
           {
             'course_plan_id': coursePlanId,
             'session_number': i,
-            'scheduled_time': null,
             'status': 'pending',
             'created_at': now,
             'updated_at': now,
@@ -220,7 +216,6 @@ class CoursePlanRepository {
     int sessionCount = 12,
     String? customBlueprint,
     bool useTemplate = true,
-    int? defaultDuration,
   }) async {
     final now = DateTime.now().toIso8601String();
 
@@ -230,7 +225,6 @@ class CoursePlanRepository {
         'student_id': studentId,
         'goal_id': goalId,
         'blueprint': customBlueprint,
-        'default_duration': defaultDuration ?? 60,
         'created_at': now,
         'updated_at': now,
       },

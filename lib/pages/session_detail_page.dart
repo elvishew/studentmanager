@@ -7,7 +7,7 @@ import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/widgets/content_block_editor.dart';
 import 'package:student_manager/widgets/content_block_tile.dart';
-import 'package:student_manager/widgets/session_edit_dialog.dart';
+import 'package:student_manager/widgets/session_action_dialogs.dart';
 
 /// 课时详情页
 class SessionDetailPage extends ConsumerStatefulWidget {
@@ -179,43 +179,50 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
     }
   }
 
-  Future<void> _showEditSessionDialog() async {
+  Future<void> _showStatusChangeDialog() async {
     if (_session == null) return;
 
-    final coursePlan = await ref.read(coursePlanNotifierProvider.notifier)
-        .getDetailById(_session!.coursePlanId);
-    final defaultDuration = coursePlan?.defaultDuration ?? 60;
+    final statuses = [
+      SessionStatus.pending,
+      SessionStatus.completed,
+      SessionStatus.skipped,
+    ];
 
-    final result = await showSessionEditDialog(
-      context,
-      session: _session!,
-      defaultDuration: defaultDuration,
+    final result = await showDialog<SessionStatus>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('更改状态'),
+        children: statuses.map((status) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, status),
+            child: Row(
+              children: [
+                Icon(
+                  status == _session!.status ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(status.label),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
 
-    if (result != null && mounted) {
+    if (result != null && result != _session!.status && mounted) {
       final notifier = ref.read(sessionNotifierProvider.notifier);
-      final durationOverride = result['durationOverride'] as int?;
-      final success = await notifier.updateSession(
+      final success = await notifier.updateSessionStatus(
         sessionId: widget.sessionId,
-        scheduledTime: result['scheduledTime'] as DateTime?,
-        status: result['status'] as SessionStatus?,
-        durationOverride: durationOverride,
-        clearDurationOverride: durationOverride == null &&
-            _session!.durationOverride != null,
+        status: result,
       );
 
       if (mounted) {
         if (success) {
           await _loadSession();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('课时已更新')),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('更新失败'),
-              backgroundColor: Colors.red,
-            ),
+            const SnackBar(content: Text('更新失败'), backgroundColor: Colors.red),
           );
         }
       }
@@ -261,9 +268,9 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
         title: Text('第 ${_session!.sessionNumber} 节课'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: _showEditSessionDialog,
-            tooltip: '编辑课时',
+            icon: const Icon(Icons.swap_horiz),
+            onPressed: _showStatusChangeDialog,
+            tooltip: '更改状态',
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -285,8 +292,6 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
                 children: [
                   _buildInfoRow('课时序号', '${_session!.sessionNumber}'),
                   _buildInfoRow('状态', _getStatusText(_session!.status)),
-                  if (_session!.scheduledTime != null)
-                    _buildInfoRow('上课时间', _formatDateTime(_session!.scheduledTime!)),
                 ],
               ),
             ),

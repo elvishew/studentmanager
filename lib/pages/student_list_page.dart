@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'student_detail_page.dart';
-import 'settings_page.dart';
 
 /// ============================================
 /// 学员列表页
@@ -54,15 +53,6 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
     );
   }
 
-  /// 跳转到系统设置页
-  void _navigateToSettings() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const SettingsPage(),
-      ),
-    );
-  }
-
   /// 显示删除确认对话框
   Future<void> _showDeleteDialog(Student student) async {
     final confirmed = await showDialog<bool>(
@@ -104,15 +94,9 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('学员列表'),
+        title: const Text('学员'),
+        automaticallyImplyLeading: false,
         actions: [
-          // 设置按钮
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _navigateToSettings,
-            tooltip: '系统设置',
-          ),
-          // 显示学员总数
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Center(

@@ -146,7 +146,6 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
       sessionCount: sessionCount,
       customBlueprint: _blueprintController.text.isEmpty ? null : _blueprintController.text,
       useTemplate: _useTemplate,
-      defaultDuration: _actualDuration,
     );
 
     if (mounted) {

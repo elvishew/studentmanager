@@ -98,7 +98,6 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   Widget _buildCourseInfoCard(ThemeData theme) {
     final goal = _coursePlan?.goalName ?? '';
     final blueprint = _coursePlan?.blueprint;
-    final defaultDuration = _coursePlan?.defaultDuration ?? 60;
 
     return Container(
       width: double.infinity,
@@ -144,23 +143,6 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               fontWeight: FontWeight.w600,
               color: goal.isNotEmpty ? null : theme.colorScheme.outline,
             ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(
-                Icons.timer_outlined,
-                size: 14,
-                color: theme.colorScheme.outline,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '默认时长: $defaultDuration 分钟',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.outline,
-                ),
-              ),
-            ],
           ),
           if (blueprint != null && blueprint.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -430,30 +412,10 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           '第 $displayNumber 节课',
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 状态标签
-            _buildStatusLabel(session.status),
-            // 上课时间 + 时长
-            if (session.scheduledTime != null)
-              Text(
-                _formatSessionTime(session),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-              ),
-          ],
-        ),
+        subtitle: _buildStatusLabel(session.status),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 预约按钮
-            _buildActionButton(
-              icon: Icons.event_available_outlined,
-              tooltip: '预约时间',
-              onTap: () => _handleSchedule(session),
-            ),
             // 完成按钮
             _buildActionButton(
               icon: Icons.check_circle_outline,
@@ -580,17 +542,6 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     }
   }
 
-  /// 格式化课时时间（含时长）
-  String _formatSessionTime(Session session) {
-    final scheduledTime = session.scheduledTime!;
-    final duration = session.durationOverride ?? (_coursePlan?.defaultDuration ?? 60);
-    final endTime = scheduledTime.add(Duration(minutes: duration));
-    return '${scheduledTime.month}月${scheduledTime.day}日 '
-           '${scheduledTime.hour.toString().padLeft(2, '0')}:${scheduledTime.minute.toString().padLeft(2, '0')}'
-           ' - '
-           '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
-  }
-
   /// 构建快捷操作按钮
   Widget _buildActionButton({
     required IconData icon,
@@ -609,37 +560,8 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     );
   }
 
-  /// 预约时间
-  Future<void> _handleSchedule(Session session) async {
-    final scheduledTime = await selectDateTime(context);
-    if (scheduledTime == null) return;
-
-    final notifier = ref.read(sessionNotifierProvider.notifier);
-    final success = await notifier.updateSession(
-      sessionId: session.id,
-      scheduledTime: scheduledTime,
-    );
-
-    if (mounted) {
-      _showResultSnackBar(success, '预约时间已设置');
-    }
-  }
-
   /// 标记完成
   Future<void> _handleComplete(Session session, int displayNumber) async {
-    // 验证：必须先预约
-    if (session.scheduledTime == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('请先预约上课时间'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-      return;
-    }
-
     // 确认对话框
     final confirmed = await showConfirmActionDialog(
       context,
@@ -652,7 +574,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
     // 更新状态
     final notifier = ref.read(sessionNotifierProvider.notifier);
-    final success = await notifier.updateSession(
+    final success = await notifier.updateSessionStatus(
       sessionId: session.id,
       status: SessionStatus.completed,
     );
@@ -676,7 +598,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
     // 更新状态
     final notifier = ref.read(sessionNotifierProvider.notifier);
-    final success = await notifier.updateSession(
+    final success = await notifier.updateSessionStatus(
       sessionId: session.id,
       status: SessionStatus.skipped,
     );

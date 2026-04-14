@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/album_provider.dart';
+import 'package:student_manager/providers/payment_provider.dart';
+import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/database/scheduled_class_repository.dart';
 import 'create_course_plan_dialog.dart';
 import 'create_album_dialog.dart';
 import 'course_plan_page.dart';
 import 'album_detail_page.dart';
+import 'student_payment_page.dart';
 
 /// 学员详情页
 class StudentDetailPage extends ConsumerStatefulWidget {
@@ -96,13 +100,14 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 学员信息
                   _buildStudentInfo(),
                   const SizedBox(height: 24),
-                  // 课程规划列表
                   _buildCoursePlansSection(coursePlanState),
                   const SizedBox(height: 24),
-                  // 相册列表
+                  _buildClassRecordsSection(),
+                  const SizedBox(height: 24),
+                  _buildPaymentSection(),
+                  const SizedBox(height: 24),
                   _buildAlbumsSection(albumState),
                 ],
               ),
@@ -363,6 +368,150 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
         },
       ),
     );
+  }
+
+  /// 构建上课记录部分
+  Widget _buildClassRecordsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '上课记录',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: _loadClassRecords(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ));
+            }
+            final records = snapshot.data ?? [];
+            if (records.isEmpty) {
+              return _buildEmptyState('暂无上课记录');
+            }
+            return Column(
+              children: records.map((record) {
+                final startTime = DateTime.parse(record['start_time'] as String);
+                final endTime = DateTime.parse(record['end_time'] as String);
+                final typeName = record['course_type_name'] as String? ?? '未知';
+                final status = record['status'] as String? ?? 'scheduled';
+                final attendance = record['my_attendance'] as String?;
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: Icon(
+                      status == 'completed' ? Icons.check_circle : Icons.schedule,
+                      color: status == 'completed' ? Colors.green : Colors.blue,
+                    ),
+                    title: Text(typeName),
+                    subtitle: Text(
+                      '${startTime.month}/${startTime.day} ${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}-${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
+                    ),
+                    trailing: attendance != null
+                        ? Text(_attendanceLabel(attendance), style: TextStyle(
+                            fontSize: 12, color: _attendanceColor(attendance)))
+                        : null,
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  /// 构建付费记录部分
+  Widget _buildPaymentSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('付费记录', style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            )),
+            TextButton.icon(
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('新增'),
+              onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => StudentPaymentPage(studentId: widget.studentId))),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: ref.read(paymentRepositoryProvider).getByStudentId(widget.studentId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final payments = snapshot.data ?? [];
+            if (payments.isEmpty) {
+              return _buildEmptyState('暂无付费记录');
+            }
+            final totalAmount = payments.fold<double>(0, (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0));
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text('总消费: ¥${totalAmount.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                ...payments.map((payment) {
+                  final paidAt = DateTime.parse(payment['paid_at'] as String);
+                  final amount = (payment['amount'] as num?)?.toDouble() ?? 0;
+                  final desc = payment['description'] as String?;
+                  final typeName = payment['course_type_name'] as String?;
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.payment, color: Colors.green),
+                      title: Text(desc ?? typeName ?? '付费'),
+                      subtitle: Text('${paidAt.year}-${paidAt.month.toString().padLeft(2, '0')}-${paidAt.day.toString().padLeft(2, '0')}'),
+                      trailing: Text('¥${amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  );
+                }),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _loadClassRecords() async {
+    final db = ref.read(databaseProvider);
+    final repo = ScheduledClassRepository(database: db);
+    return await repo.getByStudentId(widget.studentId, limit: 20);
+  }
+
+  String _attendanceLabel(String attendance) {
+    switch (attendance) {
+      case 'present': return '出勤';
+      case 'absent': return '缺勤';
+      case 'late': return '迟到';
+      default: return '待记录';
+    }
+  }
+
+  Color _attendanceColor(String attendance) {
+    switch (attendance) {
+      case 'present': return Colors.green;
+      case 'absent': return Colors.red;
+      case 'late': return Colors.orange;
+      default: return Colors.grey;
+    }
   }
 
   /// 构建相册部分

@@ -35,7 +35,6 @@ String _$selectedCoursePlanHash() =>
 /// ============================================
 /// CoursePlan 计算属性 Provider
 /// ============================================
-/// 当前选中的课程规划
 ///
 /// Copied from [selectedCoursePlan].
 @ProviderFor(selectedCoursePlan)
@@ -54,9 +53,7 @@ final selectedCoursePlanProvider = AutoDisposeProvider<CoursePlan?>.internal(
 typedef SelectedCoursePlanRef = AutoDisposeProviderRef<CoursePlan?>;
 String _$coursePlanCountHash() => r'7cebb9c8a4061d0344a9923fbea1bb936de08c44';
 
-/// 课程规划总数
-///
-/// Copied from [coursePlanCount].
+/// See also [coursePlanCount].
 @ProviderFor(coursePlanCount)
 final coursePlanCountProvider = AutoDisposeProvider<int>.internal(
   coursePlanCount,
@@ -73,9 +70,7 @@ final coursePlanCountProvider = AutoDisposeProvider<int>.internal(
 typedef CoursePlanCountRef = AutoDisposeProviderRef<int>;
 String _$filteredStudentIdHash() => r'a1943cccc743e8700667bd84ba5af83e38bf700d';
 
-/// 当前筛选的学员ID
-///
-/// Copied from [filteredStudentId].
+/// See also [filteredStudentId].
 @ProviderFor(filteredStudentId)
 final filteredStudentIdProvider = AutoDisposeProvider<int?>.internal(
   filteredStudentId,
@@ -91,7 +86,7 @@ final filteredStudentIdProvider = AutoDisposeProvider<int?>.internal(
 // ignore: unused_element
 typedef FilteredStudentIdRef = AutoDisposeProviderRef<int?>;
 String _$coursePlanNotifierHash() =>
-    r'40bb3b7b0da19034b697db4465757ab5a029b1bb';
+    r'7ef67a90a73eec948cf083e229c047eba1cb9cc0';
 
 /// ============================================
 /// CoursePlan Notifier
