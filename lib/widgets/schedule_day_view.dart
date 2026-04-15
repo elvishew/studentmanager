@@ -649,7 +649,19 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
     final isCompleted = sc.status == ScheduledClassStatus.completed;
     final isNoShow = sc.status == ScheduledClassStatus.noShow;
-    final blockColor = isCancelled ? Colors.grey : color;
+
+    final Color blockColor;
+    final double fillOpacity;
+    if (isCancelled) {
+      blockColor = Colors.grey;
+      fillOpacity = 0.08;
+    } else if (isNoShow) {
+      blockColor = Colors.grey;
+      fillOpacity = 0.18;
+    } else {
+      blockColor = color;
+      fillOpacity = 0.18;
+    }
 
     return GestureDetector(
       onTap: () {
@@ -665,7 +677,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
           margin: const EdgeInsets.symmetric(vertical: 1),
           padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
           decoration: BoxDecoration(
-            color: blockColor.withOpacity(isCancelled ? 0.08 : 0.18),
+            color: blockColor.withOpacity(fillOpacity),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
@@ -684,9 +696,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                 ),
               ),
               if (isCompleted)
-                Icon(Icons.check, size: 12, color: blockColor.withOpacity(0.7)),
-              if (isNoShow)
-                Icon(Icons.close, size: 12, color: blockColor.withOpacity(0.7)),
+                Icon(Icons.check, size: 14, color: blockColor.withOpacity(0.7)),
             ],
           ),
         ),
