@@ -34,7 +34,7 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
 
   /// 获取某天所在周的周一
   DateTime _weekStart(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - 1));
+    return date.subtract(Duration(days: date.weekday % 7));
   }
 
   /// 根据 page index 计算该周的起始日期
@@ -46,7 +46,7 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
     final weekStart = _weekStartFromIndex(index);
     final midWeek = weekStart.add(const Duration(days: 3));
     ref.read(selectedDateProvider.notifier).setDate(midWeek);
-    ref.read(scheduledClassNotifierProvider.notifier).fetchByWeek(weekStart);
+    ref.read(scheduledClassNotifierProvider.notifier).fetchByWeek(weekStart, silent: true);
   }
 
   @override
@@ -63,8 +63,10 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
 
         return Column(
           children: [
+            // 周导航栏
+            _buildWeekNavBar(context, startOfWeek),
             // 星期标题行
-            _buildWeekHeader(context, startOfWeek),
+            _buildWeekHeader(context, startOfWeek, selectedDate),
             // 可滑动的周内容
             Expanded(
               child: PageView.builder(
@@ -130,8 +132,80 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
     );
   }
 
-  Widget _buildWeekHeader(BuildContext context, DateTime startOfWeek) {
-    const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  Widget _buildWeekNavBar(BuildContext context, DateTime startOfWeek) {
+    final weekEnd = startOfWeek.add(const Duration(days: 6));
+    final weekText = startOfWeek.month == weekEnd.month
+        ? '${startOfWeek.month}月${startOfWeek.day}-${weekEnd.day}日'
+        : '${startOfWeek.month}月${startOfWeek.day}日-${weekEnd.month}月${weekEnd.day}日';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left, size: 20),
+            onPressed: () => _navigateWeek(-1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+          GestureDetector(
+            onTap: () => _showDatePicker(startOfWeek),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                weekText,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right, size: 20),
+            onPressed: () => _navigateWeek(1),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateWeek(int direction) {
+    final currentIndex = _pageController.page?.round() ?? _initialPage;
+    _pageController.animateToPage(
+      currentIndex + direction,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _showDatePicker(DateTime startOfWeek) async {
+    final midWeek = startOfWeek.add(const Duration(days: 3));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: midWeek,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      final newWeekStart = _weekStart(picked);
+      ref.read(selectedDateProvider.notifier).setDate(picked);
+      // 重新初始化 PageController，以新周为中心
+      setState(() {
+        _baseWeekStart = newWeekStart;
+        _pageController.dispose();
+        _pageController = PageController(initialPage: _initialPage);
+      });
+      ref.read(scheduledClassNotifierProvider.notifier).fetchByWeek(newWeekStart);
+    }
+  }
+
+  Widget _buildWeekHeader(BuildContext context, DateTime startOfWeek, DateTime selectedDate) {
+    const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     final today = DateTime.now();
 
     return Row(
@@ -140,27 +214,44 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
         final isToday = date.year == today.year &&
             date.month == today.month &&
             date.day == today.day;
+        final isSelected = date.year == selectedDate.year &&
+            date.month == selectedDate.month &&
+            date.day == selectedDate.day;
 
         return Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: isToday
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : isToday
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : null,
               border: Border(
                 bottom: BorderSide(color: Theme.of(context).dividerColor),
               ),
             ),
             child: Column(
               children: [
-                Text(dayNames[i], style: const TextStyle(fontSize: 12)),
+                Text(
+                  dayNames[i],
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
+                ),
                 Text(
                   '${date.day}',
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                    color: isToday ? Theme.of(context).colorScheme.primary : null,
+                    fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : isToday
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
                   ),
                 ),
               ],

@@ -46,8 +46,9 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
   }
 
   /// 按日期查询排课
-  Future<void> fetchByDate(DateTime date) async {
-    state = const ScheduledClassState.loading();
+  /// [silent] 为 true 时不触发 loading 状态（用于滑动导航，避免重建 PageView）
+  Future<void> fetchByDate(DateTime date, {bool silent = false}) async {
+    if (!silent) state = const ScheduledClassState.loading();
     try {
       final dateStr = date.toIso8601String().substring(0, 10);
       final nextDay = date.add(const Duration(days: 1));
@@ -58,13 +59,14 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
       final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
       state = ScheduledClassState.data(scheduledClasses: classes);
     } catch (e, st) {
-      state = ScheduledClassState.error(e, st);
+      if (!silent) state = ScheduledClassState.error(e, st);
     }
   }
 
   /// 按周查询排课（weekStart 为周一）
-  Future<void> fetchByWeek(DateTime weekStart) async {
-    state = const ScheduledClassState.loading();
+  /// [silent] 为 true 时不触发 loading 状态（用于滑动导航，避免重建 PageView）
+  Future<void> fetchByWeek(DateTime weekStart, {bool silent = false}) async {
+    if (!silent) state = const ScheduledClassState.loading();
     try {
       final weekEnd = weekStart.add(const Duration(days: 7));
       final maps = await _repository.getByDateRange(
@@ -74,7 +76,7 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
       final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
       state = ScheduledClassState.data(scheduledClasses: classes);
     } catch (e, st) {
-      state = ScheduledClassState.error(e, st);
+      if (!silent) state = ScheduledClassState.error(e, st);
     }
   }
 

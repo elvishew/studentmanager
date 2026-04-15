@@ -31,8 +31,12 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
     final notifier = ref.read(scheduledClassNotifierProvider.notifier);
     // 根据当前视图加载对应范围的数据
     if (viewMode == ScheduleViewMode.week) {
-      final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+      final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
       notifier.fetchByWeek(weekStart);
+    } else if (viewMode == ScheduleViewMode.month) {
+      final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+      final endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+      notifier.fetchByDateRange(startOfMonth, endOfMonth);
     } else {
       notifier.fetchByDate(selectedDate);
     }
@@ -43,72 +47,20 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
   @override
   Widget build(BuildContext context) {
     final viewMode = ref.watch(scheduleViewProvider);
-    final selectedDate = ref.watch(selectedDateProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: _buildDateNavigator(),
+        title: const Text('课表'),
+        centerTitle: false,
         actions: [
           _buildViewModeToggle(viewMode),
         ],
       ),
-      body: Column(
-        children: [
-          _buildDayStrip(selectedDate),
-          Expanded(
-            child: _buildView(viewMode),
-          ),
-        ],
-      ),
+      body: _buildView(viewMode),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateDialog(context),
         tooltip: '新建排课',
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildDateNavigator() {
-    final selectedDate = ref.watch(selectedDateProvider);
-    final today = DateTime.now();
-    final isToday = _isSameDay(selectedDate, today);
-
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: selectedDate,
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2030),
-        );
-        if (picked != null) {
-          ref.read(selectedDateProvider.notifier).setDate(picked);
-          ref.read(scheduledClassNotifierProvider.notifier).fetchByDate(picked);
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left, size: 20),
-              onPressed: () => _changeDate(-1),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-            Text(
-              isToday ? '今天' : _formatDate(selectedDate),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right, size: 20),
-              onPressed: () => _changeDate(1),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -128,72 +80,16 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
         final selectedDate = ref.read(selectedDateProvider);
         final notifier = ref.read(scheduledClassNotifierProvider.notifier);
         if (mode == ScheduleViewMode.week) {
-          final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
+          final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
           notifier.fetchByWeek(weekStart);
+        } else if (mode == ScheduleViewMode.month) {
+          final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+          final endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+          notifier.fetchByDateRange(startOfMonth, endOfMonth);
         } else {
           notifier.fetchByDate(selectedDate);
         }
       },
-    );
-  }
-
-  Widget _buildDayStrip(DateTime selectedDate) {
-    final startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday - 1));
-    final today = DateTime.now();
-
-    return SizedBox(
-      height: 56,
-      child: Row(
-        children: List.generate(7, (i) {
-          final date = startOfWeek.add(Duration(days: i));
-          final isSelected = _isSameDay(date, selectedDate);
-          final isToday = _isSameDay(date, today);
-
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                ref.read(selectedDateProvider.notifier).setDate(date);
-                ref.read(scheduledClassNotifierProvider.notifier).fetchByDate(date);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : isToday
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _weekdayShort(date.weekday),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    Text(
-                      '${date.day}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: isSelected || isToday ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
     );
   }
 
@@ -208,21 +104,6 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
     }
   }
 
-  void _changeDate(int days) {
-    final current = ref.read(selectedDateProvider);
-    final viewMode = ref.read(scheduleViewProvider);
-    final step = viewMode == ScheduleViewMode.week ? days * 7 : days;
-    final newDate = current.add(Duration(days: step));
-    ref.read(selectedDateProvider.notifier).setDate(newDate);
-    final notifier = ref.read(scheduledClassNotifierProvider.notifier);
-    if (viewMode == ScheduleViewMode.week) {
-      final weekStart = newDate.subtract(Duration(days: newDate.weekday - 1));
-      notifier.fetchByWeek(weekStart);
-    } else {
-      notifier.fetchByDate(newDate);
-    }
-  }
-
   void _showCreateDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -232,16 +113,4 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
     );
   }
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.month}月${date.day}日';
-  }
-
-  String _weekdayShort(int weekday) {
-    const days = ['一', '二', '三', '四', '五', '六', '日'];
-    return days[weekday - 1];
-  }
 }
