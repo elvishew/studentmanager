@@ -368,7 +368,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
     if (hexColor == null) return null;
     try {
       final hex = hexColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 32));
+      return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
       return null;
     }

@@ -206,7 +206,7 @@ class StatisticsPage extends ConsumerWidget {
     if (hexColor == null) return Colors.blue;
     try {
       final hex = hexColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 32));
+      return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
       return Colors.blue;
     }

@@ -265,15 +265,7 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
   Widget _buildWeekClassTile(BuildContext context, ScheduledClass sc) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
-    final isCompleted = sc.status == ScheduledClassStatus.completed;
-    final isNoShow = sc.status == ScheduledClassStatus.noShow;
-    final blockColor = isCancelled
-        ? Colors.grey
-        : isCompleted
-            ? Colors.green
-            : isNoShow
-                ? Colors.orange
-                : color;
+    final blockColor = isCancelled ? Colors.grey : color;
 
     return GestureDetector(
       onTap: () {
@@ -293,36 +285,24 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
             borderRadius: BorderRadius.circular(4),
             border: Border.all(color: blockColor.withOpacity(isCancelled ? 0.15 : 0.3)),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sc.title ?? sc.courseTypeName ?? '未命名',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: blockColor,
-                        decoration: isCancelled ? TextDecoration.lineThrough : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      _formatTime(sc.startTime),
-                      style: TextStyle(fontSize: 10, color: blockColor.withOpacity(0.7)),
-                    ),
-                  ],
+              Text(
+                _buildBlockLabel(sc),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: blockColor,
+                  decoration: isCancelled ? TextDecoration.lineThrough : null,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              if (isCancelled)
-                Text('取消', style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
-              if (isNoShow)
-                Text('未到', style: TextStyle(fontSize: 9, color: Colors.orange.shade700)),
-              if (isCompleted)
-                Text('完成', style: TextStyle(fontSize: 9, color: Colors.green.shade700)),
+              Text(
+                _formatTime(sc.startTime),
+                style: TextStyle(fontSize: 10, color: blockColor.withOpacity(0.7)),
+              ),
             ],
           ),
         ),
@@ -330,11 +310,22 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
     );
   }
 
+  /// 生成课程块显示文本：title → 参与人 → 课程类型
+  String _buildBlockLabel(ScheduledClass sc) {
+    if (sc.title != null && sc.title!.isNotEmpty) return sc.title!;
+    final participants = sc.participants;
+    if (participants != null && participants.isNotEmpty) {
+      if (participants.length == 1) return participants.first.displayName;
+      return '${participants.first.displayName}等${participants.length}人';
+    }
+    return sc.courseTypeName ?? '未命名';
+  }
+
   Color? _parseColor(String? hexColor) {
     if (hexColor == null) return null;
     try {
       final hex = hexColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 32));
+      return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
       return null;
     }

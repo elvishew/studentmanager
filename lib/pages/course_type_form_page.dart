@@ -263,7 +263,7 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
   Color? _parseColor(String hexColor) {
     try {
       final hex = hexColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 32));
+      return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
       return null;
     }
