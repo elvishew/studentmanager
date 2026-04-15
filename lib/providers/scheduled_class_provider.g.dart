@@ -30,7 +30,7 @@ final scheduledClassRepositoryProvider =
 // ignore: unused_element
 typedef ScheduledClassRepositoryRef = ProviderRef<ScheduledClassRepository>;
 String _$scheduledClassNotifierHash() =>
-    r'3985222610f4f01bd920f0b2241fec56e9da82ba';
+    r'152a128b3fcb27dfb1a85e3ddaa84049664a4948';
 
 /// ============================================
 /// ScheduledClassNotifier

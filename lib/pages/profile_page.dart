@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/utils/template_loader.dart';
 import 'package:student_manager/providers/student_provider.dart';
-import 'package:student_manager/providers/course_type_provider.dart';
 import 'course_type_list_page.dart';
 import 'content_field_list_page.dart';
 import 'goal_list_page.dart';
 import 'goal_config_list_page.dart';
 import 'template_selection_page.dart';
+import 'working_hours_settings_page.dart';
 
 /// 我的 Tab
 class ProfilePage extends ConsumerWidget {
@@ -65,6 +65,19 @@ class ProfilePage extends ConsumerWidget {
                 onTap: () => _showTemplateSwitch(context),
               );
             },
+          ),
+
+          const Divider(),
+
+          // 课表设置
+          _buildSectionHeader(context, '课表设置'),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: const Text('工作时间'),
+            subtitle: const Text('设置日视图显示的时段'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const WorkingHoursSettingsPage())),
           ),
 
           const Divider(),

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/providers/settings_provider.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
-/// 日视图：0-24h 时间轴，支持左右滑动切换日期
+/// 日视图：支持工作时间分段显示，左右滑动切换日期
 class ScheduleDayView extends ConsumerStatefulWidget {
   const ScheduleDayView({super.key});
 
@@ -14,16 +15,109 @@ class ScheduleDayView extends ConsumerStatefulWidget {
 }
 
 class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
+  bool _hasScrolledOnMount = false;
 
   static const double _hourHeight = 80.0;
   static const double _timeLabelWidth = 48.0;
-  static const double _totalHeight = 24 * _hourHeight;
+  static const double _breakHeight = 32.0; // 段间间隔高度
+  static const double _contentPadding = 10.0; // 上下内边距，防止首尾标签被裁剪
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToInitialPosition());
+    _scrollController = ScrollController(
+      initialScrollOffset: _computeInitialOffset(),
+    );
+    _hasScrolledOnMount = _scrollController.initialScrollOffset > 0;
+  }
+
+  /// 有效的时间段列表：空配置 → 全天 0-24
+  List<TimeSegment> get _effectiveSegments {
+    final segments = ref.read(workingHoursNotifierProvider);
+    if (segments.isEmpty) {
+      return [const TimeSegment(start: 0, end: 24)];
+    }
+    return segments;
+  }
+
+  /// 计算 initState 时的初始滚动偏移（避免首帧闪烁）
+  double _computeInitialOffset() {
+    final now = DateTime.now();
+    final selectedDate = ref.read(selectedDateProvider);
+    final isToday = now.year == selectedDate.year &&
+        now.month == selectedDate.month &&
+        now.day == selectedDate.day;
+    if (!isToday) return 0.0;
+
+    final segments = _effectiveSegments;
+    double targetHour = now.hour + now.minute / 60;
+    if (!segments.any((s) => targetHour >= s.start && targetHour <= s.end)) {
+      final nextSeg = segments.where((s) => s.start > targetHour).firstOrNull;
+      targetHour = nextSeg?.start.toDouble() ?? segments.first.start.toDouble();
+    }
+    return (_hourToY(targetHour, segments) - 80).clamp(0.0, _totalHeight(segments));
+  }
+
+  /// 当前 watch 用的 segments（用于 build 中 watch）
+  List<TimeSegment> _watchedSegments() {
+    final segments = ref.watch(workingHoursNotifierProvider);
+    if (segments.isEmpty) {
+      return [const TimeSegment(start: 0, end: 24)];
+    }
+    return segments;
+  }
+
+  /// 总高度：各段时长之和 × _hourHeight + 段间间隔 + 上下内边距
+  double _totalHeight(List<TimeSegment> segments) {
+    final totalHours = segments.fold<double>(
+      0,
+      (sum, seg) => sum + (seg.end - seg.start),
+    );
+    final breakCount = segments.length > 1 ? segments.length - 1 : 0;
+    return totalHours * _hourHeight + breakCount * _breakHeight + _contentPadding * 2;
+  }
+
+  /// 将真实小时映射到压缩视图的 Y 偏移（含顶部内边距）
+  double _hourToY(double hour, List<TimeSegment> segments) {
+    double y = _contentPadding;
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      if (hour >= seg.start && hour <= seg.end) {
+        return y + (hour - seg.start) * _hourHeight;
+      }
+      // 累加当前段的高度
+      y += (seg.end - seg.start) * _hourHeight;
+      // 加上段间间隔（非最后一段）
+      if (i < segments.length - 1) {
+        y += _breakHeight;
+      }
+    }
+    // 超出范围时返回最后位置
+    return y;
+  }
+
+  /// 将 Y 偏移反向映射为真实小时（减去顶部内边距）
+  double _yToHour(double y, List<TimeSegment> segments) {
+    double remaining = y - _contentPadding;
+    if (remaining < 0) return segments.first.start.toDouble();
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      final segHeight = (seg.end - seg.start) * _hourHeight;
+      if (remaining <= segHeight) {
+        return seg.start + remaining / _hourHeight;
+      }
+      remaining -= segHeight;
+      // 跳过间隔区域，映射到下一段起始
+      if (i < segments.length - 1) {
+        if (remaining <= _breakHeight) {
+          return segments[i + 1].start.toDouble();
+        }
+        remaining -= _breakHeight;
+      }
+    }
+    // 兜底
+    return segments.last.end.toDouble();
   }
 
   void _scrollToInitialPosition() {
@@ -33,11 +127,26 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         now.month == selectedDate.month &&
         now.day == selectedDate.day;
 
-    final targetHour = isToday ? now.hour : 8;
-    final targetOffset = (targetHour - 1).clamp(0, 23) * _hourHeight;
+    final segments = _effectiveSegments;
+    double targetHour;
+    if (isToday) {
+      targetHour = now.hour + now.minute / 60;
+      // 如果当前时间不在任何段内，定位到最近的段起始
+      bool inAnySegment = segments.any((s) => targetHour >= s.start && targetHour <= s.end);
+      if (!inAnySegment) {
+        // 找到当前时间之后的第一个段
+        final nextSeg = segments.where((s) => s.start > targetHour).firstOrNull;
+        targetHour = nextSeg?.start.toDouble() ?? segments.first.start.toDouble();
+      }
+    } else {
+      targetHour = segments.first.start.toDouble();
+    }
+
+    final targetOffset = (_hourToY(targetHour, segments) - 80).clamp(0.0, _totalHeight(segments));
 
     if (_scrollController.hasClients) {
-      _scrollController.jumpTo(targetOffset);
+      _scrollController.jumpTo(targetOffset.toDouble());
+      _hasScrolledOnMount = true;
     }
   }
 
@@ -59,6 +168,16 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
   Widget build(BuildContext context) {
     final state = ref.watch(scheduledClassNotifierProvider);
     final selectedDate = ref.watch(selectedDateProvider);
+    // watch segments 以响应设置变化
+    final segments = _watchedSegments();
+
+    // 监听日期变化自动滚动
+    ref.listen(selectedDateProvider, (_, __) {
+      _hasScrolledOnMount = false;
+      // 控制器已有 clients 时立即滚动（左右滑切日期），否则等 data 加载后补滚
+      _scrollToInitialPosition();
+    });
+
     final now = DateTime.now();
     final isToday = now.year == selectedDate.year &&
         now.month == selectedDate.month &&
@@ -75,6 +194,10 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('加载失败: $e')),
             data: (classes, _) {
+              // 数据加载完成且尚未执行过初始滚动时，补一次滚动
+              if (!_hasScrolledOnMount) {
+                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToInitialPosition());
+              }
               // 筛选当天的课程
               final dayClasses = classes.where((sc) {
                 return sc.startTime.year == selectedDate.year &&
@@ -101,30 +224,14 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                       child: SingleChildScrollView(
                         controller: _scrollController,
                         child: SizedBox(
-                          height: _totalHeight,
+                          height: _totalHeight(segments),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 时间标签列
+                              // 时间标签列 + 段间隔标记
                               SizedBox(
                                 width: _timeLabelWidth,
-                                child: Column(
-                                  children: List.generate(24, (index) {
-                                    return SizedBox(
-                                      height: _hourHeight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 4, right: 8),
-                                        child: Text(
-                                          '${index.toString().padLeft(2, '0')}:00',
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.outline,
-                                          ),
-                                          textAlign: TextAlign.right,
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
+                                child: _buildTimeLabels(segments),
                               ),
                               // 课程块列（支持重叠列布局）
                               Expanded(
@@ -133,37 +240,20 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                                     final availableWidth = constraints.maxWidth;
                                     return GestureDetector(
                                       onTapUp: (details) {
-                                        final hour = (details.localPosition.dy / _hourHeight).clamp(0, 23).floor();
-                                        _showCreateDialog(hour);
+                                        final hour = _yToHour(details.localPosition.dy, segments).clamp(0, 23);
+                                        _showCreateDialog(hour.floor());
                                       },
                                       child: Stack(
                                         clipBehavior: Clip.none,
                                         children: [
-                                          // 小时网格线
-                                          ...List.generate(24, (index) {
-                                            return Positioned(
-                                              top: index * _hourHeight,
-                                              left: 0,
-                                              right: 0,
-                                              child: Container(
-                                                height: _hourHeight,
-                                                decoration: BoxDecoration(
-                                                  border: Border(
-                                                    top: BorderSide(
-                                                      color: Theme.of(context).dividerColor.withOpacity(0.2),
-                                                      width: 0.5,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }),
+                                          // 网格线 + 段间隔
+                                          ..._buildGridLinesAndBreaks(segments),
                                           // 课程色块（重叠时自动分列）
-                                          ..._buildClassBlocksWithLayout(dayClasses, availableWidth),
+                                          ..._buildClassBlocksWithLayout(dayClasses, availableWidth, segments),
                                           // 当前时间指示线
                                           if (isToday)
                                             Positioned(
-                                              top: (now.hour + now.minute / 60) * _hourHeight,
+                                              top: _hourToY(now.hour + now.minute / 60, segments),
                                               left: 0,
                                               right: 0,
                                               child: Row(
@@ -204,6 +294,112 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         ),
       ],
     );
+  }
+
+  /// 构建时间标签列（含段间间隔标记）
+  Widget _buildTimeLabels(List<TimeSegment> segments) {
+    final items = <Widget>[];
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      // 该段时间标签（含结束时间）
+      for (int h = seg.start; h <= seg.end; h++) {
+        final y = _hourToY(h.toDouble(), segments);
+        items.add(Positioned(
+          top: y - 9,
+          left: 0,
+          right: 0,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(
+              '${h.toString().padLeft(2, '0')}:00',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ));
+      }
+      // 段间间隔
+      if (i < segments.length - 1) {
+        final breakY = _hourToY(seg.end.toDouble(), segments);
+        items.add(Positioned(
+          top: breakY,
+          left: 0,
+          right: 0,
+          height: _breakHeight,
+          child: Center(
+            child: Text(
+              '休息',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                  ),
+            ),
+          ),
+        ));
+      }
+    }
+    return Stack(
+      fit: StackFit.expand,
+      clipBehavior: Clip.none,
+      children: items,
+    );
+  }
+
+  /// 构建网格线和段间分隔
+  List<Widget> _buildGridLinesAndBreaks(List<TimeSegment> segments) {
+    final widgets = <Widget>[];
+    double currentY = _contentPadding;
+
+    for (int i = 0; i < segments.length; i++) {
+      final seg = segments[i];
+      final segHeight = (seg.end - seg.start) * _hourHeight;
+
+      // 该段的网格线（含末尾边界线）
+      for (int h = 0; h <= seg.end - seg.start; h++) {
+        widgets.add(Positioned(
+          top: currentY + h * _hourHeight,
+          left: 0,
+          right: 0,
+          child: Container(
+            height: h < seg.end - seg.start ? _hourHeight : 0,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Theme.of(context).dividerColor.withOpacity(0.2),
+                  width: 0.5,
+                ),
+              ),
+            ),
+          ),
+        ));
+      }
+
+      currentY += segHeight;
+
+      // 段间分隔线
+      if (i < segments.length - 1) {
+        widgets.add(Positioned(
+          top: currentY,
+          left: 0,
+          right: 0,
+          height: _breakHeight,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3),
+              ),
+            ],
+          ),
+        ));
+        currentY += _breakHeight;
+      }
+    }
+
+    return widgets;
   }
 
   /// 增强型 Day Strip：左侧月份导航 + 右侧7天横条
@@ -336,8 +532,8 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     return days[weekday - 1];
   }
 
-  /// 构建课程色块（支持重叠列布局）
-  List<Widget> _buildClassBlocksWithLayout(List<ScheduledClass> classes, double width) {
+  /// 构建课程色块（支持重叠列布局 + 时间段映射）
+  List<Widget> _buildClassBlocksWithLayout(List<ScheduledClass> classes, double width, List<TimeSegment> segments) {
     if (classes.isEmpty) return [];
     final layouts = _layoutClasses(classes);
     return layouts.map((entry) {
@@ -346,7 +542,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       final totalCols = entry.$3;
       final startHour = sc.startTime.hour + sc.startTime.minute / 60;
       final durationHours = sc.endTime.difference(sc.startTime).inMinutes / 60;
-      final top = startHour * _hourHeight;
+      final top = _hourToY(startHour, segments);
       final height = durationHours * _hourHeight;
       final colWidth = (width - 8) / totalCols;
 
@@ -532,7 +728,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     if (hexColor == null) return null;
     try {
       final hex = hexColor.replaceFirst('#', '');
-      return Color(int.parse('FF$hex', radix: 32));
+      return Color(int.parse('FF$hex', radix: 16));
     } catch (_) {
       return null;
     }
