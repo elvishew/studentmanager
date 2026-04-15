@@ -38,7 +38,7 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
         startDate: startDate.toIso8601String(),
         endDate: endDate.toIso8601String(),
       );
-      final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+      final classes = await _withParticipants(maps);
       state = ScheduledClassState.data(scheduledClasses: classes);
     } catch (e, st) {
       state = ScheduledClassState.error(e, st);
@@ -56,7 +56,7 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
         startDate: '${dateStr}T00:00:00',
         endDate: '${nextDay.toIso8601String().substring(0, 10)}T00:00:00',
       );
-      final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+      final classes = await _withParticipants(maps);
       state = ScheduledClassState.data(scheduledClasses: classes);
     } catch (e, st) {
       if (!silent) state = ScheduledClassState.error(e, st);
@@ -73,11 +73,29 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
         startDate: '${weekStart.toIso8601String().substring(0, 10)}T00:00:00',
         endDate: '${weekEnd.toIso8601String().substring(0, 10)}T00:00:00',
       );
-      final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+      final classes = await _withParticipants(maps);
       state = ScheduledClassState.data(scheduledClasses: classes);
     } catch (e, st) {
       if (!silent) state = ScheduledClassState.error(e, st);
     }
+  }
+
+  /// 为排课列表批量附加参与人数据（单次 SQL 查询）
+  Future<List<ScheduledClass>> _withParticipants(List<Map<String, dynamic>> maps) async {
+    final classes = maps.map((m) => ScheduledClass.fromMap(m)).toList();
+    if (classes.isEmpty) return classes;
+
+    final pMaps = await _repository.getParticipantsBatch(classes.map((c) => c.id).toList());
+    final participantsByClass = <int, List<ClassParticipant>>{};
+    for (final p in pMaps) {
+      final classId = p['scheduled_class_id'] as int;
+      (participantsByClass[classId] ??= []).add(ClassParticipant.fromMap(p));
+    }
+
+    return [
+      for (int i = 0; i < classes.length; i++)
+        classes[i].copyWith(participants: participantsByClass[classes[i].id] ?? []),
+    ];
   }
 
   /// 创建排课

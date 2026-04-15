@@ -633,22 +633,21 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     );
   }
 
+  /// 生成课程块显示文本：title → 参与人 → 课程类型
+  String _buildBlockLabel(ScheduledClass sc) {
+    if (sc.title != null && sc.title!.isNotEmpty) return sc.title!;
+    final participants = sc.participants;
+    if (participants != null && participants.isNotEmpty) {
+      if (participants.length == 1) return participants.first.displayName;
+      return '${participants.first.displayName}等${participants.length}人';
+    }
+    return sc.courseTypeName ?? '未命名';
+  }
+
   Widget _buildClassBlock(ScheduledClass sc, double blockHeight) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
-    final isCompleted = sc.status == ScheduledClassStatus.completed;
-    final isNoShow = sc.status == ScheduledClassStatus.noShow;
-    final blockColor = isCancelled
-        ? Colors.grey
-        : isCompleted
-            ? Colors.green
-            : isNoShow
-                ? Colors.orange
-                : color;
-
-    // 根据可用高度自适应显示内容
-    final compact = blockHeight < 36;
-    final hideTimeAndStatus = blockHeight < 56;
+    final blockColor = isCancelled ? Colors.grey : color;
 
     return GestureDetector(
       onTap: () {
@@ -661,47 +660,28 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       child: Opacity(
         opacity: isCancelled ? 0.5 : 1.0,
         child: Container(
-          margin: EdgeInsets.symmetric(vertical: compact ? 0.5 : 1),
-          padding: EdgeInsets.fromLTRB(6, compact ? 2 : 4, 6, compact ? 2 : 4),
+          margin: const EdgeInsets.symmetric(vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           decoration: BoxDecoration(
             color: blockColor.withOpacity(isCancelled ? 0.08 : 0.15),
-            borderRadius: BorderRadius.circular(compact ? 4 : 6),
+            borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: blockColor.withOpacity(isCancelled ? 0.2 : 0.4),
               width: 1,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                sc.title ?? sc.courseTypeName ?? '未命名',
-                style: TextStyle(
-                  fontSize: compact ? 9 : 11,
-                  fontWeight: FontWeight.w600,
-                  color: blockColor,
-                  decoration: isCancelled ? TextDecoration.lineThrough : null,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+          child: Center(
+            child: Text(
+              _buildBlockLabel(sc),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: blockColor,
+                decoration: isCancelled ? TextDecoration.lineThrough : null,
               ),
-              if (!hideTimeAndStatus) ...[
-                Text(
-                  '${_formatTime(sc.startTime)} - ${_formatTime(sc.endTime)}',
-                  style: TextStyle(
-                    fontSize: 9,
-                    color: blockColor.withOpacity(0.8),
-                  ),
-                ),
-                if (isCancelled)
-                  Text('已取消', style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
-                if (isNoShow)
-                  Text('未到', style: TextStyle(fontSize: 9, color: Colors.orange.shade700)),
-                if (isCompleted)
-                  Text('已完成', style: TextStyle(fontSize: 9, color: Colors.green.shade700)),
-              ],
-            ],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ),
@@ -741,7 +721,4 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     }
   }
 
-  String _formatTime(DateTime time) {
-    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-  }
 }

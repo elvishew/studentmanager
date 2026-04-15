@@ -404,6 +404,19 @@ class ScheduledClassRepository {
     ''', [scheduledClassId]);
   }
 
+  /// 批量查询多个排课的参与人
+  Future<List<Map<String, dynamic>>> getParticipantsBatch(List<int> scheduledClassIds) async {
+    if (scheduledClassIds.isEmpty) return [];
+    final placeholders = List.filled(scheduledClassIds.length, '?').join(',');
+    return await database.rawQuery('''
+      SELECT cp.*, s.name as student_name
+      FROM class_participants cp
+      LEFT JOIN students s ON cp.student_id = s.id
+      WHERE cp.scheduled_class_id IN ($placeholders)
+      ORDER BY cp.id ASC
+    ''', scheduledClassIds);
+  }
+
   /// ============================================
   /// 统计查询
   /// ============================================
