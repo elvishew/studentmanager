@@ -543,15 +543,16 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       final startHour = sc.startTime.hour + sc.startTime.minute / 60;
       final durationHours = sc.endTime.difference(sc.startTime).inMinutes / 60;
       final top = _hourToY(startHour, segments);
-      final height = durationHours * _hourHeight;
+      final rawHeight = durationHours * _hourHeight;
+      final height = rawHeight.clamp(32.0, double.infinity);
       final colWidth = (width - 8) / totalCols;
 
       return Positioned(
         top: top,
         left: 4 + col * colWidth,
         width: colWidth - 2,
-        height: height.clamp(32.0, double.infinity),
-        child: _buildClassBlock(sc),
+        height: height,
+        child: _buildClassBlock(sc, height),
       );
     }).toList();
   }
@@ -632,7 +633,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     );
   }
 
-  Widget _buildClassBlock(ScheduledClass sc) {
+  Widget _buildClassBlock(ScheduledClass sc, double blockHeight) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
     final isCompleted = sc.status == ScheduledClassStatus.completed;
@@ -645,6 +646,10 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                 ? Colors.orange
                 : color;
 
+    // 根据可用高度自适应显示内容
+    final compact = blockHeight < 36;
+    final hideTimeAndStatus = blockHeight < 56;
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -656,11 +661,11 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       child: Opacity(
         opacity: isCancelled ? 0.5 : 1.0,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          margin: EdgeInsets.symmetric(vertical: compact ? 0.5 : 1),
+          padding: EdgeInsets.fromLTRB(6, compact ? 2 : 4, 6, compact ? 2 : 4),
           decoration: BoxDecoration(
             color: blockColor.withOpacity(isCancelled ? 0.08 : 0.15),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(compact ? 4 : 6),
             border: Border.all(
               color: blockColor.withOpacity(isCancelled ? 0.2 : 0.4),
               width: 1,
@@ -673,7 +678,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
               Text(
                 sc.title ?? sc.courseTypeName ?? '未命名',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: compact ? 9 : 11,
                   fontWeight: FontWeight.w600,
                   color: blockColor,
                   decoration: isCancelled ? TextDecoration.lineThrough : null,
@@ -681,19 +686,21 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(
-                '${_formatTime(sc.startTime)} - ${_formatTime(sc.endTime)}',
-                style: TextStyle(
-                  fontSize: 9,
-                  color: blockColor.withOpacity(0.8),
+              if (!hideTimeAndStatus) ...[
+                Text(
+                  '${_formatTime(sc.startTime)} - ${_formatTime(sc.endTime)}',
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: blockColor.withOpacity(0.8),
+                  ),
                 ),
-              ),
-              if (isCancelled)
-                Text('已取消', style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
-              if (isNoShow)
-                Text('未到', style: TextStyle(fontSize: 9, color: Colors.orange.shade700)),
-              if (isCompleted)
-                Text('已完成', style: TextStyle(fontSize: 9, color: Colors.green.shade700)),
+                if (isCancelled)
+                  Text('已取消', style: TextStyle(fontSize: 9, color: Colors.grey.shade600)),
+                if (isNoShow)
+                  Text('未到', style: TextStyle(fontSize: 9, color: Colors.orange.shade700)),
+                if (isCompleted)
+                  Text('已完成', style: TextStyle(fontSize: 9, color: Colors.green.shade700)),
+              ],
             ],
           ),
         ),
