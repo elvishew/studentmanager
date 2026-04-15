@@ -129,6 +129,82 @@ class ScheduledClassNotifier extends _$ScheduledClassNotifier {
     }
   }
 
+  /// 更新排课（含参与人 diff）
+  Future<bool> updateScheduledClass({
+    required int classId,
+    required int courseTypeId,
+    String? title,
+    required DateTime startTime,
+    required DateTime endTime,
+    int? sessionId,
+    String? location,
+    String? notes,
+    double teacherSessionFee = 0,
+    List<Map<String, dynamic>> participants = const [],
+  }) async {
+    try {
+      // 1. 更新排课主记录
+      final ok = await _repository.update(
+        id: classId,
+        courseTypeId: courseTypeId,
+        title: title,
+        startTime: startTime.toIso8601String(),
+        endTime: endTime.toIso8601String(),
+        sessionId: sessionId,
+        clearSessionId: sessionId == null,
+        location: location,
+        notes: notes,
+        teacherSessionFee: teacherSessionFee,
+      );
+      if (!ok) return false;
+
+      // 2. 对比参与人：按 student_id 或 guest_name 匹配
+      final currentParticipants = await _repository.getParticipants(classId);
+
+      // 构建新参与人标识集合
+      final newKeys = <String>{};
+      for (final p in participants) {
+        final key = p['student_id'] != null
+            ? 's:${p['student_id']}'
+            : 'g:${p['guest_name']}';
+        newKeys.add(key);
+      }
+
+      // 构建当前参与人标识集合
+      final currentKeys = <String, int>{};
+      for (final p in currentParticipants) {
+        final sid = p['student_id'] as int?;
+        final key = sid != null ? 's:$sid' : 'g:${p['guest_name']}';
+        currentKeys[key] = p['id'] as int;
+      }
+
+      // 需要移除的
+      for (final entry in currentKeys.entries) {
+        if (!newKeys.contains(entry.key)) {
+          await _repository.removeParticipant(entry.value);
+        }
+      }
+
+      // 需要新增的
+      for (final p in participants) {
+        final sid = p['student_id'] as int?;
+        final key = sid != null ? 's:$sid' : 'g:${p['guest_name']}';
+        if (!currentKeys.containsKey(key)) {
+          await _repository.addParticipant(
+            scheduledClassId: classId,
+            studentId: sid,
+            guestName: p['guest_name'] as String?,
+          );
+        }
+      }
+
+      return true;
+    } catch (e, st) {
+      state = ScheduledClassState.error(e, st);
+      return false;
+    }
+  }
+
   /// 消课
   Future<bool> completeClass(int id) async {
     try {

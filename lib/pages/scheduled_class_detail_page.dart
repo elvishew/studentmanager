@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
 /// 排课详情页
 class ScheduledClassDetailPage extends ConsumerStatefulWidget {
@@ -67,6 +68,11 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
       appBar: AppBar(
         title: Text(title ?? courseTypeName),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: '编辑',
+            onPressed: () => _editScheduledClass(),
+          ),
           PopupMenuButton<String>(
             onSelected: (action) => _handleAction(action),
             itemBuilder: (context) => [
@@ -267,6 +273,20 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
     ref.read(scheduledClassNotifierProvider.notifier)
         .updateParticipantAttendance(participantId: participantId, attendance: next)
         .then((_) => _loadDetail());
+  }
+
+  Future<void> _editScheduledClass() async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => CreateScheduledClassDialog(
+        editingClassId: widget.classId,
+        editingData: _detail,
+      ),
+    );
+    if (result == true) {
+      _loadDetail();
+    }
   }
 
   Future<void> _handleAction(String action) async {
