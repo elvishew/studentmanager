@@ -647,6 +647,8 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
   Widget _buildClassBlock(ScheduledClass sc, double blockHeight) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
+    final isCompleted = sc.status == ScheduledClassStatus.completed;
+    final isNoShow = sc.status == ScheduledClassStatus.noShow;
     final blockColor = isCancelled ? Colors.grey : color;
 
     return GestureDetector(
@@ -661,27 +663,31 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         opacity: isCancelled ? 0.5 : 1.0,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
           decoration: BoxDecoration(
-            color: blockColor.withOpacity(isCancelled ? 0.08 : 0.15),
+            color: blockColor.withOpacity(isCancelled ? 0.08 : 0.18),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: blockColor.withOpacity(isCancelled ? 0.2 : 0.4),
-              width: 1,
-            ),
           ),
-          child: Center(
-            child: Text(
-              _buildBlockLabel(sc),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: blockColor,
-                decoration: isCancelled ? TextDecoration.lineThrough : null,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _buildBlockLabel(sc),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: blockColor,
+                    decoration: isCancelled ? TextDecoration.lineThrough : null,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+              if (isCompleted)
+                Icon(Icons.check, size: 12, color: blockColor.withOpacity(0.7)),
+              if (isNoShow)
+                Icon(Icons.close, size: 12, color: blockColor.withOpacity(0.7)),
+            ],
           ),
         ),
       ),

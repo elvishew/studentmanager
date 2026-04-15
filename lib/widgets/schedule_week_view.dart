@@ -265,6 +265,8 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
   Widget _buildWeekClassTile(BuildContext context, ScheduledClass sc) {
     final color = _parseColor(sc.courseTypeColor) ?? Theme.of(context).colorScheme.primary;
     final isCancelled = sc.status == ScheduledClassStatus.cancelled;
+    final isCompleted = sc.status == ScheduledClassStatus.completed;
+    final isNoShow = sc.status == ScheduledClassStatus.noShow;
     final blockColor = isCancelled ? Colors.grey : color;
 
     return GestureDetector(
@@ -279,30 +281,39 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
         opacity: isCancelled ? 0.5 : 1.0,
         child: Container(
           margin: const EdgeInsets.only(bottom: 4),
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
           decoration: BoxDecoration(
-            color: blockColor.withOpacity(isCancelled ? 0.05 : 0.1),
+            color: blockColor.withOpacity(isCancelled ? 0.08 : 0.18),
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: blockColor.withOpacity(isCancelled ? 0.15 : 0.3)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                _buildBlockLabel(sc),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: blockColor,
-                  decoration: isCancelled ? TextDecoration.lineThrough : null,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _buildBlockLabel(sc),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: blockColor,
+                        decoration: isCancelled ? TextDecoration.lineThrough : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      _formatTime(sc.startTime),
+                      style: TextStyle(fontSize: 10, color: blockColor.withOpacity(0.7)),
+                    ),
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-              Text(
-                _formatTime(sc.startTime),
-                style: TextStyle(fontSize: 10, color: blockColor.withOpacity(0.7)),
-              ),
+              if (isCompleted)
+                Icon(Icons.check, size: 12, color: blockColor.withOpacity(0.7)),
+              if (isNoShow)
+                Icon(Icons.close, size: 12, color: blockColor.withOpacity(0.7)),
             ],
           ),
         ),
