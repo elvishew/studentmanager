@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'schedule_page.dart';
 import 'student_list_page.dart';
 import 'statistics_page.dart';
 import 'profile_page.dart';
 
 /// 底部导航 4 Tab 容器
-class MainShellPage extends StatefulWidget {
+class MainShellPage extends ConsumerStatefulWidget {
   const MainShellPage({super.key});
 
   @override
-  State<MainShellPage> createState() => _MainShellPageState();
+  ConsumerState<MainShellPage> createState() => _MainShellPageState();
 }
 
-class _MainShellPageState extends State<MainShellPage> {
+class _MainShellPageState extends ConsumerState<MainShellPage> {
   int _currentIndex = 0;
 
   static const List<Widget> _pages = [
@@ -35,6 +37,10 @@ class _MainShellPageState extends State<MainShellPage> {
           setState(() {
             _currentIndex = index;
           });
+          // 切到课表 tab 时通知刷新
+          if (index == 0) {
+            ref.read(scheduleTabResumeProvider.notifier).resume();
+          }
         },
         destinations: const [
           NavigationDestination(

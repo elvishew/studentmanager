@@ -30,7 +30,7 @@ final scheduledClassRepositoryProvider =
 // ignore: unused_element
 typedef ScheduledClassRepositoryRef = ProviderRef<ScheduledClassRepository>;
 String _$scheduledClassNotifierHash() =>
-    r'152a128b3fcb27dfb1a85e3ddaa84049664a4948';
+    r'9c8480c408ae51008bc6793a44566d1928a3c906';
 
 /// ============================================
 /// ScheduledClassNotifier
@@ -86,5 +86,23 @@ final scheduleViewProvider =
     );
 
 typedef _$ScheduleView = Notifier<ScheduleViewMode>;
+String _$scheduleTabResumeHash() => r'9d2148b9f9093b92cdd4fadb5a211ac696261e7b';
+
+/// 课表 Tab 恢复可见时的刷新信号（计数器，每次递增）
+///
+/// Copied from [ScheduleTabResume].
+@ProviderFor(ScheduleTabResume)
+final scheduleTabResumeProvider =
+    NotifierProvider<ScheduleTabResume, int>.internal(
+      ScheduleTabResume.new,
+      name: r'scheduleTabResumeProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$scheduleTabResumeHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$ScheduleTabResume = Notifier<int>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

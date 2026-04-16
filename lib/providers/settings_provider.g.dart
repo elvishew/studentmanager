@@ -29,7 +29,7 @@ final settingsRepositoryProvider = Provider<SettingsRepository>.internal(
 // ignore: unused_element
 typedef SettingsRepositoryRef = ProviderRef<SettingsRepository>;
 String _$workingHoursNotifierHash() =>
-    r'f75a481f2657ae259a5c06aea01abde2fe9ff442';
+    r'3dc8cf8926fb85d0ab4766aa63a870b4525de123';
 
 /// ============================================
 /// WorkingHours Notifier

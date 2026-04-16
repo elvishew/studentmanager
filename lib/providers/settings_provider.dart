@@ -87,13 +87,14 @@ class WorkingHoursNotifier extends _$WorkingHoursNotifier {
 
   Future<void> setWorkingHours(List<TimeSegment> segments) async {
     if (segments.isEmpty) {
-      await _repository.set(_keyWorkingHoursEnabled, 'false');
       state = [];
+      await _repository.set(_keyWorkingHoursEnabled, 'false');
     } else {
+      // 先更新 state，再持久化，避免并发 _save() 导致 UI 读到中间状态
+      state = segments;
       final jsonStr = jsonEncode(segments.map((s) => s.toJson()).toList());
       await _repository.set(_keyWorkingHours, jsonStr);
       await _repository.set(_keyWorkingHoursEnabled, 'true');
-      state = segments;
     }
   }
 

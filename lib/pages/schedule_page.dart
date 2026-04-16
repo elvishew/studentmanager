@@ -44,9 +44,33 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
     ref.read(courseTypeNotifierProvider.notifier).fetchAll();
   }
 
+  /// Tab 恢复时静默刷新（不触发 loading 状态，保留 ScrollView 实例）
+  void _silentRefresh() {
+    final selectedDate = ref.read(selectedDateProvider);
+    final viewMode = ref.read(scheduleViewProvider);
+    final notifier = ref.read(scheduledClassNotifierProvider.notifier);
+    if (viewMode == ScheduleViewMode.week) {
+      final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
+      notifier.fetchByWeek(weekStart, silent: true);
+    } else if (viewMode == ScheduleViewMode.month) {
+      final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+      final endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+      notifier.fetchByDateRange(startOfMonth, endOfMonth);
+    } else {
+      notifier.fetchByDate(selectedDate, silent: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewMode = ref.watch(scheduleViewProvider);
+
+    // 监听课表 tab 恢复可见信号，静默刷新数据（不触发 loading，避免 ScrollView 重建丢失滚动位置）
+    ref.listen(scheduleTabResumeProvider, (prev, next) {
+      if (prev != next) {
+        _silentRefresh();
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(

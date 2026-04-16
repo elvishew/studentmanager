@@ -372,3 +372,11 @@ class ScheduleView extends _$ScheduleView {
     state = mode;
   }
 }
+
+/// 课表 Tab 恢复可见时的刷新信号（计数器，每次递增）
+@Riverpod(keepAlive: true)
+class ScheduleTabResume extends _$ScheduleTabResume {
+  @override
+  int build() => 0;
+  void resume() => state++;
+}

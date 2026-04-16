@@ -192,6 +192,20 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       _scrollToInitialPosition(markScrolled: false);
     });
 
+    // 工作时间变化时重新定位
+    ref.listen(workingHoursNotifierProvider, (prev, next) {
+      if (prev != next) {
+        _hasScrolledOnMount = false;
+      }
+    });
+
+    // Tab 恢复可见时重新定位（配合 SchedulePage 的静默刷新）
+    ref.listen(scheduleTabResumeProvider, (prev, next) {
+      if (prev != next) {
+        _hasScrolledOnMount = false;
+      }
+    });
+
     final now = DateTime.now();
     final isToday = now.year == selectedDate.year &&
         now.month == selectedDate.month &&
