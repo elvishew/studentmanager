@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
@@ -64,6 +65,7 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
   @override
   Widget build(BuildContext context) {
     final viewMode = ref.watch(scheduleViewProvider);
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     // 监听课表 tab 恢复可见信号，静默刷新数据（不触发 loading，避免 ScrollView 重建丢失滚动位置）
     ref.listen(scheduleTabResumeProvider, (prev, next) {
@@ -74,21 +76,30 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('课表'),
-        centerTitle: false,
+        title: isIOS ? _buildCupertinoSegmentedControl(viewMode) : const Text('课表'),
+        centerTitle: true,
         actions: [
-          _buildViewModeToggle(viewMode),
+          if (!isIOS) _buildViewModeToggle(viewMode),
+          if (isIOS)
+            IconButton(
+              icon: const Icon(CupertinoIcons.add),
+              onPressed: () => _showCreateDialog(context),
+              tooltip: '新建排课',
+            ),
         ],
       ),
       body: _buildView(viewMode),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateDialog(context),
-        tooltip: '新建排课',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: isIOS
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _showCreateDialog(context),
+              tooltip: '新建排课',
+              child: const Icon(Icons.add),
+            ),
     );
   }
 
+  /// Android: 视图模式分段切换
   Widget _buildViewModeToggle(ScheduleViewMode currentMode) {
     return SegmentedButton<ScheduleViewMode>(
       segments: const [
@@ -97,24 +108,52 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
         ButtonSegment(value: ScheduleViewMode.month, label: Text('月')),
       ],
       selected: {currentMode},
-      onSelectionChanged: (modes) {
-        final mode = modes.first;
-        ref.read(scheduleViewProvider.notifier).setMode(mode);
-        // 切换视图时重新加载对应范围数据
-        final selectedDate = ref.read(selectedDateProvider);
-        final notifier = ref.read(scheduledClassNotifierProvider.notifier);
-        if (mode == ScheduleViewMode.week) {
-          final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
-          notifier.fetchByWeek(weekStart);
-        } else if (mode == ScheduleViewMode.month) {
-          final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
-          final endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
-          notifier.fetchByDateRange(startOfMonth, endOfMonth);
-        } else {
-          notifier.fetchByDate(selectedDate);
-        }
-      },
+      onSelectionChanged: (modes) => _switchViewMode(modes.first),
     );
+  }
+
+  /// iOS: 视图模式分段切换（Cupertino 原生风格）
+  Widget _buildCupertinoSegmentedControl(ScheduleViewMode currentMode) {
+    return SizedBox(
+      width: 180,
+      child: CupertinoSlidingSegmentedControl<ScheduleViewMode>(
+        groupValue: currentMode,
+        onValueChanged: (mode) {
+          if (mode != null) _switchViewMode(mode);
+        },
+        children: const {
+          ScheduleViewMode.day: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text('日'),
+          ),
+          ScheduleViewMode.week: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text('周'),
+          ),
+          ScheduleViewMode.month: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text('月'),
+          ),
+        },
+      ),
+    );
+  }
+
+  /// 切换视图模式并重新加载数据
+  void _switchViewMode(ScheduleViewMode mode) {
+    ref.read(scheduleViewProvider.notifier).setMode(mode);
+    final selectedDate = ref.read(selectedDateProvider);
+    final notifier = ref.read(scheduledClassNotifierProvider.notifier);
+    if (mode == ScheduleViewMode.week) {
+      final weekStart = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
+      notifier.fetchByWeek(weekStart);
+    } else if (mode == ScheduleViewMode.month) {
+      final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
+      final endOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+      notifier.fetchByDateRange(startOfMonth, endOfMonth);
+    } else {
+      notifier.fetchByDate(selectedDate);
+    }
   }
 
   Widget _buildView(ScheduleViewMode mode) {

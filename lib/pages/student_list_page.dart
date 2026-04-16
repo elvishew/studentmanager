@@ -91,6 +91,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
   @override
   Widget build(BuildContext context) {
     final studentState = ref.watch(studentNotifierProvider);
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return Scaffold(
       appBar: AppBar(
@@ -106,6 +107,12 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
               ),
             ),
           ),
+          if (isIOS)
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _navigateToCreate,
+              tooltip: '添加学员',
+            ),
         ],
       ),
       body: Column(
@@ -118,11 +125,13 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToCreate,
-        tooltip: '添加学员',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: isIOS
+          ? null
+          : FloatingActionButton(
+              onPressed: _navigateToCreate,
+              tooltip: '添加学员',
+              child: const Icon(Icons.add),
+            ),
     );
   }
 
@@ -203,7 +212,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '点击右下角 + 按钮添加学员',
+            '点击 + 按钮添加学员',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
