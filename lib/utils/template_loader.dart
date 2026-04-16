@@ -181,6 +181,13 @@ class TemplateLoader {
     return results.first['value'] as String?;
   }
 
+  /// 根据模板 ID 获取中文名称
+  static Future<String> getTemplateName(String id) async {
+    final templates = await getTemplates();
+    final match = templates.where((t) => t.id == id).firstOrNull;
+    return match?.name ?? id;
+  }
+
   /// 切换模板（清空旧数据并应用新模板）
   static Future<void> switchTemplate(Database db, String templateId) async {
     final now = DateTime.now().toIso8601String();

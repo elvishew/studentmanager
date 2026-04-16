@@ -57,12 +57,19 @@ class ProfilePage extends ConsumerWidget {
           FutureBuilder<String?>(
             future: TemplateLoader.getSelectedTemplate(ref.read(databaseProvider)),
             builder: (context, snapshot) {
-              final template = snapshot.data;
+              final templateId = snapshot.data;
               return ListTile(
                 leading: const Icon(Icons.description),
                 title: const Text('当前模板'),
-                subtitle: Text(template != null ? _getTemplateName(template) : '未选择'),
-                onTap: () => _showTemplateSwitch(context),
+                subtitle: FutureBuilder<String>(
+                  future: templateId != null
+                      ? TemplateLoader.getTemplateName(templateId)
+                      : Future.value('未选择'),
+                  builder: (context, nameSnapshot) =>
+                      Text(nameSnapshot.data ?? '未选择'),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showTemplateSwitch(context, templateId),
               );
             },
           ),
@@ -107,28 +114,13 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  String _getTemplateName(String id) {
-    const names = {
-      'fitness': '健身教练',
-      'vocal': '声乐老师',
-      'piano': '钢琴老师',
-      'yoga': '瑜伽教练',
-      'guitar': '吉他老师',
-      'swimming': '游泳教练',
-      'math': '数学老师',
-      'english': '英语老师',
-      'art': '美术老师',
-      'dance': '舞蹈老师',
-      'martial_arts': '武术教练',
-      'custom': '自定义',
-    };
-    return names[id] ?? id;
-  }
-
-  void _showTemplateSwitch(BuildContext context) {
+  void _showTemplateSwitch(BuildContext context, String? currentTemplateId) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const TemplateSelectionPage(isSwitching: true)),
+      MaterialPageRoute(builder: (_) => TemplateSelectionPage(
+        isSwitching: true,
+        currentTemplateId: currentTemplateId,
+      )),
     );
   }
 }
