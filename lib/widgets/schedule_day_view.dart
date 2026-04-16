@@ -29,7 +29,6 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     _scrollController = ScrollController(
       initialScrollOffset: _computeInitialOffset(),
     );
-    _hasScrolledOnMount = _scrollController.initialScrollOffset > 0;
   }
 
   /// 有效的时间段列表：空配置 → 全天 0-24
@@ -120,7 +119,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     return segments.last.end.toDouble();
   }
 
-  void _scrollToInitialPosition() {
+  void _scrollToInitialPosition({List<ScheduledClass>? dayClasses, bool markScrolled = true}) {
     final now = DateTime.now();
     final selectedDate = ref.read(selectedDateProvider);
     final isToday = now.year == selectedDate.year &&
@@ -139,14 +138,25 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         targetHour = nextSeg?.start.toDouble() ?? segments.first.start.toDouble();
       }
     } else {
-      targetHour = segments.first.start.toDouble();
+      // 非今日：定位到第一节课的开始时间，无课则回到段起始
+      if (dayClasses != null && dayClasses.isNotEmpty) {
+        final sorted = List<ScheduledClass>.from(dayClasses)
+          ..sort((a, b) => a.startTime.compareTo(b.startTime));
+        targetHour = sorted.first.startTime.hour + sorted.first.startTime.minute / 60;
+      } else {
+        targetHour = segments.first.start.toDouble();
+      }
     }
 
-    final targetOffset = (_hourToY(targetHour, segments) - 80).clamp(0.0, _totalHeight(segments));
+    final topPadding = isToday ? 80.0 : 20.0;
+    final targetOffset = (_hourToY(targetHour, segments) - topPadding).clamp(0.0, _totalHeight(segments));
 
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(targetOffset.toDouble());
-      _hasScrolledOnMount = true;
+      if (markScrolled && !_hasScrolledOnMount) {
+        _hasScrolledOnMount = true;
+        setState(() {});
+      }
     }
   }
 
@@ -174,8 +184,8 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     // 监听日期变化自动滚动
     ref.listen(selectedDateProvider, (_, __) {
       _hasScrolledOnMount = false;
-      // 控制器已有 clients 时立即滚动（左右滑切日期），否则等 data 加载后补滚
-      _scrollToInitialPosition();
+      // 粗定位（无 dayClasses），不标记完成，等 data 回调做精确定位
+      _scrollToInitialPosition(markScrolled: false);
     });
 
     final now = DateTime.now();
@@ -194,10 +204,6 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('加载失败: $e')),
             data: (classes, _) {
-              // 数据加载完成且尚未执行过初始滚动时，补一次滚动
-              if (!_hasScrolledOnMount) {
-                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToInitialPosition());
-              }
               // 筛选当天的课程
               final dayClasses = classes.where((sc) {
                 return sc.startTime.year == selectedDate.year &&
@@ -205,7 +211,14 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                     sc.startTime.day == selectedDate.day;
               }).toList();
 
-              return Column(
+              // 数据加载完成且尚未执行过初始滚动时，补一次滚动
+              if (!_hasScrolledOnMount) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollToInitialPosition(dayClasses: dayClasses);
+                });
+              }
+
+              final content = Column(
                 children: [
                   // 今日统计横幅
                   if (dayClasses.isNotEmpty) _buildDaySummary(dayClasses),
@@ -289,6 +302,11 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                   ),
                 ],
               );
+
+              // 非今日且滚动未完成时隐藏（避免从旧位置滑到新位置的动画）
+              // 今日始终可见，保持原有行为
+              if (isToday || _hasScrolledOnMount) return content;
+              return Opacity(opacity: 0.0, child: content);
             },
           ),
         ),
