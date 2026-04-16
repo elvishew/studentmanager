@@ -89,6 +89,10 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       y += (seg.end - seg.start) * _hourHeight;
       // 加上段间间隔（非最后一段）
       if (i < segments.length - 1) {
+        // 时间落在休息区：定位到休息区中间（与"休息"标签对齐）
+        if (hour > seg.end && hour < segments[i + 1].start) {
+          return y + _breakHeight / 2;
+        }
         y += _breakHeight;
       }
     }
@@ -266,7 +270,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                                           // 当前时间指示线
                                           if (isToday)
                                             Positioned(
-                                              top: _hourToY(now.hour + now.minute / 60, segments),
+                                              top: _hourToY(now.hour + now.minute / 60, segments) - 4,
                                               left: 0,
                                               right: 0,
                                               child: Row(
