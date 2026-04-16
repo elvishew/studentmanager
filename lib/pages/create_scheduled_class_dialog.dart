@@ -46,8 +46,22 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   final _notesController = TextEditingController();
   bool _isSubmitting = false;
   bool _initialized = false;
+  String? _validationError;
 
   bool get isEditing => widget.editingClassId != null;
+
+  /// 当前课程类型的参与人上限（null 表示不限制）
+  int? get _maxParticipants {
+    if (_selectedCourseType == null) return null;
+    if (_selectedCourseType!.isGroup) return _selectedCourseType!.maxStudents;
+    return 1; // 一对一
+  }
+
+  /// 是否还能添加参与人
+  bool get _canAddParticipant {
+    if (_maxParticipants == null) return true;
+    return _participants.length < _maxParticipants!;
+  }
 
   /// 已完成的排课：锁定课程类型、时间、参与人（仅允许编辑标题/地点/备注）
   bool get _isLocked => isEditing && widget.editingData?['status'] == 'completed';
@@ -200,14 +214,33 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     selectedColor: color.withOpacity(0.2),
                     side: BorderSide(color: isSelected ? color : Colors.grey),
                     onSelected: _isLocked ? null : (_) {
+                      // 切换类型时校验参与人数量
+                      int? newMax;
+                      if (ct.isGroup) {
+                        newMax = ct.maxStudents;
+                      } else {
+                        newMax = 1;
+                      }
+                      if (newMax != null && _participants.length > newMax) {
+                        setState(() => _validationError = '参与人已超过「${ct.name}」的上限（最多 $newMax 人），请先移除多余参与人');
+                        return;
+                      }
                       setState(() {
                         _selectedCourseType = ct;
                         _endTime = _startTime.add(Duration(minutes: ct.defaultDuration));
+                        _validationError = null;
                       });
                     },
                   );
                 }).toList(),
               ),
+              if (_validationError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(_validationError!, style: TextStyle(
+                    color: Theme.of(context).colorScheme.error, fontSize: 13,
+                  )),
+                ),
               const SizedBox(height: 16),
 
               // 时间选择
@@ -262,7 +295,10 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                 title: Text(p['student_id'] != null ? p['name'] ?? '' : p['guest_name'] ?? ''),
                 trailing: _isLocked ? null : IconButton(
                   icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => setState(() => _participants.remove(p)),
+                  onPressed: () => setState(() {
+                    _participants.remove(p);
+                    _validationError = null;
+                  }),
                 ),
               )),
               if (!_isLocked)
@@ -270,13 +306,13 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                   children: [
                     TextButton.icon(
                       icon: const Icon(Icons.search, size: 18),
-                      label: const Text('搜索学员'),
-                      onPressed: _showStudentSearch,
+                      label: Text(_canAddParticipant ? '搜索学员' : '人数已满'),
+                      onPressed: _canAddParticipant ? _showStudentSearch : null,
                     ),
                     TextButton.icon(
                       icon: const Icon(Icons.person_add, size: 18),
                       label: const Text('临时人员'),
-                      onPressed: _showAddGuest,
+                      onPressed: _canAddParticipant ? _showAddGuest : null,
                     ),
                   ],
                 ),
@@ -317,12 +353,28 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               const SizedBox(height: 24),
 
               // 提交按钮
-              FilledButton(
-                onPressed: _selectedCourseType == null || _isSubmitting ? null : _submit,
-                child: _isSubmitting
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(isEditing ? '保存' : '创建排课'),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _selectedCourseType == null || _participants.isEmpty || _isSubmitting ? null : _submit,
+                  child: _isSubmitting
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text(isEditing ? '保存' : '创建排课'),
+                ),
               ),
+              if (!_isSubmitting && (_selectedCourseType == null || _participants.isEmpty))
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Center(
+                    child: Text(
+                      '请先${[
+                        if (_selectedCourseType == null) '选择课程类型',
+                        if (_participants.isEmpty) '添加参与人',
+                      ].join('、')}',
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -357,9 +409,13 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   }
 
   void _showStudentSearch() async {
-    final student = await showSearch<Student>(
+    final existingIds = _participants
+        .where((p) => p['student_id'] != null)
+        .map((p) => p['student_id'] as int)
+        .toSet();
+    final student = await showSearch<Student?>(
       context: context,
-      delegate: _StudentSearchDelegate(ref),
+      delegate: _StudentSearchDelegate(ref, existingIds),
     );
     if (student != null) {
       setState(() {
@@ -368,6 +424,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
           'guest_name': null,
           'name': student.name,
         });
+        _validationError = null;
       });
     }
   }
@@ -395,6 +452,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     'guest_name': name,
                     'name': null,
                   });
+                  _validationError = null;
                 });
               }
               Navigator.pop(context);
@@ -408,6 +466,17 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
 
   Future<void> _submit() async {
     if (_isSubmitting) return;
+
+    // 校验参与人
+    if (_participants.isEmpty) {
+      setState(() => _validationError = '请至少添加一位参与人');
+      return;
+    }
+    if (_maxParticipants != null && _participants.length > _maxParticipants!) {
+      setState(() => _validationError = '参与人数量超过「${_selectedCourseType!.name}」的上限（最多 $_maxParticipants 人）');
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     try {
@@ -478,10 +547,11 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   }
 }
 
-class _StudentSearchDelegate extends SearchDelegate<Student> {
+class _StudentSearchDelegate extends SearchDelegate<Student?> {
   final WidgetRef ref;
+  final Set<int> existingStudentIds;
 
-  _StudentSearchDelegate(this.ref);
+  _StudentSearchDelegate(this.ref, this.existingStudentIds);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -490,9 +560,7 @@ class _StudentSearchDelegate extends SearchDelegate<Student> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    return IconButton(icon: const BackButtonIcon(), onPressed: () => close(context, Student(
-      id: -1, name: '', contact: '', createdAt: DateTime.now(), updatedAt: DateTime.now(),
-    )));
+    return IconButton(icon: const BackButtonIcon(), onPressed: () => close(context, null));
   }
 
   @override
@@ -503,9 +571,13 @@ class _StudentSearchDelegate extends SearchDelegate<Student> {
     final state = ref.watch(studentNotifierProvider);
     return state.maybeWhen(
       data: (students, _, __) {
-        final filtered = query.isEmpty
-            ? students
-            : students.where((s) => s.name.toLowerCase().contains(query.toLowerCase())).toList();
+        final filtered = students
+            .where((s) => !existingStudentIds.contains(s.id))
+            .where((s) => query.isEmpty || s.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        if (filtered.isEmpty) {
+          return const Center(child: Text('没有可添加的学员'));
+        }
         return ListView.builder(
           itemCount: filtered.length,
           itemBuilder: (context, index) {
