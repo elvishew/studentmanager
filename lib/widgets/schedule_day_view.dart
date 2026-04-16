@@ -53,7 +53,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     double targetHour = now.hour + now.minute / 60;
     if (!segments.any((s) => targetHour >= s.start && targetHour <= s.end)) {
       final nextSeg = segments.where((s) => s.start > targetHour).firstOrNull;
-      targetHour = nextSeg?.start.toDouble() ?? segments.first.start.toDouble();
+      targetHour = nextSeg?.start.toDouble() ?? segments.last.end.toDouble();
     }
     return (_hourToY(targetHour, segments) - 80).clamp(0.0, _totalHeight(segments));
   }
@@ -137,9 +137,9 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
       // 如果当前时间不在任何段内，定位到最近的段起始
       bool inAnySegment = segments.any((s) => targetHour >= s.start && targetHour <= s.end);
       if (!inAnySegment) {
-        // 找到当前时间之后的第一个段
+        // 找到当前时间之后的第一个段；若当前时间已过所有段，定位到最后一段末尾
         final nextSeg = segments.where((s) => s.start > targetHour).firstOrNull;
-        targetHour = nextSeg?.start.toDouble() ?? segments.first.start.toDouble();
+        targetHour = nextSeg?.start.toDouble() ?? segments.last.end.toDouble();
       }
     } else {
       // 非今日：定位到第一节课的开始时间，无课则回到段起始
