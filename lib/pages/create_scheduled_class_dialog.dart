@@ -4,6 +4,8 @@ import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
+import 'package:student_manager/providers/settings_provider.dart';
+import 'package:student_manager/utils/working_hours_utils.dart';
 
 /// 快速排课底部面板（新建/编辑共用）
 class CreateScheduledClassDialog extends ConsumerStatefulWidget {
@@ -33,6 +35,7 @@ class CreateScheduledClassDialog extends ConsumerStatefulWidget {
 
 class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClassDialog> {
   CourseType? _selectedCourseType;
+  late DateTime _selectedDate;
   late DateTime _startTime;
   late DateTime _endTime;
   final List<Map<String, dynamic>> _participants = [];
@@ -71,15 +74,13 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
     super.initState();
     final now = DateTime.now();
     final hour = widget.initialStartHour ?? now.hour + 1;
-    _startTime = DateTime(now.year, now.month, now.day, hour, 0);
-    _endTime = DateTime(now.year, now.month, now.day, hour + 1, 0);
-    _selectedSessionId = widget.preselectedSessionId;
 
-    // 编辑模式预填数据
     if (isEditing && widget.editingData != null) {
+      // 编辑模式：保留原始日期
       final data = widget.editingData!;
       _startTime = DateTime.parse(data['start_time'] as String);
       _endTime = DateTime.parse(data['end_time'] as String);
+      _selectedDate = DateTime(_startTime.year, _startTime.month, _startTime.day);
       _selectedSessionId = data['session_id'] as int?;
       _title = data['title'] as String?;
       _location = data['location'] as String?;
@@ -96,6 +97,12 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
           'name': p['student_name'] as String? ?? p['guest_name'] as String?,
         });
       }
+    } else {
+      // 新建模式：使用日历选中日期
+      _selectedDate = DateTime(now.year, now.month, now.day); // will be updated in didChangeDependencies
+      _startTime = DateTime(now.year, now.month, now.day, hour, 0);
+      _endTime = DateTime(now.year, now.month, now.day, hour + 1, 0);
+      _selectedSessionId = widget.preselectedSessionId;
     }
   }
 
@@ -108,6 +115,19 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
         if (!mounted) return;
         // 确保课程类型数据已加载
         await ref.read(courseTypeNotifierProvider.notifier).fetchAll();
+
+        // 新建模式：用 selectedDateProvider 的日期覆盖 _selectedDate
+        if (!isEditing) {
+          final selectedDate = ref.read(selectedDateProvider);
+          setState(() {
+            _selectedDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+            _startTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day,
+                _startTime.hour, _startTime.minute);
+            _endTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day,
+                _endTime.hour, _endTime.minute);
+          });
+        }
+
         // 编辑模式：匹配课程类型
         if (isEditing && widget.editingData != null) {
           final courseTypeId = widget.editingData!['course_type_id'] as int?;
@@ -153,15 +173,6 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   @override
   Widget build(BuildContext context) {
     final courseTypes = ref.watch(activeCourseTypesProvider);
-
-    // 新建模式：使用日历选中日期作为基础日期；编辑模式：保留原始日期
-    if (!isEditing) {
-      final selectedDate = ref.watch(selectedDateProvider);
-      _startTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-          _startTime.hour, _startTime.minute);
-      _endTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
-          _endTime.hour, _endTime.minute);
-    }
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -243,6 +254,51 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                 ),
               const SizedBox(height: 16),
 
+              // 日期选择
+              if (_isLocked) ...[
+                InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: '日期',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Text(_formatDate(_selectedDate)),
+                ),
+              ] else ...[
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDate = DateTime(picked.year, picked.month, picked.day);
+                        _startTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day,
+                            _startTime.hour, _startTime.minute);
+                        _endTime = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day,
+                            _endTime.hour, _endTime.minute);
+                      });
+                    }
+                  },
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: '日期',
+                      border: OutlineInputBorder(),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_formatDate(_selectedDate)),
+                        const Icon(Icons.calendar_today, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+
               // 时间选择
               if (_isLocked) ...[
                 Row(
@@ -283,6 +339,19 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     ),
                   ],
                 ),
+              ],
+              if (!_isLocked) ...[
+                Builder(builder: (context) {
+                  final warning = _workingHoursWarningText;
+                  if (warning == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      warning,
+                      style: TextStyle(fontSize: 12, color: Colors.amber[800]),
+                    ),
+                  );
+                }),
               ],
               const SizedBox(height: 16),
 
@@ -395,10 +464,8 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
             initialTime: TimeOfDay.fromDateTime(time),
           );
           if (picked != null) {
-            // 编辑模式用排课原始日期，新建模式用日历选中日期
-            final baseDate = isEditing ? _startTime : ref.read(selectedDateProvider);
             onChanged(DateTime(
-              baseDate.year, baseDate.month, baseDate.day,
+              _selectedDate.year, _selectedDate.month, _selectedDate.day,
               picked.hour, picked.minute,
             ));
           }
@@ -537,6 +604,17 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
       return;
     }
 
+    // 工作时间校验确认
+    final segments = ref.read(workingHoursNotifierProvider);
+    if (segments.isNotEmpty) {
+      final startH = _startTime.hour + _startTime.minute / 60;
+      final endH = _endTime.hour + _endTime.minute / 60;
+      if (!isClassInWorkingHours(startH, endH, segments)) {
+        final confirmed = await _showWorkingHoursConfirmDialog(segments);
+        if (!confirmed) return;
+      }
+    }
+
     setState(() => _isSubmitting = true);
 
     try {
@@ -583,7 +661,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
         if (mounted) {
           if (id != null) {
             Navigator.pop(context);
-            notifier.fetchByDate(ref.read(selectedDateProvider));
+            notifier.fetchByDate(_selectedDate);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('创建失败'), backgroundColor: Colors.red),
@@ -594,6 +672,49 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  String _fmtTime(DateTime time) =>
+      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+
+  String _formatDate(DateTime date) {
+    const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    return '${date.year}年${date.month}月${date.day}日 ${weekdays[date.weekday - 1]}';
+  }
+
+  String? get _workingHoursWarningText {
+    final segments = ref.read(workingHoursNotifierProvider);
+    if (segments.isEmpty) return null;
+    final startH = _startTime.hour + _startTime.minute / 60;
+    final endH = _endTime.hour + _endTime.minute / 60;
+    if (isClassInWorkingHours(startH, endH, segments)) return null;
+    return '\u26A0 ${_fmtTime(_startTime)}-${_fmtTime(_endTime)} '
+        '不在工作时间（${formatSegments(segments)}）范围内';
+  }
+
+  Future<bool> _showWorkingHoursConfirmDialog(List<TimeSegment> segments) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('提示'),
+        content: Text(
+          '「${_fmtTime(_startTime)}-${_fmtTime(_endTime)}」不在工作时间'
+          '（${formatSegments(segments)}）范围内。\n'
+          '超出部分在日视图中可能无法正常显示，可在周视图中查看。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('返回修改'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确认排课'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   Color? _parseColor(String? hexColor) {

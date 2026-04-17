@@ -6,6 +6,8 @@ import 'package:student_manager/providers/course_type_provider.dart';
 import 'package:student_manager/widgets/schedule_day_view.dart';
 import 'package:student_manager/widgets/schedule_week_view.dart';
 import 'package:student_manager/widgets/schedule_month_view.dart';
+import 'package:student_manager/providers/settings_provider.dart';
+import 'package:student_manager/utils/working_hours_utils.dart';
 import 'create_scheduled_class_dialog.dart';
 
 /// 课表 Tab
@@ -168,11 +170,23 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
   }
 
   void _showCreateDialog(BuildContext context) {
+    final segments = ref.read(workingHoursNotifierProvider);
+    final now = DateTime.now();
+    final (defaultHour, advanceDate) = computeDefaultStartHour(now, segments);
+
+    // 深夜自动跳到明天
+    if (advanceDate) {
+      final tomorrow = DateTime(now.year, now.month, now.day + 1);
+      ref.read(selectedDateProvider.notifier).setDate(tomorrow);
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => const CreateScheduledClassDialog(),
+      builder: (context) => CreateScheduledClassDialog(
+        initialStartHour: defaultHour,
+      ),
     );
   }
 

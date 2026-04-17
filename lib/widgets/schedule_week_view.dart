@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/providers/settings_provider.dart';
+import 'package:student_manager/utils/working_hours_utils.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
 
@@ -124,11 +126,25 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
 
   void _showCreateForDate(BuildContext context, DateTime date) {
     ref.read(selectedDateProvider.notifier).setDate(date);
+    final segments = ref.read(workingHoursNotifierProvider);
+    final now = DateTime.now();
+    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+
+    int defaultHour;
+    if (isToday) {
+      final (h, _) = computeDefaultStartHour(now, segments);
+      defaultHour = h;
+    } else {
+      defaultHour = segments.isNotEmpty ? segments.first.start : 9;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => CreateScheduledClassDialog(),
+      builder: (context) => CreateScheduledClassDialog(
+        initialStartHour: defaultHour,
+      ),
     );
   }
 
