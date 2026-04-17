@@ -431,33 +431,93 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
 
   void _showAddGuest() {
     _guestNameController.clear();
+    String? errorText;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('添加临时人员'),
+          content: TextField(
+            controller: _guestNameController,
+            decoration: InputDecoration(
+              labelText: '姓名',
+              errorText: errorText,
+            ),
+            autofocus: true,
+            onChanged: (_) {
+              // 输入变化时清除错误提示
+              if (errorText != null) {
+                setDialogState(() => errorText = null);
+              }
+            },
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
+            ListenableBuilder(
+              listenable: _guestNameController,
+              builder: (context, _) {
+                final name = _guestNameController.text.trim();
+                return TextButton(
+                  onPressed: name.isEmpty ? null : () {
+                    // 检查：同名临时人员已存在
+                    final hasDuplicateGuest = _participants.any(
+                      (p) => p['student_id'] == null && p['guest_name'] == name,
+                    );
+                    if (hasDuplicateGuest) {
+                      setDialogState(() => errorText = '该临时人员已添加');
+                      return;
+                    }
+                    // 检查：与已添加的正式学员同名
+                    final hasSameNameStudent = _participants.any(
+                      (p) => p['student_id'] != null && p['name'] == name,
+                    );
+                    if (hasSameNameStudent) {
+                      Navigator.pop(dialogContext);
+                      _confirmAddDuplicateNameGuest(name);
+                      return;
+                    }
+                    setState(() {
+                      _participants.add({
+                        'student_id': null,
+                        'guest_name': name,
+                        'name': null,
+                      });
+                      _validationError = null;
+                    });
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('添加'),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 确认添加与正式学员同名的临时人员
+  void _confirmAddDuplicateNameGuest(String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('添加临时人员'),
-        content: TextField(
-          controller: _guestNameController,
-          decoration: const InputDecoration(labelText: '姓名'),
-          autofocus: true,
-        ),
+        title: const Text('姓名重复'),
+        content: Text('「$name」已在参与人列表中作为正式学员，确定再添加为临时人员吗？'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
           TextButton(
             onPressed: () {
-              final name = _guestNameController.text.trim();
-              if (name.isNotEmpty) {
-                setState(() {
-                  _participants.add({
-                    'student_id': null,
-                    'guest_name': name,
-                    'name': null,
-                  });
-                  _validationError = null;
+              setState(() {
+                _participants.add({
+                  'student_id': null,
+                  'guest_name': name,
+                  'name': null,
                 });
-              }
+                _validationError = null;
+              });
               Navigator.pop(context);
             },
-            child: const Text('添加'),
+            child: const Text('确定添加'),
           ),
         ],
       ),
