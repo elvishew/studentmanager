@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 
 /// 课程类型编辑表单
 class CourseTypeFormPage extends ConsumerStatefulWidget {
@@ -75,13 +77,14 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? '编辑课程类型' : '新增课程类型'),
+        title: Text(_isEditing ? s.editCourseTypeTitle : s.newCourseTypeTitle),
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('保存'),
+            child: Text(s.btnSave),
           ),
         ],
       ),
@@ -93,13 +96,13 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
             // 名称
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: '名称 *'),
-              validator: (v) => v?.trim().isEmpty == true ? '请输入名称' : null,
+              decoration: InputDecoration(labelText: s.courseTypeNameLabel),
+              validator: (v) => v?.trim().isEmpty == true ? s.courseTypeNameValidation : null,
             ),
             const SizedBox(height: 16),
 
             // 图标选择
-            Text('图标', style: Theme.of(context).textTheme.titleSmall),
+            Text(s.iconLabel, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -117,7 +120,7 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
             const SizedBox(height: 16),
 
             // 颜色选择
-            Text('颜色', style: Theme.of(context).textTheme.titleSmall),
+            Text(s.colorLabel, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -143,22 +146,22 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
             // 默认时长
             TextFormField(
               controller: _durationController,
-              decoration: const InputDecoration(labelText: '默认时长（分钟）'),
+              decoration: InputDecoration(labelText: s.defaultDurationLabel),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
 
             // 是否团课
             SwitchListTile(
-              title: const Text('团课'),
-              subtitle: const Text('允许多人同时参加'),
+              title: Text(s.groupClassLabel),
+              subtitle: Text(s.groupClassDescription),
               value: _isGroup,
               onChanged: (v) => setState(() => _isGroup = v),
             ),
             if (_isGroup) ...[
               TextFormField(
                 controller: _maxStudentsController,
-                decoration: const InputDecoration(labelText: '最大人数'),
+                decoration: InputDecoration(labelText: s.maxStudentsLabel),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
@@ -167,7 +170,7 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
             // 学员默认价格
             TextFormField(
               controller: _studentPriceController,
-              decoration: const InputDecoration(labelText: '学员默认价格'),
+              decoration: InputDecoration(labelText: s.defaultStudentPriceLabel),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
@@ -175,18 +178,18 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
             // 教师课时费
             TextFormField(
               controller: _sessionFeeController,
-              decoration: const InputDecoration(labelText: '教师课时费'),
+              decoration: InputDecoration(labelText: s.defaultSessionFeeLabel),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
 
             // 提成类型
-            Text('销售提成', style: Theme.of(context).textTheme.titleSmall),
+            Text(s.salesCommissionLabel, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             SegmentedButton<CommissionType>(
               segments: CommissionType.values.map((t) => ButtonSegment(
                 value: t,
-                label: Text(t.label),
+                label: Text(t.loc(context)),
               )).toList(),
               selected: {_commissionType},
               onSelectionChanged: (types) => setState(() => _commissionType = types.first),
@@ -196,7 +199,7 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
               TextFormField(
                 controller: _commissionValueController,
                 decoration: InputDecoration(
-                  labelText: _commissionType == CommissionType.fixed ? '固定金额' : '百分比 (%)',
+                  labelText: _commissionType == CommissionType.fixed ? s.commissionFixed : s.percentageLabel,
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -254,7 +257,7 @@ class _CourseTypeFormPageState extends ConsumerState<CourseTypeFormPage> {
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('名称已存在或保存失败'), backgroundColor: Colors.red),
+          SnackBar(content: Text(S.of(context)!.courseTypeNameExistsMessage), backgroundColor: Colors.red),
         );
       }
     }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/payment_provider.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 
 /// 学员付费记录页面
 class StudentPaymentPage extends ConsumerStatefulWidget {
@@ -34,15 +36,16 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final courseTypes = ref.watch(activeCourseTypesProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('新增付费记录'),
+        title: Text(s.newPaymentRecordTitle),
         actions: [
           TextButton(
             onPressed: _isSubmitting ? null : _submit,
-            child: const Text('保存'),
+            child: Text(s.btnSave),
           ),
         ],
       ),
@@ -50,7 +53,7 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
         padding: const EdgeInsets.all(16),
         children: [
           // 课程类型选择
-          Text('课程类型（可选）', style: Theme.of(context).textTheme.titleSmall),
+          Text(s.courseTypeOptionalLabel, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -76,32 +79,32 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
           // 金额
           TextFormField(
             controller: _amountController,
-            decoration: const InputDecoration(
-              labelText: '金额 *',
+            decoration: InputDecoration(
+              labelText: s.amountRequiredLabel,
               prefixText: '¥ ',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
-            validator: (v) => v == null || double.tryParse(v) == null ? '请输入有效金额' : null,
+            validator: (v) => v == null || double.tryParse(v) == null ? s.invalidAmountMessage : null,
           ),
           const SizedBox(height: 16),
 
           // 描述
           TextFormField(
             controller: _descController,
-            decoration: const InputDecoration(
-              labelText: '描述',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: s.paymentDescriptionLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
 
           // 提成设置
-          Text('销售提成', style: Theme.of(context).textTheme.titleSmall),
+          Text(s.salesCommissionLabel, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           SegmentedButton<CommissionType>(
             segments: CommissionType.values.map((t) => ButtonSegment(
-              value: t, label: Text(t.label),
+              value: t, label: Text(t.loc(context)),
             )).toList(),
             selected: {_commissionType},
             onSelectionChanged: (types) => setState(() => _commissionType = types.first),
@@ -111,7 +114,7 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
             TextFormField(
               initialValue: _commissionValue.toString(),
               decoration: InputDecoration(
-                labelText: _commissionType == CommissionType.fixed ? '固定金额' : '百分比 (%)',
+                labelText: _commissionType == CommissionType.fixed ? s.commissionFixed : s.percentageLabel,
               ),
               keyboardType: TextInputType.number,
               onChanged: (v) => _commissionValue = double.tryParse(v) ?? 0,
@@ -121,7 +124,7 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
 
           // 付款日期
           InputDecorator(
-            decoration: const InputDecoration(labelText: '付款日期', border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: s.paymentDateLabel, border: const OutlineInputBorder()),
             child: InkWell(
               onTap: () async {
                 final picked = await showDatePicker(
@@ -140,9 +143,9 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
           // 备注
           TextFormField(
             controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: '备注',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: s.paymentNotesLabel,
+              border: const OutlineInputBorder(),
             ),
             maxLines: 2,
           ),
@@ -155,7 +158,7 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
     final amount = double.tryParse(_amountController.text) ?? 0;
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入有效金额'), backgroundColor: Colors.red),
+        SnackBar(content: Text(S.of(context)!.invalidAmountMessage), backgroundColor: Colors.red),
       );
       return;
     }
@@ -177,10 +180,10 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
       if (mounted) {
         if (id != null) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('付费记录已保存')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context)!.paymentSaved)));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('保存失败'), backgroundColor: Colors.red),
+            SnackBar(content: Text(S.of(context)!.saveFailed), backgroundColor: Colors.red),
           );
         }
       }

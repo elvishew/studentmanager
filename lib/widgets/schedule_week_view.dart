@@ -6,6 +6,7 @@ import 'package:student_manager/providers/settings_provider.dart';
 import 'package:student_manager/utils/working_hours_utils.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 周视图：7 列网格，支持左右滑动切换周
 class ScheduleWeekView extends ConsumerStatefulWidget {
@@ -56,10 +57,11 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
     final state = ref.watch(scheduledClassNotifierProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
+    final s = S.of(context)!;
     return state.when(
-      initial: () => const Center(child: Text('加载中...')),
+      initial: () => Center(child: Text(s.loading)),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('加载失败: $e')),
+      error: (e, _) => Center(child: Text(s.statisticsLoadingFailed(e.toString()))),
       data: (classes, _) {
         final startOfWeek = _weekStart(selectedDate);
 
@@ -221,7 +223,8 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
   }
 
   Widget _buildWeekHeader(BuildContext context, DateTime startOfWeek, DateTime selectedDate) {
-    const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    final s = S.of(context)!;
+    final dayNames = [s.weekdayFullSun, s.weekdayFullMon, s.weekdayFullTue, s.weekdayFullWed, s.weekdayFullThu, s.weekdayFullFri, s.weekdayFullSat];
     final today = DateTime.now();
 
     return Row(
@@ -354,9 +357,10 @@ class _ScheduleWeekViewState extends ConsumerState<ScheduleWeekView> {
     final participants = sc.participants;
     if (participants != null && participants.isNotEmpty) {
       if (participants.length == 1) return participants.first.displayName;
-      return '${participants.first.displayName}等${participants.length}人';
+      final s = S.of(context)!;
+      return '${participants.first.displayName}${s.participantsCountShort(participants.length)}';
     }
-    return sc.courseTypeName ?? '未命名';
+    return sc.courseTypeName ?? S.of(context)!.unnamedBlock;
   }
 
   Color? _parseColor(String? hexColor) {

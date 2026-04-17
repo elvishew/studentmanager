@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/widgets/content_block_editor.dart';
 import 'package:student_manager/widgets/content_block_tile.dart';
 
@@ -90,31 +91,35 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
   Future<void> _deleteContentBlock(GoalConfigContentBlock block) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除内容块 ${block.sortOrder + 1} 吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.btnConfirmDelete),
+          content: Text(s.confirmDeleteContentBlockMessage(block.sortOrder + 1)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(s.btnDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true) {
       await ref.read(goalConfigNotifierProvider.notifier).deleteBlock(block.id);
       if (mounted) {
         await _loadDetail();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('内容块已删除')),
+        final s = S.of(this.context)!;
+        ScaffoldMessenger.of(this.context).showSnackBar(
+          SnackBar(content: Text(s.contentBlockDeleted)),
         );
       }
     }
@@ -142,9 +147,11 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+
     if (_session == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('课时模板详情')),
+        appBar: AppBar(title: Text(s.sessionTemplateDetailTitle)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -154,7 +161,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('第 ${_session!.sessionNumber} 节课模板'),
+        title: Text(s.sessionTemplateNumber(_session!.sessionNumber)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -164,6 +171,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
   }
 
   Widget _buildContentBlocksSection(List<GoalConfigContentBlock> blocks, int maxOrder) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -171,7 +179,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '教学内容',
+              s.teachingContentSection,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -179,7 +187,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
             ElevatedButton.icon(
               onPressed: _addContentBlock,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('添加'),
+              label: Text(s.addContentButton),
             ),
           ],
         ),
@@ -191,7 +199,7 @@ class _GoalConfigSessionDetailPageState extends ConsumerState<GoalConfigSessionD
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: const Center(child: Text('暂无教学内容')),
+            child: Center(child: Text(s.noTeachingContentMessage)),
           )
         else
           Column(

@@ -13,14 +13,13 @@ enum FieldType { select, number, text, multiline }
 /// ============================================
 
 enum SessionStatus {
-  pending('未开始', 'pending'),
-  completed('已完成', 'completed'),
-  skipped('已跳过', 'skipped');
+  pending('pending'),
+  completed('completed'),
+  skipped('skipped');
 
-  final String label;
   final String value;
 
-  const SessionStatus(this.label, this.value);
+  const SessionStatus(this.value);
 }
 
 /// ============================================
@@ -28,15 +27,14 @@ enum SessionStatus {
 /// ============================================
 
 enum ScheduledClassStatus {
-  scheduled('待上课', 'scheduled'),
-  completed('已完成', 'completed'),
-  cancelled('已取消', 'cancelled'),
-  noShow('未到', 'no_show');
+  scheduled('scheduled'),
+  completed('completed'),
+  cancelled('cancelled'),
+  noShow('no_show');
 
-  final String label;
   final String value;
 
-  const ScheduledClassStatus(this.label, this.value);
+  const ScheduledClassStatus(this.value);
 }
 
 /// ============================================
@@ -44,15 +42,14 @@ enum ScheduledClassStatus {
 /// ============================================
 
 enum AttendanceStatus {
-  pending('待记录', 'pending'),
-  present('出勤', 'present'),
-  absent('缺勤', 'absent'),
-  late('迟到', 'late');
+  pending('pending'),
+  present('present'),
+  absent('absent'),
+  late('late');
 
-  final String label;
   final String value;
 
-  const AttendanceStatus(this.label, this.value);
+  const AttendanceStatus(this.value);
 }
 
 /// ============================================
@@ -60,14 +57,13 @@ enum AttendanceStatus {
 /// ============================================
 
 enum CommissionType {
-  none('无', 'none'),
-  fixed('固定金额', 'fixed'),
-  percent('百分比', 'percent');
+  none('none'),
+  fixed('fixed'),
+  percent('percent');
 
-  final String label;
   final String value;
 
-  const CommissionType(this.label, this.value);
+  const CommissionType(this.value);
 }
 
 /// ============================================
@@ -491,7 +487,7 @@ class ClassParticipant with _$ClassParticipant {
   String get displayName {
     if (studentName != null) return studentName!;
     if (guestName != null) return guestName!;
-    return '未知';
+    return ''; // will be replaced with localized string at UI layer
   }
 
   /// 是否是临时人员

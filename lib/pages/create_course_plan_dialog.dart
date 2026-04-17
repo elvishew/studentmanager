@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import '../database/course_plan_repository.dart';
@@ -105,15 +106,16 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     try {
       final repository = ref.read(coursePlanRepositoryProvider);
       final templateInfo = await repository.checkGoalTemplate(_selectedGoalId!);
+      final s = S.of(context)!;
 
       setState(() {
         _templateInfo = templateInfo;
 
         if (templateInfo == null) {
           _useTemplate = false;
-          _templateError = '未找到模板数据，将手动创建';
+          _templateError = s.templateNotFoundWarning;
         } else if (_actualSessionCount != null && _actualSessionCount! > templateInfo.availableSessionCount) {
-          _templateError = '模板仅有 ${templateInfo.availableSessionCount} 节课，超出部分为空课时';
+          _templateError = s.templateLimitedSessions(templateInfo.availableSessionCount);
         }
 
         _currentStep = 2;
@@ -123,8 +125,9 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
         }
       });
     } catch (e) {
+      final s = S.of(context)!;
       setState(() {
-        _templateError = '检测模板失败: $e';
+        _templateError = s.templateDetectFailed(e.toString());
         _useTemplate = false;
         _currentStep = 2;
       });
@@ -154,9 +157,10 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
       });
 
       if (coursePlanId != null) {
+        final s = S.of(context)!;
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('课程规划已创建 ($sessionCount节课)')),
+          SnackBar(content: Text(s.coursePlanCreatedWithCount(sessionCount))),
         );
       }
     }
@@ -164,26 +168,27 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return AlertDialog(
-      title: Text(_getTitle()),
+      title: Text(_getTitle(s)),
       content: SizedBox(
         width: 400,
         child: _buildContent(),
       ),
-      actions: _buildActions(),
+      actions: _buildActions(s),
     );
   }
 
-  String _getTitle() {
+  String _getTitle(S s) {
     switch (_currentStep) {
       case 0:
-        return '创建课程规划 (1/3)';
+        return s.stepCreateCoursePlan;
       case 1:
-        return '检测模板数据 (2/3)';
+        return s.stepDetectTemplate;
       case 2:
-        return '编辑蓝图 (3/3)';
+        return s.stepEditBlueprint;
       default:
-        return '创建课程规划';
+        return s.createCoursePlanTitle;
     }
   }
 
@@ -224,22 +229,23 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   }
 
   Widget _buildGoalDropdown() {
+    final s = S.of(context)!;
     final goalsAsync = ref.watch(activeGoalsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('课程目标', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(s.courseGoalFieldLabel, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         goalsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('加载目标失败: $e'),
+          error: (e, _) => Text(s.loadGoalsFailed(e.toString())),
           data: (goals) {
             return DropdownButtonFormField<int>(
               value: _selectedGoalId,
-              decoration: const InputDecoration(
-                hintText: '请选择课程目标',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: s.selectGoalHint,
+                border: const OutlineInputBorder(),
               ),
               items: goals.map((g) => DropdownMenuItem<int>(
                 value: g.id,
@@ -262,20 +268,21 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   }
 
   Widget _buildSessionCountField() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('课时数量', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(s.sessionCountLabel, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         DropdownButtonFormField<int>(
           value: _selectedSessionCount,
-          decoration: const InputDecoration(
-            hintText: '选择课时数量',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: s.selectSessionCount,
+            border: const OutlineInputBorder(),
           ),
           items: presetSessionCounts.map((count) => DropdownMenuItem<int>(
             value: count,
-            child: Text('$count 节'),
+            child: Text('$count'),
           )).toList(),
           onChanged: (value) {
             setState(() {
@@ -287,8 +294,8 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
         const SizedBox(height: 8),
         _buildCustomInputRow(
           controller: _customSessionCountController,
-          hintText: '课时数',
-          suffix: '节 (1-60)',
+          hintText: s.sessionCountLabel,
+          suffix: s.sessionCountUnit,
           onChanged: () {
             setState(() {
               _selectedSessionCount = null;
@@ -300,20 +307,21 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   }
 
   Widget _buildDurationField() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('默认课时时长', style: TextStyle(fontWeight: FontWeight.w500)),
+        Text(s.defaultDurationTitle, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         DropdownButtonFormField<int>(
           value: _selectedDuration,
-          decoration: const InputDecoration(
-            hintText: '选择课时时长',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: s.selectDuration,
+            border: const OutlineInputBorder(),
           ),
           items: presetDurations.map((minutes) => DropdownMenuItem<int>(
             value: minutes,
-            child: Text('$minutes 分钟'),
+            child: Text('$minutes'),
           )).toList(),
           onChanged: (value) {
             setState(() {
@@ -325,8 +333,8 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
         const SizedBox(height: 8),
         _buildCustomInputRow(
           controller: _customDurationController,
-          hintText: '时长',
-          suffix: '分钟 (1-180)',
+          hintText: s.defaultDurationTitle,
+          suffix: s.durationUnit,
           onChanged: () {
             setState(() {
               _selectedDuration = null;
@@ -344,9 +352,10 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
     required String suffix,
     required VoidCallback onChanged,
   }) {
+    final s = S.of(context)!;
     return Row(
       children: [
-        const Text('或自定义：', style: TextStyle(fontSize: 13)),
+        Text(s.orCustomLabel, style: const TextStyle(fontSize: 13)),
         const SizedBox(width: 8),
         SizedBox(
           width: 80,
@@ -374,15 +383,16 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   // ============================================
 
   Widget _buildTemplateChecking() {
-    return const Center(
+    final s = S.of(context)!;
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('正在检测模板数据...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(s.detectingTemplate),
           ],
         ),
       ),
@@ -394,6 +404,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   // ============================================
 
   Widget _buildBlueprintEditing() {
+    final s = S.of(context)!;
     final sessionCount = _actualSessionCount ?? 12;
     final duration = _actualDuration;
 
@@ -413,14 +424,14 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('课程目标: ${_selectedGoalName ?? "未选择"}'),
+                Text(s.summaryGoal(_selectedGoalName ?? s.noTemplateSelected)),
                 const SizedBox(height: 4),
-                Text('课时数量: $sessionCount 节'),
+                Text(s.summarySessions(sessionCount)),
                 const SizedBox(height: 4),
-                Text('默认时长: $duration 分钟'),
+                Text(s.summaryDuration(duration)),
                 if (_templateInfo != null) ...[
                   const SizedBox(height: 4),
-                  Text('模板课时: ${_templateInfo!.availableSessionCount} 节'),
+                  Text(s.summaryTemplateSessions(_templateInfo!.availableSessionCount)),
                 ],
               ],
             ),
@@ -455,8 +466,8 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
           // 模板开关（如果有模板）
           if (_templateInfo != null)
             SwitchListTile(
-              title: const Text('使用模板数据'),
-              subtitle: Text(_useTemplate ? '将复制模板课时内容' : '将创建空白课时'),
+              title: Text(s.useTemplateData),
+              subtitle: Text(_useTemplate ? s.useTemplateOn : s.useTemplateOff),
               value: _useTemplate,
               onChanged: (value) {
                 setState(() {
@@ -468,14 +479,14 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
           const SizedBox(height: 8),
 
           // 蓝图编辑
-          const Text('蓝图描述（可选）'),
+          Text(s.blueprintLabel),
           const SizedBox(height: 8),
           TextField(
             controller: _blueprintController,
             maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: '输入课程规划的整体描述...',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: s.blueprintHint,
+              border: const OutlineInputBorder(),
             ),
           ),
         ],
@@ -487,17 +498,17 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
   // 按钮
   // ============================================
 
-  List<Widget> _buildActions() {
+  List<Widget> _buildActions(S s) {
     switch (_currentStep) {
       case 0: // 选择参数
         return [
           TextButton(
             onPressed: _isCreating ? null : () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
+            child: Text(s.btnCancel),
           ),
           ElevatedButton(
             onPressed: _isCreating || !_canProceedFromStep0 ? null : _handleNext,
-            child: const Text('下一步'),
+            child: Text(s.nextStep),
           ),
         ];
 
@@ -508,11 +519,11 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
         return [
           TextButton(
             onPressed: _isCreating ? null : _handleBack,
-            child: const Text('上一步'),
+            child: Text(s.prevStep),
           ),
           TextButton(
             onPressed: _isCreating ? null : () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
+            child: Text(s.btnCancel),
           ),
           ElevatedButton(
             onPressed: _isCreating ? null : _createCoursePlan,
@@ -522,7 +533,7 @@ class _CreateCoursePlanDialogState extends ConsumerState<CreateCoursePlanDialog>
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('创建'),
+                : Text(s.createButton),
           ),
         ];
 

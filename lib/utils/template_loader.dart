@@ -6,12 +6,14 @@ import 'package:sqflite/sqflite.dart';
 class TemplateInfo {
   final String id;
   final String name;
+  final String? nameEn;
   final String icon;
   final String file;
 
   const TemplateInfo({
     required this.id,
     required this.name,
+    this.nameEn,
     required this.icon,
     required this.file,
   });
@@ -20,6 +22,7 @@ class TemplateInfo {
     return TemplateInfo(
       id: json['id'] as String,
       name: json['name'] as String,
+      nameEn: json['name_en'] as String?,
       icon: json['icon'] as String,
       file: json['file'] as String,
     );
@@ -29,26 +32,32 @@ class TemplateInfo {
 /// 内容字段定义（来自模板 JSON）
 class ContentFieldDef {
   final String name;
+  final String? nameEn;
   final String type; // 'select', 'number', 'text', 'multiline'
   final bool required;
   final int sortOrder;
   final List<String>? options;
+  final List<String>? optionsEn;
 
   const ContentFieldDef({
     required this.name,
+    this.nameEn,
     required this.type,
     required this.required,
     required this.sortOrder,
     this.options,
+    this.optionsEn,
   });
 
   factory ContentFieldDef.fromJson(Map<String, dynamic> json) {
     return ContentFieldDef(
       name: json['name'] as String,
+      nameEn: json['name_en'] as String?,
       type: json['type'] as String,
       required: json['required'] as bool? ?? false,
       sortOrder: json['sortOrder'] as int? ?? 0,
       options: (json['options'] as List<dynamic>?)?.cast<String>(),
+      optionsEn: (json['options_en'] as List<dynamic>?)?.cast<String>(),
     );
   }
 }
@@ -72,8 +81,10 @@ class TemplateData {
 class TemplateLoader {
   static List<TemplateInfo>? _cachedTemplates;
 
+  static bool _isEnglish(String? languageCode) => languageCode == 'en';
+
   /// 获取所有可用模板列表
-  static Future<List<TemplateInfo>> getTemplates() async {
+  static Future<List<TemplateInfo>> getTemplates({String? locale}) async {
     if (_cachedTemplates != null) return _cachedTemplates!;
 
     final jsonString = await rootBundle.loadString('assets/templates/templates.json');
@@ -87,7 +98,7 @@ class TemplateLoader {
   }
 
   /// 根据模板 id 加载完整模板数据
-  static Future<TemplateData> loadTemplate(String templateId) async {
+  static Future<TemplateData> loadTemplate(String templateId, {String? locale}) async {
     final templates = await getTemplates();
     final info = templates.firstWhere(
       (t) => t.id == templateId,
@@ -97,18 +108,21 @@ class TemplateLoader {
     final jsonString = await rootBundle.loadString('assets/templates/${info.file}');
     final json = jsonDecode(jsonString) as Map<String, dynamic>;
 
+    final useEn = _isEnglish(locale);
+
     final contentFields = (json['contentFields'] as List<dynamic>)
         .map((f) => ContentFieldDef.fromJson(f as Map<String, dynamic>))
         .toList();
 
-    final courseGoals = (json['courseGoals'] as List<dynamic>?)
+    final courseGoals = ((useEn ? (json['courseGoals_en'] as List<dynamic>?) : null) ??
+            (json['courseGoals'] as List<dynamic>?))
             ?.map((g) => g as String)
             .toList() ??
         [];
 
     return TemplateData(
       id: json['id'] as String,
-      name: json['name'] as String,
+      name: (useEn && json['name_en'] != null) ? json['name_en'] as String : json['name'] as String,
       contentFields: contentFields,
       courseGoals: courseGoals,
     );
@@ -181,11 +195,13 @@ class TemplateLoader {
     return results.first['value'] as String?;
   }
 
-  /// 根据模板 ID 获取中文名称
-  static Future<String> getTemplateName(String id) async {
+  /// 根据模板 ID 获取名称
+  static Future<String> getTemplateName(String id, {String? locale}) async {
     final templates = await getTemplates();
     final match = templates.where((t) => t.id == id).firstOrNull;
-    return match?.name ?? id;
+    if (match == null) return id;
+    if (_isEnglish(locale) && match.nameEn != null) return match.nameEn!;
+    return match.name;
   }
 
   /// 切换模板（清空旧数据并应用新模板）

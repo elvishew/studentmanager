@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 
 /// 参与人列表组件（正式学员 + 临时人员混排）
 class ClassParticipantList extends ConsumerWidget {
@@ -16,12 +18,13 @@ class ClassParticipantList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = S.of(context)!;
     if (participants.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
-            '暂无参与人',
+            s.noParticipants,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -35,7 +38,7 @@ class ClassParticipantList extends ConsumerWidget {
         final studentName = p['student_name'] as String?;
         final guestName = p['guest_name'] as String?;
         final attendance = p['attendance'] as String? ?? 'pending';
-        final displayName = studentName ?? guestName ?? '未知';
+        final displayName = studentName ?? guestName ?? s.unknown;
         final isGuest = studentName == null && guestName != null;
 
         return Card(
@@ -65,9 +68,9 @@ class ClassParticipantList extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: Colors.orange.withOpacity(0.3)),
                     ),
-                    child: const Text(
-                      '客',
-                      style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.w600),
+                    child: Text(
+                      s.guestBadge,
+                      style: const TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -96,7 +99,7 @@ class ClassParticipantList extends ConsumerWidget {
   }
 
   Widget _buildStaticAttendanceLabel(BuildContext context, String attendance) {
-    final (label, color) = _getAttendanceInfo(attendance);
+    final (label, color) = _getAttendanceInfo(context, attendance);
     return Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500));
   }
 
@@ -114,12 +117,12 @@ class ClassParticipantList extends ConsumerWidget {
         .updateParticipantAttendance(participantId: participantId, attendance: next);
   }
 
-  static (String, Color) _getAttendanceInfo(String attendance) {
+  static (String, Color) _getAttendanceInfo(BuildContext context, String attendance) {
     return switch (attendance) {
-      'present' => ('出勤', Colors.green),
-      'absent' => ('缺勤', Colors.red),
-      'late' => ('迟到', Colors.orange),
-      _ => ('待记录', Colors.grey),
+      'present' => (AttendanceStatus.present.loc(context), Colors.green),
+      'absent' => (AttendanceStatus.absent.loc(context), Colors.red),
+      'late' => (AttendanceStatus.late.loc(context), Colors.orange),
+      _ => (AttendanceStatus.pending.loc(context), Colors.grey),
     };
   }
 }
@@ -133,7 +136,7 @@ class _AttendanceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = ClassParticipantList._getAttendanceInfo(attendance);
+    final (label, color) = ClassParticipantList._getAttendanceInfo(context, attendance);
 
     return GestureDetector(
       onTap: onTap,

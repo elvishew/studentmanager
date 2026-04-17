@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'goal_config_detail_page.dart';
 
 /// 课程目标默认配置列表页
@@ -27,10 +28,11 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
     final state = ref.watch(goalConfigNotifierProvider);
     final goalsAsync = ref.watch(activeGoalsProvider);
     final theme = Theme.of(context);
+    final s = S.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('课程目标配置'),
+        title: Text(s.goalConfigPageTitle),
       ),
       body: state.when(
         initial: () => const Center(child: CircularProgressIndicator()),
@@ -67,6 +69,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
     final hasConfig = config != null;
     final blueprint = config?.blueprint;
     final sessionCount = config?.sessionCount ?? 0;
+    final s = S.of(context)!;
 
     return ListTile(
       leading: CircleAvatar(
@@ -97,7 +100,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
                 ),
               ),
             Text(
-              '已配置 $sessionCount 节课时模板',
+              s.sessionTemplatesCount(sessionCount),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.primary,
               ),
@@ -114,7 +117,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
                 ),
               ),
               child: Text(
-                '未配置',
+                s.notConfigured,
                 style: TextStyle(
                   color: theme.colorScheme.outline,
                   fontSize: 12,
@@ -144,6 +147,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
   }
 
   Widget _buildErrorView(Object error) {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +159,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '加载失败',
+            s.loadingFailedMessage,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
@@ -170,7 +174,7 @@ class _GoalConfigListPageState extends ConsumerState<GoalConfigListPage> {
               ref.read(goalConfigNotifierProvider.notifier).fetchAll();
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('重试'),
+            label: Text(s.retry),
           ),
         ],
       ),

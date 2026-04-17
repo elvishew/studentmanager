@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 import 'package:student_manager/providers/statistics_provider.dart';
 import 'package:student_manager/providers/states.dart';
 
@@ -10,21 +12,22 @@ class StatisticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(statisticsDataProvider);
+    final s = S.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('统计'),
+        title: Text(s.statisticsPageTitle),
         actions: [
           TextButton.icon(
             icon: const Icon(Icons.date_range, size: 18),
-            label: const Text('本月'),
+            label: Text(s.currentMonthButton),
             onPressed: () => _showRangePicker(context, ref),
           ),
         ],
       ),
       body: statsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('加载失败: $e')),
+        error: (e, _) => Center(child: Text(s.statisticsLoadingFailed(e.toString()))),
         data: (stats) => RefreshIndicator(
           onRefresh: () async => ref.invalidate(statisticsDataProvider),
           child: ListView(
@@ -35,13 +38,13 @@ class StatisticsPage extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // 课程类型分布
-              _buildSectionTitle(context, '课程类型分布'),
+              _buildSectionTitle(context, s.courseTypeDistributionTitle),
               const SizedBox(height: 8),
               _buildDistribution(context, stats),
               const SizedBox(height: 24),
 
               // 学员消费排行
-              _buildSectionTitle(context, '学员消费排行'),
+              _buildSectionTitle(context, s.studentSpendingRankingTitle),
               const SizedBox(height: 8),
               _buildStudentRankings(context, stats),
             ],
@@ -52,6 +55,7 @@ class StatisticsPage extends ConsumerWidget {
   }
 
   Widget _buildOverviewGrid(BuildContext context, StatisticsData stats) {
+    final s = S.of(context)!;
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -60,10 +64,10 @@ class StatisticsPage extends ConsumerWidget {
       crossAxisSpacing: 12,
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard(context, Icons.school, '授课课时', '${stats.totalClasses}', Colors.blue),
-        _buildStatCard(context, Icons.payments, '学员消费', '¥${stats.totalStudentPayment.toStringAsFixed(0)}', Colors.green),
-        _buildStatCard(context, Icons.account_balance_wallet, '教师收入', '¥${stats.totalTeacherIncome.toStringAsFixed(0)}', Colors.orange),
-        _buildStatCard(context, Icons.check_circle, '出勤率', '${(stats.attendanceRate * 100).toStringAsFixed(1)}%', Colors.purple),
+        _buildStatCard(context, Icons.school, s.teachingHoursLabel, '${stats.totalClasses}', Colors.blue),
+        _buildStatCard(context, Icons.payments, s.studentSpendingLabel, '¥${stats.totalStudentPayment.toStringAsFixed(0)}', Colors.green),
+        _buildStatCard(context, Icons.account_balance_wallet, s.teacherIncomeLabel, '¥${stats.totalTeacherIncome.toStringAsFixed(0)}', Colors.orange),
+        _buildStatCard(context, Icons.check_circle, s.attendanceRateLabel, '${(stats.attendanceRate * 100).toStringAsFixed(1)}%', Colors.purple),
       ],
     );
   }
@@ -96,8 +100,9 @@ class StatisticsPage extends ConsumerWidget {
   }
 
   Widget _buildDistribution(BuildContext context, StatisticsData stats) {
+    final s = S.of(context)!;
     if (stats.courseTypeDistribution.isEmpty) {
-      return const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('暂无数据')));
+      return Card(child: Padding(padding: const EdgeInsets.all(16), child: Text(s.noStatisticsDataMessage)));
     }
 
     return Card(
@@ -138,8 +143,9 @@ class StatisticsPage extends ConsumerWidget {
   }
 
   Widget _buildStudentRankings(BuildContext context, StatisticsData stats) {
+    final s = S.of(context)!;
     if (stats.studentRankings.isEmpty) {
-      return const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('暂无数据')));
+      return Card(child: Padding(padding: const EdgeInsets.all(16), child: Text(s.noStatisticsDataMessage)));
     }
 
     return Card(
@@ -172,9 +178,10 @@ class StatisticsPage extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: StatisticsRange.values.map((range) {
             if (range == StatisticsRange.custom) {
+              final s = S.of(context)!;
               return ListTile(
                 leading: const Icon(Icons.date_range),
-                title: const Text('自定义'),
+                title: Text(s.customRangeOption),
                 onTap: () async {
                   Navigator.pop(context);
                   final picked = await showDateRangePicker(
@@ -190,7 +197,7 @@ class StatisticsPage extends ConsumerWidget {
             }
             return ListTile(
               leading: const Icon(Icons.calendar_today),
-              title: Text(range.label),
+              title: Text(range.loc(context)),
               onTap: () {
                 ref.read(statisticsDateRangeProvider.notifier).setRange(range);
                 Navigator.pop(context);

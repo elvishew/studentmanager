@@ -1,13 +1,15 @@
 {
   "id": "chess",
   "name": "国际象棋教练",
+  "name_en": "Chess Coach",
   "contentFields": [
-    {"name": "训练内容", "type": "select", "required": true, "sortOrder": 0, "options": ["开局训练", "中局战术", "残局练习", "对局实战", "棋局分析", "解题练习"]},
-    {"name": "开局名称", "type": "text", "required": false, "sortOrder": 1},
-    {"name": "战术主题", "type": "text", "required": false, "sortOrder": 2},
-    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 3},
-    {"name": "对局结果", "type": "text", "required": false, "sortOrder": 4},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+    {"name": "训练内容", "name_en": "Training Content", "type": "select", "required": true, "sortOrder": 0, "options": ["开局训练", "中局战术", "残局练习", "对局实战", "棋局分析", "解题练习"], "options_en": ["Opening", "Middlegame Tactics", "Endgame", "Match Play", "Game Analysis", "Puzzle Solving"]},
+    {"name": "开局名称", "name_en": "Opening Name", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "战术主题", "name_en": "Tactical Theme", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "练习时长", "name_en": "Duration", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "对局结果", "name_en": "Game Result", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 5}
   ],
-  "courseGoals": ["零基础入门", "规则掌握", "开局体系", "战术训练", "等级赛备战", "竞技提升"]
+  "courseGoals": ["零基础入门", "规则掌握", "开局体系", "战术训练", "等级赛备战", "竞技提升"],
+  "courseGoals_en": ["Beginner", "Rules Mastery", "Opening Repertoire", "Tactical Training", "Tournament Prep", "Competitive Improvement"]
 }

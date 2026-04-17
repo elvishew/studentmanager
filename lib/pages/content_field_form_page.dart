@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/states.dart';
 
@@ -38,11 +39,12 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final isEdit = widget.field != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? '编辑字段' : '新增字段'),
+        title: Text(isEdit ? s.editFieldTitle : s.newFieldTitle),
         actions: [
           if (_isSaving)
             const Center(
@@ -58,7 +60,7 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
           else
             TextButton(
               onPressed: _nameController.text.trim().isNotEmpty ? _save : null,
-              child: const Text('保存'),
+              child: Text(s.btnSave),
             ),
         ],
       ),
@@ -69,13 +71,13 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '字段名称',
-                hintText: '例如：动作、曲目、练习内容',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.fieldNameLabel,
+                hintText: s.fieldNameHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) return '请输入字段名称';
+                if (value == null || value.trim().isEmpty) return s.fieldNameRequired;
                 return null;
               },
               onChanged: (_) => setState(() {}),
@@ -83,15 +85,15 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedType,
-              decoration: const InputDecoration(
-                labelText: '字段类型',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.fieldTypeLabel,
+                border: const OutlineInputBorder(),
               ),
-              items: const [
-                DropdownMenuItem(value: 'select', child: Text('下拉选择')),
-                DropdownMenuItem(value: 'number', child: Text('数字')),
-                DropdownMenuItem(value: 'text', child: Text('文本')),
-                DropdownMenuItem(value: 'multiline', child: Text('多行文本')),
+              items: [
+                DropdownMenuItem(value: 'select', child: Text(s.fieldTypeSelect)),
+                DropdownMenuItem(value: 'number', child: Text(s.fieldTypeNumber)),
+                DropdownMenuItem(value: 'text', child: Text(s.fieldTypeText)),
+                DropdownMenuItem(value: 'multiline', child: Text(s.fieldTypeMultiline)),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -101,7 +103,7 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              '下拉选择类型支持预设选项列表，其他类型为自由输入。',
+              s.selectTypeHint,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.outline,
@@ -109,8 +111,8 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
             ),
             const SizedBox(height: 24),
             SwitchListTile(
-              title: const Text('必填'),
-              subtitle: const Text('创建内容块时必须填写此字段'),
+              title: Text(s.requiredLabel),
+              subtitle: Text(s.requiredSubtitle),
               value: _isRequired,
               onChanged: (value) {
                 setState(() => _isRequired = value);
@@ -148,17 +150,18 @@ class _ContentFieldFormPageState extends ConsumerState<ContentFieldFormPage> {
     }
 
     if (mounted) {
+      final s = S.of(context)!;
       setState(() => _isSaving = false);
       if (success) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.field != null ? '字段已更新' : '字段已创建'),
+            content: Text(widget.field != null ? s.fieldUpdated : s.fieldCreated),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已存在同名字段')),
+          SnackBar(content: Text(s.fieldNameExists)),
         );
       }
     }

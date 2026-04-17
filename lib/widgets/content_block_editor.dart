@@ -7,6 +7,7 @@ import 'package:student_manager/providers/goal_config_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 内容块编辑器组件
 /// 支持两种上下文：'session' 和 'goal_config'
@@ -184,16 +185,17 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
 
     if (mounted) {
       setState(() => _isSaving = false);
+      final s = S.of(context)!;
       if (success) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.blockId != null ? '内容块已更新' : '内容块已添加'),
+            content: Text(widget.blockId != null ? s.contentBlockUpdated : s.contentBlockAdded),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('保存失败'), backgroundColor: Colors.red),
+          SnackBar(content: Text(s.saveFailed), backgroundColor: Colors.red),
         );
       }
     }
@@ -201,16 +203,17 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     if (_fields.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.appBarTitle ?? '编辑内容')),
+        appBar: AppBar(title: Text(widget.appBarTitle ?? s.editContentTitle)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.appBarTitle ?? (widget.blockId != null ? '编辑内容' : '添加内容')),
+        title: Text(widget.appBarTitle ?? (widget.blockId != null ? s.editContentTitle : s.addContentTitle)),
         actions: [
           if (_isSaving)
             const Center(
@@ -226,7 +229,7 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
           else
             TextButton(
               onPressed: _canSave ? _save : null,
-              child: const Text('保存'),
+              child: Text(s.btnSave),
             ),
         ],
       ),
@@ -285,7 +288,7 @@ class _ContentBlockEditorState extends ConsumerState<ContentBlockEditor> {
         if (existingValue != null && existingValue.isNotEmpty) {
           final exists = options.any((o) => o['value'] == existingValue);
           if (!exists) {
-            options.add({'id': -1, 'value': '$existingValue（已弃用）'});
+            options.add({'id': -1, 'value': '$existingValue${S.of(context)!.deprecatedSuffix}'});
           }
         }
 

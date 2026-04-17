@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/utils/template_loader.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'main_shell_page.dart';
 
 /// 模板选择页
@@ -70,7 +71,7 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
         setState(() => _isApplying = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('应用模板失败：$e'),
+            content: Text(S.of(context)!.applyTemplateFailed('$e')),
             backgroundColor: Colors.red,
           ),
         );
@@ -82,24 +83,19 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认切换模板'),
-        content: Text('切换到「$templateName」将清空以下数据：\n\n'
-            '· 教学内容字段\n'
-            '· 字段选项\n'
-            '· 课程目标\n'
-            '· 课程目标默认配置\n\n'
-            '已有学员和课程规划不受影响，但已有内容可能无法正常显示。'),
+        title: Text(S.of(context)!.confirmSwitchTemplateTitle),
+        content: Text(S.of(context)!.confirmSwitchTemplateMessage(templateName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
+            child: Text(S.of(context)!.btnCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('确认切换'),
+            child: Text(S.of(context)!.btnConfirmSwitch),
           ),
         ],
       ),
@@ -127,21 +123,22 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isSwitching ? '切换教学模板' : '选择教学模板'),
+        title: Text(widget.isSwitching ? s.switchTeachingTemplateTitle : s.selectTeachingTemplateTitle),
         automaticallyImplyLeading: widget.isSwitching,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _isApplying
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
-                      Text('正在应用模板...'),
+                      Text(s.applyingTemplate),
                     ],
                   ),
                 )
@@ -164,7 +161,7 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  '切换模板将清空教学内容字段、字段选项、课程目标及其默认配置',
+                                  s.switchTemplateWarning,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onErrorContainer,
                                   ),
@@ -176,14 +173,14 @@ class _TemplateSelectionPageState extends ConsumerState<TemplateSelectionPage> {
                         const SizedBox(height: 24),
                       ] else ...[
                         Text(
-                          '欢迎使用学员课程管理系统',
+                          s.welcomeMessage,
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '请选择您的教学类型，系统将为您自动配置对应的内容字段和课程目标。',
+                          s.selectTeachingTypeMessage,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.outline,
                               ),

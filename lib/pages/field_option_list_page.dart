@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import '../database/content_field_repository.dart';
@@ -60,14 +61,15 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.fieldName} - 选项管理'),
+        title: Text('${widget.fieldName} - ${s.addOptionTooltip}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showAddDialog(context),
-            tooltip: '新增选项',
+            tooltip: s.addOptionTooltip,
           ),
         ],
       ),
@@ -77,7 +79,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: '搜索选项...',
+                hintText: s.searchOptionHint,
                 prefixIcon: const Icon(Icons.search, size: 20),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -91,7 +93,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
             child: _state.status == BasicItemStatus.loading
                 ? const Center(child: CircularProgressIndicator())
                 : _state.items.isEmpty
-                    ? const Center(child: Text('暂无选项'))
+                    ? Center(child: Text(s.noOptionsMessage))
                     : ListView.builder(
                         itemCount: _state.items.length,
                         itemBuilder: (context, index) {
@@ -106,6 +108,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
   }
 
   Widget _buildItemTile(BuildContext context, FieldOptionItem item) {
+    final s = S.of(context)!;
     return ListTile(
       title: Text(
         item.name,
@@ -124,7 +127,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
                 await _notifier.toggleDeprecated(item.id, false);
                 _fetchAndRefresh();
               },
-              tooltip: '启用',
+              tooltip: s.activateTooltip,
             )
           else
             IconButton(
@@ -133,17 +136,17 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
                 await _notifier.toggleDeprecated(item.id, true);
                 _fetchAndRefresh();
               },
-              tooltip: '弃用',
+              tooltip: s.deprecateTooltip,
             ),
           IconButton(
             icon: const Icon(Icons.edit, size: 20),
             onPressed: () => _showEditDialog(context, item),
-            tooltip: '编辑',
+            tooltip: s.edit,
           ),
           IconButton(
             icon: const Icon(Icons.delete, size: 20, color: Colors.red),
             onPressed: () => _confirmDelete(context, item),
-            tooltip: '删除',
+            tooltip: s.btnDelete,
           ),
         ],
       ),
@@ -151,35 +154,39 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
   }
 
   Future<void> _showAddDialog(BuildContext context) async {
+    final s = S.of(context)!;
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('新增选项'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '选项名称',
-            border: OutlineInputBorder(),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.newOptionTitle),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: s.optionNameLabel,
+              border: const OutlineInputBorder(),
+            ),
+            autofocus: true,
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              final value = controller.text.trim();
-              if (value.isNotEmpty) {
-                Navigator.pop(context, value);
-              }
-            },
-            child: const Text('确定'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                final value = controller.text.trim();
+                if (value.isNotEmpty) {
+                  Navigator.pop(context, value);
+                }
+              },
+              child: Text(s.confirm),
+            ),
+          ],
+        );
+      },
     );
     controller.dispose();
 
@@ -189,7 +196,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
         _fetchAndRefresh();
       } else if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('该选项名称已存在')),
+          SnackBar(content: Text(s.optionNameExists)),
         );
       }
     }
@@ -199,32 +206,35 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
     final controller = TextEditingController(text: item.name);
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('编辑选项'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '选项名称',
-            border: OutlineInputBorder(),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.editOptionTitle),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: s.optionNameLabel,
+              border: const OutlineInputBorder(),
+            ),
+            autofocus: true,
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              final value = controller.text.trim();
-              if (value.isNotEmpty) {
-                Navigator.pop(context, value);
-              }
-            },
-            child: const Text('确定'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                final value = controller.text.trim();
+                if (value.isNotEmpty) {
+                  Navigator.pop(context, value);
+                }
+              },
+              child: Text(s.confirm),
+            ),
+          ],
+        );
+      },
     );
     controller.dispose();
 
@@ -234,7 +244,7 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
         _fetchAndRefresh();
       } else if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('该选项名称已存在')),
+          SnackBar(content: Text(S.of(context)!.optionNameExists)),
         );
       }
     }
@@ -243,43 +253,47 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
   Future<void> _confirmDelete(BuildContext context, FieldOptionItem item) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除选项「${item.name}」吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.btnConfirmDelete),
+          content: Text(s.confirmDeleteOptionMessage(item.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(s.btnDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true) {
       final result = await _notifier.delete(item.id);
       if (context.mounted) {
+        final s = S.of(context)!;
         switch (result) {
           case DeleteItemResult.success:
             _fetchAndRefresh();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('选项已删除')),
+              SnackBar(content: Text(s.optionDeleted)),
             );
           case DeleteItemResult.hasReferences:
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('该选项已被使用，无法删除')),
+              SnackBar(content: Text(s.optionInUse)),
             );
           case DeleteItemResult.notFound:
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('选项不存在')),
+              SnackBar(content: Text(s.optionNotFound)),
             );
           case DeleteItemResult.error:
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('删除失败'), backgroundColor: Colors.red),
+              SnackBar(content: Text(s.saveFailed), backgroundColor: Colors.red),
             );
         }
       }

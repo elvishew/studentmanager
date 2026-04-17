@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/goal_config_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'goal_config_session_detail_page.dart';
 
 /// 课程目标配置详情页（蓝图编辑 + 课时模板列表）
@@ -72,6 +73,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final s = S.of(context)!;
 
     if (_isLoading) {
       return Scaffold(
@@ -91,7 +93,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
               icon: const Icon(Icons.delete_outline),
               color: Colors.red,
               onPressed: _showResetConfigDialog,
-              tooltip: '重置配置',
+              tooltip: s.resetConfigTooltip,
             ),
         ],
       ),
@@ -112,7 +114,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         heroTag: 'add_session',
         onPressed: () => _showAddSessionDialog(sessions),
         child: const Icon(Icons.add),
-        tooltip: '添加课时模板',
+        tooltip: s.addSessionTemplateTooltip,
       ),
     );
   }
@@ -120,6 +122,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   /// 构建蓝图编辑卡片
   Widget _buildBlueprintCard(ThemeData theme) {
     final blueprint = _config?.blueprint;
+    final s = S.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -137,7 +140,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
               ),
               const SizedBox(width: 6),
               Text(
-                '蓝图',
+                s.blueprintTitle,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -149,7 +152,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
                 width: 32,
                 child: IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 18),
-                  tooltip: '编辑蓝图',
+                  tooltip: s.editBlueprintTooltip,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                   onPressed: _showEditBlueprintDialog,
@@ -159,7 +162,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            blueprint != null && blueprint.isNotEmpty ? blueprint : '未设置蓝图',
+            blueprint != null && blueprint.isNotEmpty ? blueprint : s.blueprintNotSet,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: blueprint != null && blueprint.isNotEmpty
                   ? null
@@ -190,6 +193,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   /// 构建课时模板列表项
   Widget _buildSessionTile(GoalConfigSession session) {
     final theme = Theme.of(context);
+    final s = S.of(context)!;
     final blockCount = session.contentBlocks?.length ?? 0;
 
     return Dismissible(
@@ -215,11 +219,11 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
           ),
         ),
         title: Text(
-          '第 ${session.sessionNumber} 节课模板',
+          s.sessionTemplateNumber(session.sessionNumber),
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
-          blockCount > 0 ? '$blockCount 个训练块' : '暂无训练内容',
+          blockCount > 0 ? s.blockCount(blockCount) : s.noTrainingContent,
           style: theme.textTheme.bodySmall?.copyWith(
             color: blockCount > 0 ? theme.colorScheme.primary : theme.colorScheme.outline,
           ),
@@ -232,6 +236,7 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
   /// 构建空视图
   Widget _buildEmptyView() {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -243,14 +248,14 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无课时模板',
+            s.noSessionTemplates,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            '点击右下角按钮添加课时模板',
+            s.clickToAddSessionTemplate,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -266,30 +271,34 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('编辑蓝图'),
-        content: TextFormField(
-          controller: controller,
-          maxLines: 5,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: '请输入蓝图描述',
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.editBlueprintTitle),
+          content: TextFormField(
+            controller: controller,
+            maxLines: 5,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              hintText: s.blueprintHint,
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('保存'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.btnCancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: Text(s.btnSave),
+            ),
+          ],
+        );
+      },
     );
 
     if (result != null && mounted) {
+      final s = S.of(this.context)!;
       if (result.isEmpty) {
         // 空蓝图：如果也没有课时模板，直接删除整条配置
         if (_config != null) {
@@ -299,9 +308,9 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
               );
           final cleaned = await ref.read(goalConfigNotifierProvider.notifier).cleanIfEmpty(_config!.id);
           if (cleaned && mounted) {
-            Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('蓝图已清除，配置已重置')),
+            Navigator.of(this.context).pop();
+            ScaffoldMessenger.of(this.context).showSnackBar(
+              SnackBar(content: Text(s.blueprintCleared)),
             );
             return;
           }
@@ -316,8 +325,8 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
       }
       await _loadDetail();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('蓝图已更新')),
+        ScaffoldMessenger.of(this.context).showSnackBar(
+          SnackBar(content: Text(s.blueprintUpdated)),
         );
       }
     }
@@ -333,8 +342,9 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
         .toList();
 
     if (availableNumbers.isEmpty) {
+      final s = S.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已达到最大课时数（12节）')),
+        SnackBar(content: Text(s.maxSessionsReached)),
       );
       return;
     }
@@ -344,37 +354,41 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('添加课时模板'),
-          content: DropdownButtonFormField<int>(
-            value: selectedNumber,
-            decoration: const InputDecoration(
-              labelText: '课时序号',
-              border: OutlineInputBorder(),
+        builder: (context, setState) {
+          final s = S.of(context)!;
+          return AlertDialog(
+            title: Text(s.addSessionTemplateTitle),
+            content: DropdownButtonFormField<int>(
+              value: selectedNumber,
+              decoration: InputDecoration(
+                labelText: s.sessionNumberLabelField,
+                border: const OutlineInputBorder(),
+              ),
+              items: availableNumbers.map((n) => DropdownMenuItem(
+                    value: n,
+                    child: Text(s.sessionNumberDetail(n)),
+                  )).toList(),
+              onChanged: (value) {
+                setState(() => selectedNumber = value);
+              },
             ),
-            items: availableNumbers.map((n) => DropdownMenuItem(
-                  value: n,
-                  child: Text('第 $n 节课'),
-                )).toList(),
-            onChanged: (value) {
-              setState(() => selectedNumber = value);
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, selectedNumber),
-              child: const Text('添加'),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(s.btnCancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, selectedNumber),
+                child: Text(s.addContentButton),
+              ),
+            ],
+          );
+        },
       ),
     );
 
     if (result != null && mounted) {
+      final s = S.of(this.context)!;
       final configId = await _ensureConfig();
       try {
         await ref.read(goalConfigNotifierProvider.notifier).addSession(
@@ -383,15 +397,15 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
             );
         await _loadDetail();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('课时模板已添加')),
+          ScaffoldMessenger.of(this.context).showSnackBar(
+            SnackBar(content: Text(s.sessionTemplateAdded)),
           );
         }
       } catch (e) {
         await _loadDetail();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('添加失败，该课时序号已存在'), backgroundColor: Colors.red),
+          ScaffoldMessenger.of(this.context).showSnackBar(
+            SnackBar(content: Text(s.sessionTemplateExists), backgroundColor: Colors.red),
           );
         }
       }
@@ -402,44 +416,47 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
   Future<bool?> _showDeleteSessionDialog(GoalConfigSession session) async {
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除课时模板'),
-        content: Text(
-          '确定要删除「第${session.sessionNumber}节课模板」吗？\n\n'
-          '删除后将同时删除该课时的所有训练块模板，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteSessionTemplateTitle),
+          content: Text(
+            s.confirmDeleteSessionTemplateMessage(session.sessionNumber),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context, true);
-              final notifier = ref.read(goalConfigNotifierProvider.notifier);
-              await notifier.deleteSession(session.id);
-              // 删完后检查是否需要清理空配置
-              if (_config != null) {
-                final cleaned = await notifier.cleanIfEmpty(_config!.id);
-                if (cleaned && mounted) {
-                  Navigator.of(this.context).pop();
-                  ScaffoldMessenger.of(this.context).showSnackBar(
-                    const SnackBar(content: Text('最后一个课时已删除，配置已重置')),
-                  );
-                  return;
-                }
-              }
-              await _loadDetail();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+                final notifier = ref.read(goalConfigNotifierProvider.notifier);
+                await notifier.deleteSession(session.id);
+                // 删完后检查是否需要清理空配置
+                if (_config != null) {
+                  final cleaned = await notifier.cleanIfEmpty(_config!.id);
+                  if (cleaned && mounted) {
+                    final s = S.of(this.context)!;
+                    Navigator.of(this.context).pop();
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(content: Text(s.lastSessionDeletedReset)),
+                    );
+                    return;
+                  }
+                }
+                await _loadDetail();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -462,36 +479,39 @@ class _GoalConfigDetailPageState extends ConsumerState<GoalConfigDetailPage> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('重置配置'),
-        content: Text(
-          '确定要重置「${widget.goalName}」的默认配置吗？\n\n'
-          '蓝图和所有课时模板将被删除，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.resetConfigTitle),
+          content: Text(
+            s.confirmResetConfigMessage(widget.goalName),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认重置'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.confirmReset),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {
       await ref.read(goalConfigNotifierProvider.notifier).deleteConfig(_config!.id);
       if (mounted) {
+        final s = S.of(context)!;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('配置已重置')),
+          SnackBar(content: Text(s.configReset)),
         );
       }
     }

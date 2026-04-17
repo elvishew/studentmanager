@@ -1,13 +1,15 @@
 {
   "id": "swimming",
   "name": "游泳教练",
+  "name_en": "Swimming Coach",
   "contentFields": [
-    {"name": "练习内容", "type": "select", "required": true, "sortOrder": 0, "options": ["自由泳", "蛙泳", "仰泳", "蝶泳", "踩水", "出发转身", "水上安全"]},
-    {"name": "训练距离", "type": "number", "required": false, "sortOrder": 1},
-    {"name": "组数", "type": "number", "required": false, "sortOrder": 2},
-    {"name": "间歇时间", "type": "number", "required": false, "sortOrder": 3},
-    {"name": "训练强度", "type": "text", "required": false, "sortOrder": 4},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+    {"name": "练习内容", "name_en": "Practice Content", "type": "select", "required": true, "sortOrder": 0, "options": ["自由泳", "蛙泳", "仰泳", "蝶泳", "踩水", "出发转身", "水上安全"], "options_en": ["Freestyle", "Breaststroke", "Backstroke", "Butterfly", "Treading Water", "Starts & Turns", "Water Safety"]},
+    {"name": "训练距离", "name_en": "Distance", "type": "number", "required": false, "sortOrder": 1},
+    {"name": "组数", "name_en": "Sets", "type": "number", "required": false, "sortOrder": 2},
+    {"name": "间歇时间", "name_en": "Rest Interval", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "训练强度", "name_en": "Intensity", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 5}
   ],
-  "courseGoals": ["零基础入门", "泳姿矫正", "体能提升", "长距离耐力", "速度提升", "水中安全"]
+  "courseGoals": ["零基础入门", "泳姿矫正", "体能提升", "长距离耐力", "速度提升", "水中安全"],
+  "courseGoals_en": ["Beginner", "Stroke Correction", "Fitness", "Long Distance", "Speed Training", "Water Safety"]
 }

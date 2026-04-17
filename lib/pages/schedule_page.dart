@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
 import 'package:student_manager/widgets/schedule_day_view.dart';
@@ -66,6 +67,7 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final viewMode = ref.watch(scheduleViewProvider);
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
@@ -78,15 +80,15 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: isIOS ? _buildCupertinoSegmentedControl(viewMode) : const Text('课表'),
+        title: isIOS ? _buildCupertinoSegmentedControl(viewMode, s) : Text(s.schedulePageTitle),
         centerTitle: true,
         actions: [
-          if (!isIOS) _buildViewModeToggle(viewMode),
+          if (!isIOS) _buildViewModeToggle(viewMode, s),
           if (isIOS)
             IconButton(
               icon: const Icon(CupertinoIcons.add),
               onPressed: () => _showCreateDialog(context),
-              tooltip: '新建排课',
+              tooltip: s.createScheduledClass,
             ),
         ],
       ),
@@ -95,19 +97,19 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
           ? null
           : FloatingActionButton(
               onPressed: () => _showCreateDialog(context),
-              tooltip: '新建排课',
+              tooltip: s.createScheduledClass,
               child: const Icon(Icons.add),
             ),
     );
   }
 
   /// Android: 视图模式分段切换
-  Widget _buildViewModeToggle(ScheduleViewMode currentMode) {
+  Widget _buildViewModeToggle(ScheduleViewMode currentMode, S s) {
     return SegmentedButton<ScheduleViewMode>(
-      segments: const [
-        ButtonSegment(value: ScheduleViewMode.day, label: Text('日')),
-        ButtonSegment(value: ScheduleViewMode.week, label: Text('周')),
-        ButtonSegment(value: ScheduleViewMode.month, label: Text('月')),
+      segments: [
+        ButtonSegment(value: ScheduleViewMode.day, label: Text(s.viewModeDay)),
+        ButtonSegment(value: ScheduleViewMode.week, label: Text(s.viewModeWeek)),
+        ButtonSegment(value: ScheduleViewMode.month, label: Text(s.viewModeMonth)),
       ],
       selected: {currentMode},
       onSelectionChanged: (modes) => _switchViewMode(modes.first),
@@ -115,7 +117,7 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
   }
 
   /// iOS: 视图模式分段切换（Cupertino 原生风格）
-  Widget _buildCupertinoSegmentedControl(ScheduleViewMode currentMode) {
+  Widget _buildCupertinoSegmentedControl(ScheduleViewMode currentMode, S s) {
     return SizedBox(
       width: 180,
       child: CupertinoSlidingSegmentedControl<ScheduleViewMode>(
@@ -123,18 +125,18 @@ class _SchedulePageState extends ConsumerState<SchedulePage> {
         onValueChanged: (mode) {
           if (mode != null) _switchViewMode(mode);
         },
-        children: const {
+        children: {
           ScheduleViewMode.day: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('日'),
+            child: Text(s.viewModeDay),
           ),
           ScheduleViewMode.week: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('周'),
+            child: Text(s.viewModeWeek),
           ),
           ScheduleViewMode.month: Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('月'),
+            child: Text(s.viewModeMonth),
           ),
         },
       ),

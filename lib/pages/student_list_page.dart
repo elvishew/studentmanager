@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'student_detail_page.dart';
 
 /// ============================================
@@ -57,23 +58,26 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
   Future<void> _showDeleteDialog(Student student) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除学员「${student.name}」吗？\n\n删除后将同时删除该学员的所有课程规划、课时数据和相册照片，此操作不可恢复。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.btnConfirmDelete),
+          content: Text(s.confirmDeleteStudentMessage(student.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(s.cancel),
             ),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(s.btnDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {
@@ -82,7 +86,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('学员已删除')),
+          SnackBar(content: Text(S.of(context)!.studentDeleted)),
         );
       }
     }
@@ -90,19 +94,20 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final studentState = ref.watch(studentNotifierProvider);
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('学员'),
+        title: Text(s.navStudents),
         automaticallyImplyLeading: false,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Center(
               child: Text(
-                '共 ${ref.watch(studentCountProvider)} 人',
+                s.totalStudentsCount(ref.watch(studentCountProvider)),
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
@@ -111,7 +116,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: _navigateToCreate,
-              tooltip: '添加学员',
+              tooltip: s.addStudentTooltip,
             ),
         ],
       ),
@@ -129,7 +134,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ? null
           : FloatingActionButton(
               onPressed: _navigateToCreate,
-              tooltip: '添加学员',
+              tooltip: s.addStudentTooltip,
               child: const Icon(Icons.add),
             ),
     );
@@ -137,6 +142,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   /// 构建搜索栏
   Widget _buildSearchBar() {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -153,7 +159,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
         controller: _searchController,
         focusNode: _searchFocusNode,
         decoration: InputDecoration(
-          hintText: '搜索学员姓名、联系方式或备注',
+          hintText: s.searchStudentHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -194,6 +200,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   /// 初始状态视图
   Widget _buildInitialView() {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -205,14 +212,14 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无学员数据',
+            s.noStudentsDataMessage,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            '点击 + 按钮添加学员',
+            s.clickToAddStudentMessage,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -231,6 +238,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   /// 错误视图
   Widget _buildErrorView(Object error, StackTrace stackTrace) {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +250,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '加载失败',
+            s.loadingFailedMessage,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
@@ -259,7 +267,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
               ref.read(studentNotifierProvider.notifier).fetchAll();
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('重试'),
+            label: Text(s.retry),
           ),
         ],
       ),
@@ -268,6 +276,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   /// 空数据视图
   Widget _buildEmptyView(bool isSearchResult) {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -279,7 +288,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            isSearchResult ? '未找到匹配的学员' : '暂无学员',
+            isSearchResult ? s.noMatchingStudents : s.noStudentsDataMessage,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -287,7 +296,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           if (isSearchResult) ...[
             const SizedBox(height: 8),
             Text(
-              '尝试使用其他关键词搜索',
+              s.tryDifferentKeywords,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -318,6 +327,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
 
   /// 学员列表项
   Widget _buildStudentTile(Student student) {
+    final s = S.of(context)!;
     return ListTile(
       leading: CircleAvatar(
         child: Text(
@@ -359,7 +369,7 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
           // 查看课程规划按钮
           IconButton(
             icon: const Icon(Icons.folder_open),
-            tooltip: '查看课程规划',
+            tooltip: s.viewCoursePlanTooltip,
             onPressed: () => _navigateToDetail(student.id),
           ),
           // 更多操作菜单
@@ -380,28 +390,31 @@ class _StudentListPageState extends ConsumerState<StudentListPage> {
                   break;
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 20),
-                    SizedBox(width: 12),
-                    Text('编辑'),
-                  ],
+            itemBuilder: (context) {
+              final s = S.of(context)!;
+              return [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit, size: 20),
+                      const SizedBox(width: 12),
+                      Text(s.edit),
+                    ],
+                  ),
                 ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 20, color: Colors.red),
-                    SizedBox(width: 12),
-                    Text('删除', style: TextStyle(color: Colors.red)),
-                  ],
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete, size: 20, color: Colors.red),
+                      const SizedBox(width: 12),
+                      Text(s.btnDelete, style: const TextStyle(color: Colors.red)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ];
+            },
           ),
         ],
       ),
@@ -500,9 +513,10 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
 
       if (success == true) {
         Navigator.of(context).pop();
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.studentId != null ? '学员已更新' : '学员已创建'),
+            content: Text(widget.studentId != null ? s.studentUpdated : s.studentCreated),
           ),
         );
       }
@@ -511,9 +525,10 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.studentId != null ? '编辑学员' : '添加学员'),
+        title: Text(widget.studentId != null ? s.editStudentTitle : s.addStudentTitle),
         actions: [
           if (_isSaving)
             const Center(
@@ -529,7 +544,7 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
           else
             TextButton(
               onPressed: _save,
-              child: const Text('保存'),
+              child: Text(s.btnSave),
             ),
         ],
       ),
@@ -541,14 +556,14 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
             // 姓名
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '姓名',
-                hintText: '请输入学员姓名',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.nameLabel,
+                hintText: s.enterStudentNameHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return '请输入学员姓名';
+                  return s.studentNameRequired;
                 }
                 return null;
               },
@@ -558,13 +573,13 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
             // 性别
             DropdownButtonFormField<String>(
               value: _selectedGender,
-              decoration: const InputDecoration(
-                labelText: '性别',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.genderLabel,
+                border: const OutlineInputBorder(),
               ),
-              items: const [
-                DropdownMenuItem(value: '男', child: Text('男')),
-                DropdownMenuItem(value: '女', child: Text('女')),
+              items: [
+                DropdownMenuItem(value: '男', child: Text(s.genderMale)),
+                DropdownMenuItem(value: '女', child: Text(s.genderFemale)),
               ],
               onChanged: (value) {
                 setState(() {
@@ -577,14 +592,14 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
             // 联系方式
             TextFormField(
               controller: _contactController,
-              decoration: const InputDecoration(
-                labelText: '联系方式',
-                hintText: '请输入手机号或邮箱',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.contactLabel,
+                hintText: s.enterContactHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return '请输入联系方式';
+                  return s.contactRequired;
                 }
                 return null;
               },
@@ -594,10 +609,10 @@ class _StudentFormPageState extends ConsumerState<StudentFormPage> {
             // 备注
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: '备注',
-                hintText: '请输入备注信息（可选）',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: s.notesLabel,
+                hintText: s.enterNotesHint,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),

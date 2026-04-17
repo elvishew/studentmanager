@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../providers/album_provider.dart';
 import '../providers/states.dart';
 import '../database/album_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// 相册详情页
 class AlbumDetailPage extends ConsumerStatefulWidget {
@@ -80,9 +81,10 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
       await _loadPhotos();
     } catch (e) {
       if (mounted) {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('添加照片失败：$e'),
+            content: Text(s.addPhotoFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -93,25 +95,28 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
   Future<void> _showDeletePhotoDialog(AlbumPhoto photo) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除照片'),
-        content: const Text('确定要删除这张照片吗？此操作不可恢复。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deletePhotoTitle),
+          content: Text(s.confirmDeletePhotoMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !mounted) return;
@@ -120,8 +125,9 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
     final success = await notifier.deletePhoto(photo.id);
 
     if (success && mounted) {
+      final s = S.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('照片已删除')),
+        SnackBar(content: Text(s.photoDeleted)),
       );
       await _loadPhotos();
     }
@@ -155,8 +161,9 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
         setState(() {
           _albumName = result['name'] as String;
         });
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('相册已更新')),
+          SnackBar(content: Text(s.albumUpdated)),
         );
       }
     }
@@ -165,50 +172,53 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
   void _showPickOptions() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('拍照'),
-              onTap: () => _pickImage(ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('从相册选取'),
-              onTap: () => _pickImage(ImageSource.gallery),
-            ),
-          ],
-        ),
-      ),
+      builder: (context) {
+        final s = S.of(context)!;
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text(s.takePhotoButton),
+                onTap: () => _pickImage(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text(s.chooseFromGalleryButton),
+                onTap: () => _pickImage(ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Future<void> _deleteAlbum() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除相册'),
-        content: Text(
-          '确定要删除相册「$_albumName」吗？\n\n'
-          '删除后将同时删除所有照片，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteAlbumTitle),
+          content: Text(s.confirmDeleteAlbumMessage(_albumName)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !mounted) return;
@@ -260,21 +270,25 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
   void _showNotesDialog(String notes) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('相册备注'),
-        content: Text(notes),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.albumNotesTitle),
+          content: Text(notes),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.notesConfirmButton),
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(_albumName),
@@ -282,13 +296,13 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: _showEditAlbumDialog,
-            tooltip: '编辑相册',
+            tooltip: s.editAlbumDialogTitle,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             color: Colors.red,
             onPressed: _deleteAlbum,
-            tooltip: '删除相册',
+            tooltip: s.deleteAlbumTitle,
           ),
         ],
       ),
@@ -313,14 +327,14 @@ class _AlbumDetailPageState extends ConsumerState<AlbumDetailPage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                '暂无照片',
+                                s.noPhotosMessage,
                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                       color: Theme.of(context).colorScheme.outline,
                                     ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '点击右下角按钮添加照片',
+                                s.clickToAddPhotoMessage,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.outline,
                                     ),
@@ -407,8 +421,9 @@ class _EditAlbumDialogState extends State<_EditAlbumDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return AlertDialog(
-      title: const Text('编辑相册'),
+      title: Text(s.editAlbumDialogTitle),
       content: SizedBox(
         width: 350,
         child: Column(
@@ -417,17 +432,17 @@ class _EditAlbumDialogState extends State<_EditAlbumDialog> {
             TextField(
               controller: _nameController,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: '相册名称',
+              decoration: InputDecoration(
+                labelText: s.albumNameLabel,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _notesController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: '备注',
-                hintText: '选填',
+              decoration: InputDecoration(
+                labelText: s.albumNotesLabel,
+                hintText: s.albumNotesOptionalHint,
               ),
             ),
           ],
@@ -436,7 +451,7 @@ class _EditAlbumDialogState extends State<_EditAlbumDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(s.btnCancel),
         ),
         ElevatedButton(
           onPressed: _nameController.text.trim().isEmpty
@@ -447,7 +462,7 @@ class _EditAlbumDialogState extends State<_EditAlbumDialog> {
                       ? null
                       : _notesController.text.trim(),
                 }),
-          child: const Text('保存'),
+          child: Text(s.btnSave),
         ),
       ],
     );
@@ -475,10 +490,11 @@ class _PhotoViewer extends StatelessWidget {
             File(filePath),
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
-              return const Center(
+              final s = S.of(context)!;
+              return Center(
                 child: Text(
-                  '无法加载图片',
-                  style: TextStyle(color: Colors.white),
+                  s.cannotLoadImage,
+                  style: const TextStyle(color: Colors.white),
                 ),
               );
             },

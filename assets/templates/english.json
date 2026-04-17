@@ -1,13 +1,15 @@
 {
   "id": "english",
   "name": "英语辅导",
+  "name_en": "English Tutor",
   "contentFields": [
-    {"name": "学习模块", "type": "select", "required": true, "sortOrder": 0, "options": ["听力", "口语", "阅读", "写作", "语法", "词汇", "翻译"]},
-    {"name": "教材/资料", "type": "text", "required": false, "sortOrder": 1},
-    {"name": "学习时长", "type": "number", "required": false, "sortOrder": 2},
-    {"name": "作业内容", "type": "text", "required": false, "sortOrder": 3},
-    {"name": "完成情况", "type": "text", "required": false, "sortOrder": 4},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+    {"name": "学习模块", "name_en": "Module", "type": "select", "required": true, "sortOrder": 0, "options": ["听力", "口语", "阅读", "写作", "语法", "词汇", "翻译"], "options_en": ["Listening", "Speaking", "Reading", "Writing", "Grammar", "Vocabulary", "Translation"]},
+    {"name": "教材/资料", "name_en": "Materials", "type": "text", "required": false, "sortOrder": 1},
+    {"name": "学习时长", "name_en": "Duration", "type": "number", "required": false, "sortOrder": 2},
+    {"name": "作业内容", "name_en": "Homework", "type": "text", "required": false, "sortOrder": 3},
+    {"name": "完成情况", "name_en": "Completion", "type": "text", "required": false, "sortOrder": 4},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 5}
   ],
-  "courseGoals": ["零基础入门", "日常交流", "考试冲刺", "雅思/托福", "商务英语", "英语启蒙"]
+  "courseGoals": ["零基础入门", "日常交流", "考试冲刺", "雅思/托福", "商务英语", "英语启蒙"],
+  "courseGoals_en": ["Beginner", "Daily Conversation", "Exam Prep", "IELTS/TOEFL", "Business English", "Early Learning"]
 }

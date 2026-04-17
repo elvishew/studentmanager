@@ -6,6 +6,8 @@ import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/settings_provider.dart';
 import 'package:student_manager/utils/working_hours_utils.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+
 
 /// 快速排课底部面板（新建/编辑共用）
 class CreateScheduledClassDialog extends ConsumerStatefulWidget {
@@ -172,6 +174,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final courseTypes = ref.watch(activeCourseTypesProvider);
 
     return DraggableScrollableSheet(
@@ -198,11 +201,11 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                 ),
               ),
               const SizedBox(height: 16),
-              Text(isEditing ? '编辑排课' : '新建排课', style: Theme.of(context).textTheme.titleLarge),
+              Text(isEditing ? s.editScheduledClass : s.createScheduledClass, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
 
               // 课程类型选择
-              Text('课程类型', style: Theme.of(context).textTheme.titleSmall),
+              Text(s.courseTypeLabel, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               if (courseTypes.isEmpty)
                 const Padding(
@@ -233,7 +236,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                         newMax = 1;
                       }
                       if (newMax != null && _participants.length > newMax) {
-                        setState(() => _validationError = '参与人已超过「${ct.name}」的上限（最多 $newMax 人），请先移除多余参与人');
+                        setState(() => _validationError = s.participantOverflow(ct.name, newMax!));
                         return;
                       }
                       setState(() {
@@ -257,11 +260,11 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               // 日期选择
               if (_isLocked) ...[
                 InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: '日期',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: s.dateLabel,
+                    border: const OutlineInputBorder(),
                   ),
-                  child: Text(_formatDate(_selectedDate)),
+                  child: Text(_formatDate(context, _selectedDate)),
                 ),
               ] else ...[
                 InkWell(
@@ -283,14 +286,14 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     }
                   },
                   child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: '日期',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: s.dateLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_formatDate(_selectedDate)),
+                        Text(_formatDate(context, _selectedDate)),
                         const Icon(Icons.calendar_today, size: 18),
                       ],
                     ),
@@ -305,14 +308,14 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                   children: [
                     Expanded(
                       child: InputDecorator(
-                        decoration: const InputDecoration(labelText: '开始时间', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: s.startTimeLabel, border: const OutlineInputBorder()),
                         child: Text('${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}'),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: InputDecorator(
-                        decoration: const InputDecoration(labelText: '结束时间', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: s.endTimeLabel, border: const OutlineInputBorder()),
                         child: Text('${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}'),
                       ),
                     ),
@@ -322,7 +325,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                 Row(
                   children: [
                     Expanded(
-                      child: _buildTimePicker('开始时间', _startTime, (time) {
+                      child: _buildTimePicker(s.startTimeLabel, _startTime, (time) {
                         setState(() {
                           _startTime = time;
                           if (_selectedCourseType != null) {
@@ -333,7 +336,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: _buildTimePicker('结束时间', _endTime, (time) {
+                      child: _buildTimePicker(s.endTimeLabel, _endTime, (time) {
                         setState(() => _endTime = time);
                       }),
                     ),
@@ -342,7 +345,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               ],
               if (!_isLocked) ...[
                 Builder(builder: (context) {
-                  final warning = _workingHoursWarningText;
+                  final warning = _workingHoursWarningText(context);
                   if (warning == null) return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
@@ -356,7 +359,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               const SizedBox(height: 16),
 
               // 参与人
-              Text('参与人', style: Theme.of(context).textTheme.titleSmall),
+              Text(s.participantsLabel, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               ..._participants.map((p) => ListTile(
                 dense: true,
@@ -375,12 +378,12 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                   children: [
                     TextButton.icon(
                       icon: const Icon(Icons.search, size: 18),
-                      label: Text(_canAddParticipant ? '搜索学员' : '人数已满'),
+                      label: Text(_canAddParticipant ? s.searchStudents : s.participantsFull),
                       onPressed: _canAddParticipant ? _showStudentSearch : null,
                     ),
                     TextButton.icon(
                       icon: const Icon(Icons.person_add, size: 18),
-                      label: const Text('临时人员'),
+                      label: Text(s.temporaryPerson),
                       onPressed: _canAddParticipant ? _showAddGuest : null,
                     ),
                   ],
@@ -390,9 +393,9 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               // 标题（可选）
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: '标题（可选）',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.titleOptionalLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 onChanged: (v) => _title = v.isEmpty ? null : v,
               ),
@@ -401,9 +404,9 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               // 地点（可选）
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: '地点（可选）',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.locationOptionalLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 onChanged: (v) => _location = v.isEmpty ? null : v,
               ),
@@ -412,9 +415,9 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               // 备注（可选）
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: '备注（可选）',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: s.notesOptionalLabel,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
                 onChanged: (v) => _notes = v.isEmpty ? null : v,
@@ -428,7 +431,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                   onPressed: _selectedCourseType == null || _participants.isEmpty || _isSubmitting ? null : _submit,
                   child: _isSubmitting
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(isEditing ? '保存' : '创建排课'),
+                      : Text(isEditing ? s.btnSave : s.createScheduledClass),
                 ),
               ),
               if (!_isSubmitting && (_selectedCourseType == null || _participants.isEmpty))
@@ -436,10 +439,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                   padding: const EdgeInsets.only(top: 8),
                   child: Center(
                     child: Text(
-                      '请先${[
-                        if (_selectedCourseType == null) '选择课程类型',
-                        if (_participants.isEmpty) '添加参与人',
-                      ].join('、')}',
+                      s.pleaseSelectCourseTypeAndParticipant,
                       style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.outline),
                     ),
                   ),
@@ -497,17 +497,18 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   }
 
   void _showAddGuest() {
+    final s = S.of(context)!;
     _guestNameController.clear();
     String? errorText;
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('添加临时人员'),
+          title: Text(s.addTemporaryPerson),
           content: TextField(
             controller: _guestNameController,
             decoration: InputDecoration(
-              labelText: '姓名',
+              labelText: s.guestNameLabel,
               errorText: errorText,
             ),
             autofocus: true,
@@ -519,7 +520,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
             },
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(s.btnCancel)),
             ListenableBuilder(
               listenable: _guestNameController,
               builder: (context, _) {
@@ -531,7 +532,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                       (p) => p['student_id'] == null && p['guest_name'] == name,
                     );
                     if (hasDuplicateGuest) {
-                      setDialogState(() => errorText = '该临时人员已添加');
+                      setDialogState(() => errorText = s.guestAlreadyAdded);
                       return;
                     }
                     // 检查：与已添加的正式学员同名
@@ -553,7 +554,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
                     });
                     Navigator.pop(dialogContext);
                   },
-                  child: const Text('添加'),
+                  child: Text(s.btnAdd),
                 );
               },
             ),
@@ -565,13 +566,14 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
 
   /// 确认添加与正式学员同名的临时人员
   void _confirmAddDuplicateNameGuest(String name) {
+    final s = S.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('姓名重复'),
-        content: Text('「$name」已在参与人列表中作为正式学员，确定再添加为临时人员吗？'),
+        title: Text(s.duplicateNameTitle),
+        content: Text(s.duplicateNameConfirm(name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(s.btnCancel)),
           TextButton(
             onPressed: () {
               setState(() {
@@ -584,7 +586,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
               });
               Navigator.pop(context);
             },
-            child: const Text('确定添加'),
+            child: Text(s.confirmAddDuplicate),
           ),
         ],
       ),
@@ -592,15 +594,16 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   }
 
   Future<void> _submit() async {
+    final s = S.of(context)!;
     if (_isSubmitting) return;
 
     // 校验参与人
     if (_participants.isEmpty) {
-      setState(() => _validationError = '请至少添加一位参与人');
+      setState(() => _validationError = s.atLeastOneParticipant);
       return;
     }
     if (_maxParticipants != null && _participants.length > _maxParticipants!) {
-      setState(() => _validationError = '参与人数量超过「${_selectedCourseType!.name}」的上限（最多 $_maxParticipants 人）');
+      setState(() => _validationError = s.participantOverflow(_selectedCourseType!.name, _maxParticipants!));
       return;
     }
 
@@ -641,7 +644,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
             notifier.refreshAfterMutation();
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('保存失败'), backgroundColor: Colors.red),
+              SnackBar(content: Text(s.saveFailed), backgroundColor: Colors.red),
             );
           }
         }
@@ -664,7 +667,7 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
             notifier.fetchByDate(_selectedDate);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('创建失败'), backgroundColor: Colors.red),
+              SnackBar(content: Text(s.createFailed), backgroundColor: Colors.red),
             );
           }
         }
@@ -677,39 +680,43 @@ class _CreateScheduledClassDialogState extends ConsumerState<CreateScheduledClas
   String _fmtTime(DateTime time) =>
       '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
-  String _formatDate(DateTime date) {
-    const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    return '${date.year}年${date.month}月${date.day}日 ${weekdays[date.weekday - 1]}';
+  String _formatDate(BuildContext context, DateTime date) {
+    final s = S.of(context)!;
+    final weekdays = [
+      s.rangeWeekdayMon, s.rangeWeekdayTue, s.rangeWeekdayWed,
+      s.rangeWeekdayThu, s.rangeWeekdayFri, s.rangeWeekdaySat, s.rangeWeekdaySun,
+    ];
+    return s.dateFormatFull(date.year, date.month, date.day, weekdays[date.weekday - 1]);
   }
 
-  String? get _workingHoursWarningText {
+  String? _workingHoursWarningText(BuildContext context) {
+    final s = S.of(context)!;
     final segments = ref.read(workingHoursNotifierProvider);
     if (segments.isEmpty) return null;
     final startH = _startTime.hour + _startTime.minute / 60;
     final endH = _endTime.hour + _endTime.minute / 60;
     if (isClassInWorkingHours(startH, endH, segments)) return null;
     return '\u26A0 ${_fmtTime(_startTime)}-${_fmtTime(_endTime)} '
-        '不在工作时间（${formatSegments(segments)}）范围内';
+        '${s.workingHoursWarningMessage(_fmtTime(_startTime), _fmtTime(_endTime), formatSegments(segments))}';
   }
 
   Future<bool> _showWorkingHoursConfirmDialog(List<TimeSegment> segments) async {
+    final s = S.of(context)!;
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('提示'),
+        title: Text(s.workingHoursWarningTitle),
         content: Text(
-          '「${_fmtTime(_startTime)}-${_fmtTime(_endTime)}」不在工作时间'
-          '（${formatSegments(segments)}）范围内。\n'
-          '超出部分在日视图中可能无法正常显示，可在周视图中查看。',
+          s.workingHoursWarningMessage(_fmtTime(_startTime), _fmtTime(_endTime), formatSegments(segments)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('返回修改'),
+            child: Text(s.goBackToEdit),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认排课'),
+            child: Text(s.confirmScheduleOutsideHours),
           ),
         ],
       ),
@@ -749,6 +756,7 @@ class _StudentSearchDelegate extends SearchDelegate<Student?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    final s = S.of(context)!;
     final state = ref.watch(studentNotifierProvider);
     return state.maybeWhen(
       data: (students, _, __) {
@@ -757,7 +765,7 @@ class _StudentSearchDelegate extends SearchDelegate<Student?> {
             .where((s) => query.isEmpty || s.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
         if (filtered.isEmpty) {
-          return const Center(child: Text('没有可添加的学员'));
+          return Center(child: Text(s.noStudentsToAdd));
         }
         return ListView.builder(
           itemCount: filtered.length,

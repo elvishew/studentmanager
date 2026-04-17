@@ -4,9 +4,9 @@ import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/album_provider.dart';
 import 'package:student_manager/providers/payment_provider.dart';
-import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/database/scheduled_class_repository.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'create_course_plan_dialog.dart';
 import 'create_album_dialog.dart';
 import 'course_plan_page.dart';
@@ -76,7 +76,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('相册已创建')),
+          SnackBar(content: Text(S.of(context)!.albumCreated)),
         );
       }
     }
@@ -84,12 +84,13 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final coursePlanState = ref.watch(coursePlanNotifierProvider);
     final albumState = ref.watch(albumNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('学员详情'),
+        title: Text(s.studentDetailTitle),
       ),
       body: _student == null
           ? const Center(
@@ -117,6 +118,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建学员信息卡片
   Widget _buildStudentInfo() {
+    final s = S.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -165,21 +167,21 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             // 信息行
             _buildInfoRow(
               icon: Icons.phone,
-              label: '联系方式',
+              label: s.contactInfoLabel,
               value: _student!.contact,
             ),
             if (_student!.notes != null && _student!.notes!.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildInfoRow(
                 icon: Icons.note,
-                label: '备注',
+                label: s.notesLabel,
                 value: _student!.notes!,
               ),
             ],
             const SizedBox(height: 12),
             _buildInfoRow(
               icon: Icons.access_time,
-              label: '创建时间',
+              label: s.createdAtLabel,
               value: _formatDateTime(_student!.createdAt),
             ),
           ],
@@ -227,6 +229,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建课程规划部分
   Widget _buildCoursePlansSection(CoursePlanState state) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -235,7 +238,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '课程规划',
+              s.coursePlanSectionTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -243,14 +246,14 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             ElevatedButton.icon(
               onPressed: _showCreateCoursePlanDialog,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('新建'),
+              label: Text(s.newButton),
             ),
           ],
         ),
         const SizedBox(height: 12),
         // 课程规划列表
         state.when(
-          initial: () => _buildEmptyState('暂无课程规划'),
+          initial: () => _buildEmptyState(s.noCoursePlansMessage),
           loading: () => const Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),
@@ -265,7 +268,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                 .toList();
 
             if (studentCoursePlans.isEmpty) {
-              return _buildEmptyState('暂无课程规划');
+              return _buildEmptyState(s.noCoursePlansMessage);
             }
 
             return Column(
@@ -281,6 +284,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建课程规划卡片
   Widget _buildCoursePlanCard(CoursePlan coursePlan) {
+    final s = S.of(context)!;
     final goalName = coursePlan.goalName ?? '';
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
@@ -348,7 +352,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
               icon: const Icon(Icons.delete_outline),
               color: Colors.red,
               onPressed: () => _showDeleteCoursePlanDialog(coursePlan),
-              tooltip: '删除课程规划',
+              tooltip: s.deleteCoursePlanTitle,
             ),
             // 进入详情箭头
             const Icon(Icons.chevron_right, color: Colors.grey),
@@ -372,11 +376,12 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建上课记录部分
   Widget _buildClassRecordsSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '上课记录',
+          s.classRecordsSectionTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -393,7 +398,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             }
             final records = snapshot.data ?? [];
             if (records.isEmpty) {
-              return _buildEmptyState('暂无上课记录');
+              return _buildEmptyState(s.noClassRecordsMessage);
             }
             return Column(
               children: records.map((record) {
@@ -430,18 +435,19 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建付费记录部分
   Widget _buildPaymentSection() {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('付费记录', style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            Text(s.paymentRecordsSectionTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             )),
             TextButton.icon(
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('新增'),
+              label: Text(s.addPaymentButton),
               onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => StudentPaymentPage(studentId: widget.studentId))),
             ),
@@ -456,14 +462,14 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             }
             final payments = snapshot.data ?? [];
             if (payments.isEmpty) {
-              return _buildEmptyState('暂无付费记录');
+              return _buildEmptyState(s.noPaymentRecordsMessage);
             }
             final totalAmount = payments.fold<double>(0, (sum, p) => sum + ((p['amount'] as num?)?.toDouble() ?? 0));
             return Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('总消费: ¥${totalAmount.toStringAsFixed(2)}',
+                  child: Text(s.totalPaymentLabel(totalAmount.toStringAsFixed(2)),
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 ...payments.map((payment) {
@@ -497,11 +503,12 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
   }
 
   String _attendanceLabel(String attendance) {
+    final s = S.of(context)!;
     switch (attendance) {
-      case 'present': return '出勤';
-      case 'absent': return '缺勤';
-      case 'late': return '迟到';
-      default: return '待记录';
+      case 'present': return s.attendancePresent;
+      case 'absent': return s.attendanceAbsent;
+      case 'late': return s.attendanceLate;
+      default: return s.attendancePending;
     }
   }
 
@@ -516,6 +523,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建相册部分
   Widget _buildAlbumsSection(AlbumState state) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -524,7 +532,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '相册',
+              s.albumsSectionTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -532,13 +540,13 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
             ElevatedButton.icon(
               onPressed: _showCreateAlbumDialog,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('新建'),
+              label: Text(s.newButton),
             ),
           ],
         ),
         const SizedBox(height: 12),
         state.when(
-          initial: () => _buildEmptyState('暂无相册'),
+          initial: () => _buildEmptyState(s.noAlbumsMessage),
           loading: () => const Center(
             child: Padding(
               padding: EdgeInsets.all(32.0),
@@ -552,7 +560,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                 .toList();
 
             if (studentAlbums.isEmpty) {
-              return _buildEmptyState('暂无相册');
+              return _buildEmptyState(s.noAlbumsMessage);
             }
 
             return Column(
@@ -568,6 +576,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 构建相册卡片
   Widget _buildAlbumCard(Album album) {
+    final s = S.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: ListTile(
@@ -618,7 +627,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
               icon: const Icon(Icons.delete_outline),
               color: Colors.red,
               onPressed: () => _showDeleteAlbumDialog(album),
-              tooltip: '删除相册',
+              tooltip: s.deleteAlbumTitle,
             ),
             const Icon(Icons.chevron_right, color: Colors.grey),
           ],
@@ -644,31 +653,33 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
   Future<void> _showDeleteAlbumDialog(Album album) async {
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除相册'),
-        content: Text(
-          '确定要删除相册「${album.name}」吗？\n\n'
-          '删除后将同时删除所有照片，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteAlbumTitle),
+          content: Text(
+            s.confirmDeleteAlbumMessage(album.name),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _deleteAlbum(album);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _deleteAlbum(album);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -680,14 +691,14 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('相册已删除')),
+          SnackBar(content: Text(S.of(context)!.albumDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('删除失败：$e'),
+            content: Text(S.of(context)!.deleteAlbumFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -699,31 +710,33 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
   Future<void> _showDeleteCoursePlanDialog(CoursePlan coursePlan) async {
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除课程规划'),
-        content: Text(
-          '确定要删除「${coursePlan.goalName ?? ""}」吗？\n\n'
-          '删除后将同时删除该规划下的所有课时和训练记录，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteCoursePlanTitle),
+          content: Text(
+            s.confirmDeleteCoursePlanMessage(coursePlan.goalName ?? ''),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _deleteCoursePlan(coursePlan.id);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(s.cancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _deleteCoursePlan(coursePlan.id);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -735,14 +748,14 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课程规划已删除')),
+          SnackBar(content: Text(S.of(context)!.coursePlanDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('删除失败：$e'),
+            content: Text(S.of(context)!.deleteAlbumFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -775,6 +788,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
 
   /// 错误状态
   Widget _buildErrorState(Object error) {
+    final s = S.of(context)!;
     return Container(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -786,7 +800,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            '加载失败',
+            s.loadingFailedMessage,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.error,
                 ),

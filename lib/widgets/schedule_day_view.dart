@@ -5,6 +5,7 @@ import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/providers/settings_provider.dart';
 import 'package:student_manager/pages/scheduled_class_detail_page.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 日视图：支持工作时间分段显示，左右滑动切换日期
 class ScheduleDayView extends ConsumerStatefulWidget {
@@ -211,6 +212,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         now.month == selectedDate.month &&
         now.day == selectedDate.day;
 
+    final s = S.of(context)!;
     return Column(
       children: [
         // 增强型 Day Strip
@@ -218,9 +220,9 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
         // 内容区域
         Expanded(
           child: state.when(
-            initial: () => const Center(child: Text('加载中...')),
+            initial: () => Center(child: Text(s.loading)),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('加载失败: $e')),
+            error: (e, _) => Center(child: Text(s.statisticsLoadingFailed(e.toString()))),
             data: (classes, _) {
               // 筛选当天的课程
               final dayClasses = classes.where((sc) {
@@ -366,7 +368,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
           height: _breakHeight,
           child: Center(
             child: Text(
-              '休息',
+              S.of(context)!.breakLabel,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
                   ),
@@ -508,7 +510,7 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _weekdayShort(date.weekday),
+                            _weekdayShort(context, date.weekday),
                             style: TextStyle(
                               fontSize: 10,
                               color: isSelected
@@ -563,9 +565,18 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  String _weekdayShort(int weekday) {
-    const days = ['一', '二', '三', '四', '五', '六', '日'];
-    return days[weekday - 1];
+  String _weekdayShort(BuildContext context, int weekday) {
+    final s = S.of(context)!;
+    switch (weekday) {
+      case 1: return s.weekdayMon;
+      case 2: return s.weekdayTue;
+      case 3: return s.weekdayWed;
+      case 4: return s.weekdayThu;
+      case 5: return s.weekdayFri;
+      case 6: return s.weekdaySat;
+      case 7: return s.weekdaySun;
+      default: return '';
+    }
   }
 
   /// 构建课程色块（支持重叠列布局 + 时间段映射）
@@ -675,9 +686,10 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
     final participants = sc.participants;
     if (participants != null && participants.isNotEmpty) {
       if (participants.length == 1) return participants.first.displayName;
-      return '${participants.first.displayName}等${participants.length}人';
+      final s = S.of(context)!;
+      return '${participants.first.displayName}${s.participantsCountShort(participants.length)}';
     }
-    return sc.courseTypeName ?? '未命名';
+    return sc.courseTypeName ?? S.of(context)!.unnamedBlock;
   }
 
   Widget _buildClassBlock(ScheduledClass sc, double blockHeight) {
@@ -741,15 +753,16 @@ class _ScheduleDayViewState extends ConsumerState<ScheduleDayView> {
   }
 
   Widget _buildDaySummary(List<ScheduledClass> classes) {
+    final s = S.of(context)!;
     final active = classes.where((c) => c.status != ScheduledClassStatus.cancelled).toList();
     final completed = active.where((c) => c.status == ScheduledClassStatus.completed).length;
     final scheduled = active.where((c) => c.status == ScheduledClassStatus.scheduled).length;
     final noShow = active.where((c) => c.status == ScheduledClassStatus.noShow).length;
     final cancelled = classes.where((c) => c.status == ScheduledClassStatus.cancelled).length;
 
-    final parts = ['今日 ${active.length} 节课 / 已完成 $completed / 待上 $scheduled'];
-    if (noShow > 0) parts.add('未到 $noShow');
-    if (cancelled > 0) parts.add('已取消 $cancelled');
+    final parts = [s.todayClassSummary(active.length, completed, scheduled)];
+    if (noShow > 0) parts.add(s.noShowCount(noShow));
+    if (cancelled > 0) parts.add(s.cancelledCount(cancelled));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

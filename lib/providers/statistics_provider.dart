@@ -11,13 +11,10 @@ part 'statistics_provider.g.dart';
 /// ============================================
 
 enum StatisticsRange {
-  week('本周'),
-  month('本月'),
-  quarter('本季'),
-  custom('自定义');
-
-  final String label;
-  const StatisticsRange(this.label);
+  week,
+  month,
+  quarter,
+  custom;
 }
 
 /// ============================================

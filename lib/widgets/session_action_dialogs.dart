@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 显示确认操作对话框
 Future<bool?> showConfirmActionDialog(
   BuildContext context, {
   required String title,
   required String content,
-  String confirmText = '确认',
+  String? confirmText,
   bool isDangerous = false,
 }) {
+  final s = S.of(context)!;
   return showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
@@ -21,7 +23,7 @@ Future<bool?> showConfirmActionDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('取消'),
+          child: Text(s.btnCancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(true),
@@ -29,7 +31,7 @@ Future<bool?> showConfirmActionDialog(
             backgroundColor: isDangerous ? Colors.red : null,
             foregroundColor: isDangerous ? Colors.white : null,
           ),
-          child: Text(confirmText),
+          child: Text(confirmText ?? s.btnConfirm),
         ),
       ],
     ),

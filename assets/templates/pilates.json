@@ -1,15 +1,17 @@
 {
   "id": "pilates",
   "name": "普拉提教练",
+  "name_en": "Pilates Instructor",
   "contentFields": [
-    {"name": "动作", "type": "select", "required": true, "sortOrder": 0, "options": ["宽蹲", "侧弓步蹲", "侧蹬腿", "站姿弓步（一）", "站姿弓步（二）", "站姿弓步（三）"]},
-    {"name": "器械", "type": "select", "required": false, "sortOrder": 1, "options": ["核心床（Reformer）", "凯迪拉克床（Cadillac）", "稳踏椅（Chair）", "梯桶（Ladder Barrel）", "ARC"]},
-    {"name": "工具", "type": "select", "required": false, "sortOrder": 2, "options": ["盒子", "小球", "弹力带", "普拉提环", "泡沫轴", "瑜伽砖"]},
-    {"name": "次数", "type": "number", "required": false, "sortOrder": 3},
-    {"name": "组数", "type": "number", "required": false, "sortOrder": 4},
-    {"name": "时长", "type": "number", "required": false, "sortOrder": 5},
-    {"name": "强度", "type": "text", "required": false, "sortOrder": 6},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 7}
+    {"name": "动作", "name_en": "Movement", "type": "select", "required": true, "sortOrder": 0, "options": ["宽蹲", "侧弓步蹲", "侧蹬腿", "站姿弓步（一）", "站姿弓步（二）", "站姿弓步（三）"], "options_en": ["Wide Squat", "Side Lunge", "Side Kick", "Standing Lunge I", "Standing Lunge II", "Standing Lunge III"]},
+    {"name": "器械", "name_en": "Equipment", "type": "select", "required": false, "sortOrder": 1, "options": ["核心床（Reformer）", "凯迪拉克床（Cadillac）", "稳踏椅（Chair）", "梯桶（Ladder Barrel）", "ARC"], "options_en": ["Reformer", "Cadillac", "Chair", "Ladder Barrel", "ARC"]},
+    {"name": "工具", "name_en": "Props", "type": "select", "required": false, "sortOrder": 2, "options": ["盒子", "小球", "弹力带", "普拉提环", "泡沫轴", "瑜伽砖"], "options_en": ["Box", "Small Ball", "Resistance Band", "Magic Circle", "Foam Roller", "Yoga Block"]},
+    {"name": "次数", "name_en": "Reps", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "组数", "name_en": "Sets", "type": "number", "required": false, "sortOrder": 4},
+    {"name": "时长", "name_en": "Duration", "type": "number", "required": false, "sortOrder": 5},
+    {"name": "强度", "name_en": "Intensity", "type": "text", "required": false, "sortOrder": 6},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 7}
   ],
-  "courseGoals": ["产后修复", "肩颈理疗", "肩背打造", "腰酸治疗", "腰腹塑形", "全身塑形", "臀腿打造", "膝盖疼痛"]
+  "courseGoals": ["产后修复", "肩颈理疗", "肩背打造", "腰酸治疗", "腰腹塑形", "全身塑形", "臀腿打造", "膝盖疼痛"],
+  "courseGoals_en": ["Postpartum Recovery", "Shoulder & Neck Therapy", "Back Sculpting", "Back Pain Relief", "Core Toning", "Full Body Sculpting", "Glutes & Legs", "Knee Pain Relief"]
 }

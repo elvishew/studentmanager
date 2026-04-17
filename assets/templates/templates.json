@@ -1,16 +1,16 @@
 {
   "templates": [
-    {"id": "pilates", "name": "普拉提教练", "icon": "fitness_center", "file": "pilates.json"},
-    {"id": "vocal", "name": "声乐老师", "icon": "mic", "file": "vocal.json"},
-    {"id": "piano", "name": "钢琴老师", "icon": "piano", "file": "piano.json"},
-    {"id": "yoga", "name": "瑜伽教练", "icon": "self_improvement", "file": "yoga.json"},
-    {"id": "dance", "name": "舞蹈老师", "icon": "music_note", "file": "dance.json"},
-    {"id": "swimming", "name": "游泳教练", "icon": "pool", "file": "swimming.json"},
-    {"id": "math", "name": "数学辅导", "icon": "calculate", "file": "math.json"},
-    {"id": "english", "name": "英语辅导", "icon": "translate", "file": "english.json"},
-    {"id": "art", "name": "美术老师", "icon": "palette", "file": "art.json"},
-    {"id": "chess", "name": "国际象棋教练", "icon": "extension", "file": "chess.json"},
-    {"id": "taekwondo", "name": "跆拳道教练", "icon": "sports_martial_arts", "file": "taekwondo.json"},
-    {"id": "custom", "name": "自定义", "icon": "edit", "file": "custom.json"}
+    {"id": "pilates", "name": "普拉提教练", "name_en": "Pilates Instructor", "icon": "fitness_center", "file": "pilates.json"},
+    {"id": "vocal", "name": "声乐老师", "name_en": "Vocal Teacher", "icon": "mic", "file": "vocal.json"},
+    {"id": "piano", "name": "钢琴老师", "name_en": "Piano Teacher", "icon": "piano", "file": "piano.json"},
+    {"id": "yoga", "name": "瑜伽教练", "name_en": "Yoga Instructor", "icon": "self_improvement", "file": "yoga.json"},
+    {"id": "dance", "name": "舞蹈老师", "name_en": "Dance Teacher", "icon": "music_note", "file": "dance.json"},
+    {"id": "swimming", "name": "游泳教练", "name_en": "Swimming Coach", "icon": "pool", "file": "swimming.json"},
+    {"id": "math", "name": "数学辅导", "name_en": "Math Tutor", "icon": "calculate", "file": "math.json"},
+    {"id": "english", "name": "英语辅导", "name_en": "English Tutor", "icon": "translate", "file": "english.json"},
+    {"id": "art", "name": "美术老师", "name_en": "Art Teacher", "icon": "palette", "file": "art.json"},
+    {"id": "chess", "name": "国际象棋教练", "name_en": "Chess Coach", "icon": "extension", "file": "chess.json"},
+    {"id": "taekwondo", "name": "跆拳道教练", "name_en": "Taekwondo Coach", "icon": "sports_martial_arts", "file": "taekwondo.json"},
+    {"id": "custom", "name": "自定义", "name_en": "Custom", "icon": "edit", "file": "custom.json"}
   ]
 }

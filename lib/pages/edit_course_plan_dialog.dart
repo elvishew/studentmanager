@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/states.dart';
@@ -58,8 +59,9 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
       if (success) {
         Navigator.of(context).pop(true);
       } else {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('保存失败，请重试'), backgroundColor: Colors.red),
+          SnackBar(content: Text(s.saveFailedRetry), backgroundColor: Colors.red),
         );
       }
     }
@@ -67,10 +69,11 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final goalsAsync = ref.watch(activeGoalsProvider);
 
     return AlertDialog(
-      title: const Text('编辑课程规划'),
+      title: Text(s.editCoursePlanTitle),
       content: SizedBox(
         width: 400,
         child: Column(
@@ -85,14 +88,14 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.orange.shade200),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.orange, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '修改课程目标不会影响已有课时的训练内容',
-                      style: TextStyle(fontSize: 13),
+                      s.courseGoalChangeNote,
+                      style: const TextStyle(fontSize: 13),
                     ),
                   ),
                 ],
@@ -101,11 +104,11 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
             const SizedBox(height: 20),
 
             // 课程目标选择
-            const Text('课程目标', style: TextStyle(fontWeight: FontWeight.w500)),
+            Text(s.courseGoalLabel, style: const TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             goalsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('加载失败: $e'),
+              error: (e, _) => Text(s.statisticsLoadingFailed(e.toString())),
               data: (goals) {
                 final goalIds = goals.map((g) => g.id).toSet();
 
@@ -148,14 +151,14 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
             const SizedBox(height: 16),
 
             // 蓝图编辑
-            const Text('蓝图描述（可选）', style: TextStyle(fontWeight: FontWeight.w500)),
+            Text(s.blueprintLabel, style: const TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             TextField(
               controller: _blueprintController,
               maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: '输入课程规划的整体描述...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: s.blueprintHint,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -164,7 +167,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
       actions: [
         TextButton(
           onPressed: _isSaving ? null : () => Navigator.of(context).pop(false),
-          child: const Text('取消'),
+          child: Text(s.btnCancel),
         ),
         ElevatedButton(
           onPressed: _isSaving ? null : _save,
@@ -174,7 +177,7 @@ class _EditCoursePlanDialogState extends ConsumerState<EditCoursePlanDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('保存'),
+              : Text(s.btnSave),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 
 /// 课程目标管理列表页
@@ -58,8 +59,9 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
           final query = ref.read(goalNotifierProvider).searchQuery;
           ref.read(goalNotifierProvider.notifier).fetchAllAndSearch(query);
         } else if (mounted) {
+          final s = S.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('该目标名称已存在')),
+            SnackBar(content: Text(s.optionNameExists)),
           );
         }
       }
@@ -69,14 +71,17 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
   Future<void> _handleDeprecate(GoalItem item) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('弃用目标'),
-        content: Text('确定要弃用「${item.name}」吗？\n\n弃用后，将不再显示在课程规划的选择列表中，但可在管理页面恢复。'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('确认弃用')),
-        ],
-      ),
+      builder: (ctx) {
+        final s = S.of(ctx)!;
+        return AlertDialog(
+          title: Text(s.deprecateGoalTitle),
+          content: Text(s.confirmDeprecateGoalMessage(item.name)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(s.btnCancel)),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(s.confirmDeprecate)),
+          ],
+        );
+      },
     );
     if (confirmed == true && mounted) {
       await ref.read(goalNotifierProvider.notifier).toggleDeprecated(item.id, true);
@@ -88,14 +93,17 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
   Future<void> _handleRestore(GoalItem item) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('恢复目标'),
-        content: Text('确定要恢复「${item.name}」吗？\n\n恢复后，将重新显示在课程规划的选择列表中。'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('确认恢复')),
-        ],
-      ),
+      builder: (ctx) {
+        final s = S.of(ctx)!;
+        return AlertDialog(
+          title: Text(s.restoreGoalTitle),
+          content: Text(s.confirmRestoreGoalMessage(item.name)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(s.btnCancel)),
+            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(s.confirmRestore)),
+          ],
+        );
+      },
     );
     if (confirmed == true && mounted) {
       await ref.read(goalNotifierProvider.notifier).toggleDeprecated(item.id, false);
@@ -111,21 +119,24 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
       if (mounted) {
         await showDialog(
           context: context,
-          builder: (ctx) => AlertDialog(
-            icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 48),
-            title: const Text('无法删除'),
-            content: Text('该课程目标被 $usageCount 个课程规划引用。\n\n建议：您可以先将其弃用，弃用后将不会在选择列表中显示。'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('我知道了')),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _handleDeprecate(item);
-                },
-                child: const Text('弃用该目标'),
-              ),
-            ],
-          ),
+          builder: (ctx) {
+            final s = S.of(ctx)!;
+            return AlertDialog(
+              icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 48),
+              title: Text(s.cannotDeleteTitle),
+              content: Text(s.goalInUseMessage(usageCount)),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: Text(s.iKnow)),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _handleDeprecate(item);
+                  },
+                  child: Text(s.deprecateThisGoal),
+                ),
+              ],
+            );
+          },
         );
       }
       return;
@@ -133,19 +144,22 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('确认删除'),
-        content: Text('确定要删除「${item.name}」吗？\n\n此操作不可恢复。'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final s = S.of(ctx)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.btnConfirmDelete),
+          content: Text(s.confirmDeleteGoalMessage(item.name)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(s.btnCancel)),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {
@@ -153,8 +167,9 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
       if (mounted) {
         ref.read(goalNotifierProvider.notifier).fetchAll();
         if (result != DeleteItemResult.success) {
+          final s = S.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('删除失败'), backgroundColor: Colors.red),
+            SnackBar(content: Text(s.saveFailed), backgroundColor: Colors.red),
           );
         }
       }
@@ -163,11 +178,12 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final state = ref.watch(goalNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('课程目标管理'),
+        title: Text(s.goalListPageTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -185,6 +201,7 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
   }
 
   Widget _buildSearchBar() {
+    final s = S.of(context)!;
     final notifier = ref.read(goalNotifierProvider.notifier);
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -197,7 +214,7 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: '搜索课程目标...',
+          hintText: s.searchGoalHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -218,9 +235,10 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
   }
 
   Widget _buildContent(GoalItemState s) {
+    final l = S.of(context)!;
     switch (s.status) {
       case BasicItemStatus.initial:
-        return _buildEmptyView('暂无数据', '点击右上角 + 按钮添加');
+        return _buildEmptyView(l.noStatisticsDataMessage, l.clickToAddStudentMessage);
       case BasicItemStatus.loading:
         return const Center(child: CircularProgressIndicator());
       case BasicItemStatus.error:
@@ -230,18 +248,18 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text('加载失败', style: Theme.of(context).textTheme.titleLarge),
+              Text(l.loadingFailedMessage, style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: () => ref.read(goalNotifierProvider.notifier).fetchAll(),
                 icon: const Icon(Icons.refresh),
-                label: const Text('重试'),
+                label: Text(l.retry),
               ),
             ],
           ),
         );
       case BasicItemStatus.data:
-        if (s.items.isEmpty) return _buildEmptyView('暂无数据', '');
+        if (s.items.isEmpty) return _buildEmptyView(l.noStatisticsDataMessage, '');
         return RefreshIndicator(
           onRefresh: () => ref.read(goalNotifierProvider.notifier).fetchAll(),
           child: ListView.separated(
@@ -272,6 +290,7 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
   }
 
   Widget _buildTile(GoalItem item) {
+    final s = S.of(context)!;
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: item.isDeprecated ? Colors.grey : Theme.of(context).colorScheme.primary,
@@ -285,24 +304,24 @@ class _GoalListPageState extends ConsumerState<GoalListPage> {
         ),
       ),
       subtitle: item.isDeprecated
-          ? const Text('已弃用', style: TextStyle(color: Colors.grey, fontSize: 12))
+          ? Text(s.deprecatedLabel, style: const TextStyle(color: Colors.grey, fontSize: 12))
           : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (item.isDeprecated)
-            IconButton(icon: const Icon(Icons.restore), tooltip: '恢复', onPressed: () => _handleRestore(item))
+            IconButton(icon: const Icon(Icons.restore), tooltip: s.restoreTooltip, onPressed: () => _handleRestore(item))
           else
-            IconButton(icon: const Icon(Icons.archive), tooltip: '弃用', onPressed: () => _handleDeprecate(item)),
+            IconButton(icon: const Icon(Icons.archive), tooltip: s.deprecateTooltip, onPressed: () => _handleDeprecate(item)),
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: '编辑',
+            tooltip: s.edit,
             onPressed: () => _showFormDialog(item.id),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             color: Colors.red,
-            tooltip: '删除',
+            tooltip: s.btnDelete,
             onPressed: () => _handleDelete(item),
           ),
         ],
@@ -339,21 +358,22 @@ class _GoalFormDialogState extends State<_GoalFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return AlertDialog(
-      title: Text(widget.itemId != null ? '编辑课程目标' : '新增课程目标'),
+      title: Text(widget.itemId != null ? s.editGoalTitle : s.newGoalTitle),
       content: TextField(
         controller: _controller,
-        decoration: const InputDecoration(
-          labelText: '目标名称',
-          hintText: '请输入课程目标名称',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: s.goalNameLabel,
+          hintText: s.goalNameHint,
+          border: const OutlineInputBorder(),
         ),
         autofocus: true,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(s.btnCancel),
         ),
         TextButton(
           onPressed: () {
@@ -362,7 +382,7 @@ class _GoalFormDialogState extends State<_GoalFormDialog> {
               Navigator.pop(context, value);
             }
           },
-          child: const Text('确定'),
+          child: Text(s.btnConfirm),
         ),
       ],
     );

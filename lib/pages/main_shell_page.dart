@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'schedule_page.dart';
 import 'student_list_page.dart';
@@ -37,6 +38,7 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return Scaffold(
@@ -48,60 +50,60 @@ class _MainShellPageState extends ConsumerState<MainShellPage> {
           ? CupertinoTabBar(
               currentIndex: _currentIndex,
               onTap: _onTabSelected,
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Icon(CupertinoIcons.calendar, size: 22),
                   ),
-                  label: '课表',
+                  label: s.navSchedule,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Icon(CupertinoIcons.person_2, size: 22),
                   ),
-                  label: '学员',
+                  label: s.navStudents,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Icon(CupertinoIcons.chart_bar, size: 22),
                   ),
-                  label: '统计',
+                  label: s.navStatistics,
                 ),
                 BottomNavigationBarItem(
                   icon: Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Icon(CupertinoIcons.person, size: 22),
                   ),
-                  label: '我的',
+                  label: s.navProfile,
                 ),
               ],
             )
           : NavigationBar(
               selectedIndex: _currentIndex,
               onDestinationSelected: _onTabSelected,
-              destinations: const [
+              destinations: [
                 NavigationDestination(
                   icon: Icon(Icons.calendar_today_outlined),
                   selectedIcon: Icon(Icons.calendar_today),
-                  label: '课表',
+                  label: s.navSchedule,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.people_outline),
                   selectedIcon: Icon(Icons.people),
-                  label: '学员',
+                  label: s.navStudents,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.bar_chart_outlined),
                   selectedIcon: Icon(Icons.bar_chart),
-                  label: '统计',
+                  label: s.navStatistics,
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),
                   selectedIcon: Icon(Icons.person),
-                  label: '我的',
+                  label: s.navProfile,
                 ),
               ],
             ),

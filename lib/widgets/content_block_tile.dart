@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:student_manager/providers/states.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 内容块展示卡片
 /// 根据 contentFields 动态渲染字段值
@@ -39,6 +40,7 @@ class ContentBlockTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: Padding(
@@ -50,7 +52,7 @@ class ContentBlockTile extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '内容块 $number',
+                  s.contentBlockPrefix(number),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -59,7 +61,7 @@ class ContentBlockTile extends StatelessWidget {
                 if (onMoveUp != null)
                   IconButton(
                     icon: const Icon(Icons.arrow_upward, size: 18),
-                    tooltip: '上移',
+                    tooltip: s.moveUpTooltip,
                     onPressed: _sortOrder > 0 ? onMoveUp : null,
                     constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     padding: EdgeInsets.zero,
@@ -67,7 +69,7 @@ class ContentBlockTile extends StatelessWidget {
                 if (onMoveDown != null)
                   IconButton(
                     icon: const Icon(Icons.arrow_downward, size: 18),
-                    tooltip: '下移',
+                    tooltip: s.moveDownTooltip,
                     onPressed: _sortOrder < maxOrder ? onMoveDown : null,
                     constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     padding: EdgeInsets.zero,
@@ -75,7 +77,7 @@ class ContentBlockTile extends StatelessWidget {
                 if (onEdit != null)
                   IconButton(
                     icon: const Icon(Icons.edit, size: 18),
-                    tooltip: '编辑',
+                    tooltip: s.edit,
                     onPressed: onEdit,
                     constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     padding: EdgeInsets.zero,
@@ -83,7 +85,7 @@ class ContentBlockTile extends StatelessWidget {
                 if (onDelete != null)
                   IconButton(
                     icon: const Icon(Icons.delete, size: 18),
-                    tooltip: '删除',
+                    tooltip: s.btnDelete,
                     onPressed: onDelete,
                     constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     padding: EdgeInsets.zero,
@@ -108,7 +110,7 @@ class ContentBlockTile extends StatelessWidget {
 
     if (nonEmptyFields.isEmpty) {
       return Text(
-        '（空）',
+        S.of(context)!.emptyValue,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.outline,
             ),

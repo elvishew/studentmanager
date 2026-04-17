@@ -1,13 +1,15 @@
 {
   "id": "dance",
   "name": "舞蹈老师",
+  "name_en": "Dance Teacher",
   "contentFields": [
-    {"name": "练习内容", "type": "select", "required": true, "sortOrder": 0, "options": ["基本功训练", "把杆练习", "中间练习", "跳跃练习", "旋转练习", "成品舞段"]},
-    {"name": "舞种", "type": "select", "required": false, "sortOrder": 1, "options": ["芭蕾", "拉丁", "街舞", "爵士", "中国舞", "现代舞"]},
-    {"name": "练习曲目", "type": "text", "required": false, "sortOrder": 2},
-    {"name": "练习时长", "type": "number", "required": false, "sortOrder": 3},
-    {"name": "遍数", "type": "number", "required": false, "sortOrder": 4},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 5}
+    {"name": "练习内容", "name_en": "Practice Content", "type": "select", "required": true, "sortOrder": 0, "options": ["基本功训练", "把杆练习", "中间练习", "跳跃练习", "旋转练习", "成品舞段"], "options_en": ["Fundamentals", "Barre Work", "Center Work", "Jumps", "Turns", "Choreography"]},
+    {"name": "舞种", "name_en": "Dance Style", "type": "select", "required": false, "sortOrder": 1, "options": ["芭蕾", "拉丁", "街舞", "爵士", "中国舞", "现代舞"], "options_en": ["Ballet", "Latin", "Hip Hop", "Jazz", "Chinese Dance", "Contemporary"]},
+    {"name": "练习曲目", "name_en": "Music", "type": "text", "required": false, "sortOrder": 2},
+    {"name": "练习时长", "name_en": "Duration", "type": "number", "required": false, "sortOrder": 3},
+    {"name": "遍数", "name_en": "Repetitions", "type": "number", "required": false, "sortOrder": 4},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 5}
   ],
-  "courseGoals": ["基本功强化", "舞蹈编排", "考级备战", "演出备战", "形体训练", "兴趣培养"]
+  "courseGoals": ["基本功强化", "舞蹈编排", "考级备战", "演出备战", "形体训练", "兴趣培养"],
+  "courseGoals_en": ["Fundamentals", "Choreography", "Exam Preparation", "Performance", "Body Conditioning", "Interest Development"]
 }

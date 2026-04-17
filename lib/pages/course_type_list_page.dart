@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
 import 'course_type_form_page.dart';
@@ -23,19 +24,20 @@ class _CourseTypeListPageState extends ConsumerState<CourseTypeListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final state = ref.watch(courseTypeNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('课程类型管理'),
+        title: Text(s.courseTypeListPageTitle),
       ),
       body: state.when(
-        initial: () => const Center(child: Text('加载中...')),
+        initial: () => Center(child: Text(s.loading)),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('错误: $e')),
+        error: (e, _) => Center(child: Text(s.errorMessage(e.toString()))),
         data: (types) {
           if (types.isEmpty) {
-            return const Center(child: Text('暂无课程类型'));
+            return Center(child: Text(s.noCourseTypesMessage));
           }
           return ListView.builder(
             itemCount: types.length,
@@ -48,13 +50,14 @@ class _CourseTypeListPageState extends ConsumerState<CourseTypeListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showForm(context),
-        tooltip: '新增课程类型',
+        tooltip: s.newCourseTypeTooltip,
         child: const Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildCourseTypeTile(BuildContext context, CourseType ct) {
+    final s = S.of(context)!;
     final color = _parseColor(ct.color) ?? Theme.of(context).colorScheme.primary;
 
     return Card(
@@ -79,7 +82,7 @@ class _CourseTypeListPageState extends ConsumerState<CourseTypeListPage> {
                   color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('团', style: TextStyle(fontSize: 10, color: Colors.green)),
+                child: Text(s.groupBadge, style: const TextStyle(fontSize: 10, color: Colors.green)),
               ),
             ],
             if (ct.isDeprecated) ...[
@@ -90,7 +93,7 @@ class _CourseTypeListPageState extends ConsumerState<CourseTypeListPage> {
                   color: Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('弃', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                child: Text(s.deprecatedBadge, style: const TextStyle(fontSize: 10, color: Colors.grey)),
               ),
             ],
           ],
@@ -102,11 +105,11 @@ class _CourseTypeListPageState extends ConsumerState<CourseTypeListPage> {
         trailing: PopupMenuButton<String>(
           onSelected: (action) => _handleAction(action, ct),
           itemBuilder: (context) => [
-            const PopupMenuItem(value: 'edit', child: Text('编辑')),
+            PopupMenuItem(value: 'edit', child: Text(s.edit)),
             if (!ct.isDeprecated)
-              const PopupMenuItem(value: 'deprecate', child: Text('弃用'))
+              PopupMenuItem(value: 'deprecate', child: Text(s.deprecateTooltip))
             else
-              const PopupMenuItem(value: 'restore', child: Text('恢复')),
+              PopupMenuItem(value: 'restore', child: Text(s.restoreTooltip)),
           ],
         ),
       ),

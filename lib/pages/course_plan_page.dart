@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
 import 'package:student_manager/providers/states.dart';
@@ -56,13 +58,14 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final sessionState = ref.watch(sessionNotifierProvider);
     final stats = ref.watch(sessionStatisticsProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('课程规划'),
+        title: Text(s.coursePlanPageTitle),
       ),
       body: sessionState.when(
         initial: () => _buildInitialView(),
@@ -97,6 +100,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 构建课程信息卡片（课程目标 + 蓝图）
   Widget _buildCourseInfoCard(ThemeData theme) {
+    final s = S.of(context)!;
     final goal = _coursePlan?.goalName ?? '';
     final blueprint = _coursePlan?.blueprint;
 
@@ -116,7 +120,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               ),
               const SizedBox(width: 6),
               Text(
-                '课程目标',
+                s.courseGoalSectionLabel,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -129,7 +133,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
                   width: 32,
                   child: IconButton(
                     icon: const Icon(Icons.edit_outlined, size: 18),
-                    tooltip: '编辑课程规划',
+                    tooltip: s.editCoursePlanTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                     onPressed: _handleEditCoursePlan,
@@ -139,7 +143,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            goal.isNotEmpty ? goal : '未设置',
+            goal.isNotEmpty ? goal : s.goalNotSet,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: goal.isNotEmpty ? null : theme.colorScheme.outline,
@@ -156,7 +160,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  '蓝图',
+                  s.blueprintSectionLabel,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.colorScheme.outline,
                   ),
@@ -187,8 +191,9 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
       // 重新加载课程规划详情以刷新UI
       await _loadCoursePlan();
       if (mounted) {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课程规划已更新')),
+          SnackBar(content: Text(s.coursePlanUpdated)),
         );
       }
     }
@@ -196,6 +201,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 构建进度统计组件
   Widget _buildProgressStats(SessionStatistics stats, ThemeData theme) {
+    final s = S.of(context)!;
     final remaining = stats.total - stats.completed - stats.skipped;
     final percent = (stats.completionRate * 100).toInt();
 
@@ -233,25 +239,25 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
             children: [
               _buildStatItem(
                 theme: theme,
-                label: '总课时',
+                label: s.totalSessionsLabel,
                 value: '${stats.total}',
                 color: theme.colorScheme.onSurface,
               ),
               _buildStatItem(
                 theme: theme,
-                label: '已完成',
+                label: s.completedSessionsLabel,
                 value: '${stats.completed}',
                 color: Colors.green,
               ),
               _buildStatItem(
                 theme: theme,
-                label: '未开始',
+                label: s.pendingSessionsLabel,
                 value: '$remaining',
                 color: Colors.orange,
               ),
               _buildStatItem(
                 theme: theme,
-                label: '已跳过',
+                label: s.skippedSessionsLabel,
                 value: '${stats.skipped}',
                 color: Colors.grey,
               ),
@@ -304,6 +310,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 构建错误视图
   Widget _buildErrorView(Object error) {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -315,7 +322,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '加载失败',
+            s.loadingFailedMessage,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
@@ -330,7 +337,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
               ref.read(sessionNotifierProvider.notifier).fetchByCoursePlanId(widget.coursePlanId);
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('重试'),
+            label: Text(s.retry),
           ),
         ],
       ),
@@ -339,6 +346,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 构建空视图
   Widget _buildEmptyView() {
+    final s = S.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +358,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '暂无课时',
+            s.noSessionsMessage,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -381,6 +389,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   /// 构建课时列表项（带滑动删除功能）
   Widget _buildSessionTile(int index, Session session) {
     // 使用索引+1作为显示序号，这样删除课后序号会自动调整
+    final s = S.of(context)!;
     final displayNumber = index + 1;
 
     return Dismissible(
@@ -410,7 +419,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
           ),
         ),
         title: Text(
-          '第 $displayNumber 节课',
+          s.sessionNumberDisplay(displayNumber),
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: _buildStatusLabel(session.status),
@@ -421,19 +430,19 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
             if (session.status == SessionStatus.pending)
               _buildActionButton(
                 icon: Icons.schedule,
-                tooltip: '排课',
+                tooltip: s.scheduleClassTooltip,
                 onTap: () => _handleScheduleSession(session, displayNumber),
               ),
             // 完成按钮
             _buildActionButton(
               icon: Icons.check_circle_outline,
-              tooltip: '标记完成',
+              tooltip: s.markCompletedTooltip,
               onTap: () => _handleComplete(session, displayNumber),
             ),
             // 跳过按钮
             _buildActionButton(
               icon: Icons.skip_next_outlined,
-              tooltip: '跳过',
+              tooltip: s.skipTooltip,
               onTap: () => _handleSkip(session, displayNumber),
             ),
             // 详情箭头
@@ -449,31 +458,33 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
   Future<bool?> _showDeleteSessionDialog(Session session, int displayNumber) async {
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除课时'),
-        content: Text(
-          '确定要删除「第$displayNumber节课」吗？\n\n'
-          '删除后将同时删除该课时的所有训练记录，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteSessionTitle),
+          content: Text(
+            s.confirmDeleteSessionMessage(displayNumber),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context, true);
-              await _deleteSession(session.id);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context, true);
+                await _deleteSession(session.id);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -484,15 +495,17 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
       final success = await notifier.deleteSession(sessionId: sessionId);
 
       if (success && mounted) {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课时已删除')),
+          SnackBar(content: Text(s.sessionDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('删除失败：$e'),
+            content: Text(s.deleteSessionFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -508,15 +521,15 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     switch (status) {
       case SessionStatus.pending:
         color = Colors.orange;
-        label = '未开始';
+        label = status.loc(context);
         break;
       case SessionStatus.completed:
         color = Colors.green;
-        label = '已完成';
+        label = status.loc(context);
         break;
       case SessionStatus.skipped:
         color = Colors.grey;
-        label = '已跳过';
+        label = status.loc(context);
         break;
     }
 
@@ -570,12 +583,13 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 标记完成
   Future<void> _handleComplete(Session session, int displayNumber) async {
+    final s = S.of(context)!;
     // 确认对话框
     final confirmed = await showConfirmActionDialog(
       context,
-      title: '标记为已完成',
-      content: '确定要将第$displayNumber节课标记为已完成吗？',
-      confirmText: '确认',
+      title: s.confirmMarkCompletedTitle,
+      content: s.confirmMarkCompletedMessage(displayNumber),
+      confirmText: s.btnConfirm,
     );
 
     if (confirmed != true) return;
@@ -588,18 +602,19 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     );
 
     if (mounted) {
-      _showResultSnackBar(success, '已标记为完成');
+      _showResultSnackBar(success, S.of(context)!.markedAsCompleted);
     }
   }
 
   /// 跳过课时
   Future<void> _handleSkip(Session session, int displayNumber) async {
+    final s = S.of(context)!;
     // 确认对话框
     final confirmed = await showConfirmActionDialog(
       context,
-      title: '标记为已跳过',
-      content: '确定要将第$displayNumber节课标记为已跳过吗？',
-      confirmText: '确认',
+      title: s.confirmMarkSkippedTitle,
+      content: s.confirmMarkSkippedMessage(displayNumber),
+      confirmText: s.btnConfirm,
     );
 
     if (confirmed != true) return;
@@ -612,7 +627,7 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
     );
 
     if (mounted) {
-      _showResultSnackBar(success, '已标记为跳过');
+      _showResultSnackBar(success, S.of(context)!.markedAsSkipped);
     }
   }
 
@@ -634,9 +649,10 @@ class _CoursePlanPageState extends ConsumerState<CoursePlanPage> {
 
   /// 显示操作结果
   void _showResultSnackBar(bool success, String message) {
+    final s = S.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? message : '操作失败，请重试'),
+        content: Text(success ? message : s.operationFailed),
         backgroundColor: success ? Colors.green : Colors.red,
       ),
     );

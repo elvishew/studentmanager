@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 月视图：日历网格 + 课时数徽章
 class ScheduleMonthView extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class _ScheduleMonthViewState extends ConsumerState<ScheduleMonthView> {
     final state = ref.watch(scheduledClassNotifierProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
+    final s = S.of(context)!;
     return Column(
       children: [
         // 月导航栏
@@ -24,9 +26,9 @@ class _ScheduleMonthViewState extends ConsumerState<ScheduleMonthView> {
         // 内容区域
         Expanded(
           child: state.when(
-            initial: () => const Center(child: Text('加载中...')),
+            initial: () => Center(child: Text(s.loading)),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('加载失败: $e')),
+            error: (e, _) => Center(child: Text(s.statisticsLoadingFailed(e.toString()))),
             data: (classes, _) {
               final startOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
               // 按日分组（取消的课不计入徽章）
@@ -204,7 +206,8 @@ class _ScheduleMonthViewState extends ConsumerState<ScheduleMonthView> {
   }
 
   Widget _buildWeekdayHeader(BuildContext context) {
-    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    final s = S.of(context)!;
+    final days = [s.weekdaySun, s.weekdayMon, s.weekdayTue, s.weekdayWed, s.weekdayThu, s.weekdayFri, s.weekdaySat];
     return Row(
       children: days.map((d) => Expanded(
         child: Padding(

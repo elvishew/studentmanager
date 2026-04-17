@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/scheduled_class_provider.dart';
 import 'package:student_manager/pages/create_scheduled_class_dialog.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 
 /// 排课详情页
 class ScheduledClassDetailPage extends ConsumerStatefulWidget {
@@ -37,6 +39,8 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
+
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -44,13 +48,13 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
     }
 
     if (_detail == null) {
-      return const Scaffold(
-        body: Center(child: Text('排课记录不存在')),
+      return Scaffold(
+        body: Center(child: Text(s.scheduledClassNotFound)),
       );
     }
 
     final status = _detail!['status'] as String? ?? 'scheduled';
-    final courseTypeName = _detail!['course_type_name'] as String? ?? '未知';
+    final courseTypeName = _detail!['course_type_name'] as String? ?? s.unknown;
     final courseTypeColor = _detail!['course_type_color'] as String?;
     final startTime = DateTime.parse(_detail!['start_time'] as String);
     final endTime = DateTime.parse(_detail!['end_time'] as String);
@@ -70,22 +74,22 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: '编辑',
+            tooltip: s.edit,
             onPressed: () => _editScheduledClass(),
           ),
           PopupMenuButton<String>(
             onSelected: (action) => _handleAction(action),
             itemBuilder: (context) => [
               if (status == 'scheduled') ...[
-                const PopupMenuItem(value: 'complete', child: Text('完成上课（消课）')),
-                const PopupMenuItem(value: 'cancel', child: Text('取消排课')),
-                const PopupMenuItem(value: 'noshow', child: Text('标记未到')),
+                PopupMenuItem(value: 'complete', child: Text(s.markCompleted)),
+                PopupMenuItem(value: 'cancel', child: Text(s.cancelScheduledClass)),
+                PopupMenuItem(value: 'noshow', child: Text(s.markNoShow)),
               ],
               if (status == 'cancelled' || status == 'no_show')
-                const PopupMenuItem(value: 'restore', child: Text('恢复为待上课')),
+                PopupMenuItem(value: 'restore', child: Text(s.restoreToScheduled)),
               if (status == 'completed')
-                const PopupMenuItem(value: 'restore', child: Text('撤销完成')),
-              const PopupMenuItem(value: 'delete', child: Text('删除', style: TextStyle(color: Colors.red))),
+                PopupMenuItem(value: 'restore', child: Text(s.restoreCompleted)),
+              PopupMenuItem(value: 'delete', child: Text(s.btnDelete, style: const TextStyle(color: Colors.red))),
             ],
           ),
         ],
@@ -119,11 +123,11 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
                       ],
                     ),
                     const Divider(height: 24),
-                    _buildInfoRow(Icons.access_time, '时间', _formatDateTime(startTime)),
-                    _buildInfoRow(Icons.timer, '时长', '${endTime.difference(startTime).inMinutes} 分钟'),
+                    _buildInfoRow(Icons.access_time, s.timeLabel, _formatDateTime(startTime)),
+                    _buildInfoRow(Icons.timer, s.durationLabel, s.durationMinutes(endTime.difference(startTime).inMinutes)),
                     if (location != null)
-                      _buildInfoRow(Icons.location_on, '地点', location),
-                    _buildInfoRow(Icons.payments, '课时费', '¥${sessionFee.toStringAsFixed(2)}'),
+                      _buildInfoRow(Icons.location_on, s.locationLabel, location),
+                    _buildInfoRow(Icons.payments, s.sessionFeeLabel, '¥${sessionFee.toStringAsFixed(2)}'),
                   ],
                 ),
               ),
@@ -131,13 +135,13 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
             const SizedBox(height: 16),
 
             // 参与人列表
-            Text('参与人 (${participants.length})', style: Theme.of(context).textTheme.titleMedium),
+            Text(s.participantsCountLabel(participants.length), style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...participants.map((p) {
               final studentName = p['student_name'] as String?;
               final guestName = p['guest_name'] as String?;
               final attendance = p['attendance'] as String? ?? 'pending';
-              final displayName = studentName ?? guestName ?? '未知';
+              final displayName = studentName ?? guestName ?? s.unknown;
               final isGuest = studentName == null && guestName != null;
 
               return Card(
@@ -154,7 +158,7 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
                             color: Colors.orange.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('客', style: TextStyle(fontSize: 10, color: Colors.orange)),
+                          child: Text(s.guestBadge, style: const TextStyle(fontSize: 10, color: Colors.orange)),
                         ),
                       ],
                     ],
@@ -167,7 +171,7 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
             // 关联 session 信息
             if (sessionInfo != null) ...[
               const SizedBox(height: 16),
-              Text('关联课时', style: Theme.of(context).textTheme.titleMedium),
+              Text(s.relatedSessionLabel, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -175,9 +179,9 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('第 ${sessionInfo['session_number']} 课时'),
+                      Text(s.sessionNumberLabel(sessionInfo['session_number'] as int)),
                       if (coursePlanInfo != null)
-                        Text('课程规划: ${coursePlanInfo['goal_name'] ?? ''} - ${coursePlanInfo['student_name'] ?? ''}',
+                        Text(s.coursePlanLabel('${coursePlanInfo['goal_name'] ?? ''} - ${coursePlanInfo['student_name'] ?? ''}'),
                           style: TextStyle(color: Theme.of(context).colorScheme.outline),
                         ),
                     ],
@@ -189,7 +193,7 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
             // 备注
             if (notes != null && notes.isNotEmpty) ...[
               const SizedBox(height: 16),
-              Text('备注', style: Theme.of(context).textTheme.titleMedium),
+              Text(s.notesTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Card(
                 child: Padding(
@@ -217,13 +221,18 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
   }
 
   (String, Color) _getStatusInfo(String status) {
-    switch (status) {
-      case 'scheduled': return ('待上课', Colors.blue);
-      case 'completed': return ('已完成', Colors.green);
-      case 'cancelled': return ('已取消', Colors.grey);
-      case 'no_show': return ('未到', Colors.orange);
-      default: return ('未知', Colors.grey);
+    final s = S.of(context)!;
+    final schedStatus = ScheduledClassStatus.values.where((e) => e.value == status).firstOrNull;
+    if (schedStatus != null) {
+      final color = switch (schedStatus) {
+        ScheduledClassStatus.scheduled => Colors.blue,
+        ScheduledClassStatus.completed => Colors.green,
+        ScheduledClassStatus.cancelled => Colors.grey,
+        ScheduledClassStatus.noShow => Colors.orange,
+      };
+      return (schedStatus.loc(context), color);
     }
+    return (s.unknown, Colors.grey);
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
@@ -242,11 +251,12 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
   }
 
   Widget _buildAttendanceChip(String attendance, int participantId) {
-    final (label, color) = switch (attendance) {
-      'present' => ('出勤', Colors.green),
-      'absent' => ('缺勤', Colors.red),
-      'late' => ('迟到', Colors.orange),
-      _ => ('待记录', Colors.grey),
+    final attStatus = AttendanceStatus.values.where((e) => e.value == attendance).firstOrNull ?? AttendanceStatus.pending;
+    final (label, color) = switch (attStatus) {
+      AttendanceStatus.present => (attStatus.loc(context), Colors.green),
+      AttendanceStatus.absent => (attStatus.loc(context), Colors.red),
+      AttendanceStatus.late => (attStatus.loc(context), Colors.orange),
+      AttendanceStatus.pending => (attStatus.loc(context), Colors.grey),
     };
 
     return GestureDetector(
@@ -291,12 +301,13 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
 
   Future<void> _handleAction(String action) async {
     final notifier = ref.read(scheduledClassNotifierProvider.notifier);
+    final s = S.of(context)!;
 
     switch (action) {
       case 'complete':
         final confirmed = await _showConfirmDialog(
-          title: '确认消课',
-          content: '确认标记此排课为已完成？关联的课时也会自动标记完成。',
+          title: s.confirmCompleteTitle,
+          content: s.confirmCompleteMessage,
         );
         if (confirmed == true) {
           await notifier.completeClass(widget.classId);
@@ -308,9 +319,9 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
         break;
       case 'cancel':
         final confirmed = await _showConfirmDialog(
-          title: '取消排课',
-          content: '确定要取消此排课吗？取消后可以随时恢复。',
-          confirmText: '确认取消',
+          title: s.confirmCancelTitle,
+          content: s.confirmCancelMessage,
+          confirmText: s.btnConfirm,
           isDangerous: true,
         );
         if (confirmed == true) {
@@ -323,8 +334,8 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
         break;
       case 'noshow':
         final confirmed = await _showConfirmDialog(
-          title: '标记未到',
-          content: '确定要将此排课标记为学员未到吗？',
+          title: s.confirmNoShowTitle,
+          content: s.confirmNoShowMessage,
         );
         if (confirmed == true) {
           await notifier.markNoShow(widget.classId);
@@ -336,8 +347,8 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
         break;
       case 'restore':
         final confirmed = await _showConfirmDialog(
-          title: '恢复排课',
-          content: '确定要将此排课恢复为待上课状态吗？',
+          title: s.confirmRestoreTitle,
+          content: s.confirmRestoreMessage,
         );
         if (confirmed == true) {
           await notifier.restoreClass(widget.classId);
@@ -349,8 +360,8 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
         break;
       case 'delete':
         final confirmed = await _showConfirmDialog(
-          title: '确认删除',
-          content: '确定要删除此排课记录吗？此操作不可撤销。',
+          title: s.btnConfirmDelete,
+          content: s.confirmDeleteScheduledClassMessage,
           isDangerous: true,
         );
         if (confirmed == true) {
@@ -367,20 +378,21 @@ class _ScheduledClassDetailPageState extends ConsumerState<ScheduledClassDetailP
   Future<bool?> _showConfirmDialog({
     required String title,
     required String content,
-    String confirmText = '确认',
+    String? confirmText,
     bool isDangerous = false,
   }) {
+    final s = S.of(context)!;
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(s.btnCancel)),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: isDangerous ? FilledButton.styleFrom(backgroundColor: Colors.red) : null,
-            child: Text(confirmText),
+            child: Text(confirmText ?? s.btnConfirm),
           ),
         ],
       ),

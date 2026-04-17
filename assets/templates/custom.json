@@ -1,9 +1,11 @@
 {
   "id": "custom",
   "name": "自定义",
+  "name_en": "Custom",
   "contentFields": [
-    {"name": "内容", "type": "text", "required": false, "sortOrder": 0},
-    {"name": "备注", "type": "multiline", "required": false, "sortOrder": 1}
+    {"name": "内容", "name_en": "Content", "type": "text", "required": false, "sortOrder": 0},
+    {"name": "备注", "name_en": "Notes", "type": "multiline", "required": false, "sortOrder": 1}
   ],
-  "courseGoals": []
+  "courseGoals": [],
+  "courseGoals_en": []
 }

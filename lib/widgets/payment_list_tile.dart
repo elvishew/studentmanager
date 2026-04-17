@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 付费记录列表项
 class PaymentListTile extends StatelessWidget {
@@ -19,7 +20,8 @@ class PaymentListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = description ?? courseTypeName ?? '付费';
+    final s = S.of(context)!;
+    final title = description ?? courseTypeName ?? s.paymentDefaultTitle;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -45,7 +47,7 @@ class PaymentListTile extends StatelessWidget {
             ),
             if (commissionEarned != null && commissionEarned! > 0)
               Text(
-                '提成 ¥${commissionEarned!.toStringAsFixed(2)}',
+                s.commissionDisplay(commissionEarned!.toStringAsFixed(2)),
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context).colorScheme.outline,

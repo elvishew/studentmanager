@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
+import 'package:student_manager/l10n/enum_localizations.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
-import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/providers/session_provider.dart';
-import 'package:student_manager/providers/student_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/widgets/content_block_editor.dart';
 import 'package:student_manager/widgets/content_block_tile.dart';
-import 'package:student_manager/widgets/session_action_dialogs.dart';
 
 /// 课时详情页
 class SessionDetailPage extends ConsumerStatefulWidget {
@@ -91,23 +90,26 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
   Future<void> _deleteContentBlock(ContentBlock block) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除内容块 ${block.sortOrder + 1} 吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          title: Text(s.btnConfirmDelete),
+          content: Text(s.confirmDeleteContentBlockMessage(block.sortOrder + 1)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('删除'),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true) {
@@ -116,7 +118,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
       if (mounted) {
         await _loadSession();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('内容块已删除')),
+          SnackBar(content: Text(S.of(context)!.contentBlockDeleted)),
         );
       }
     }
@@ -127,28 +129,28 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning, color: Colors.red, size: 48),
-        title: const Text('删除课时'),
-        content: Text(
-          '确定要删除「第${_session!.sessionNumber}节课」吗？\n\n'
-          '删除后将同时删除该课时的所有教学记录，此操作不可恢复。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+      builder: (context) {
+        final s = S.of(context)!;
+        return AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.red, size: 48),
+          title: Text(s.deleteSessionTitle),
+          content: Text(s.confirmDeleteSessionMessage(_session!.sessionNumber)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(s.btnCancel),
             ),
-            child: const Text('确认删除'),
-          ),
-        ],
-      ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(s.btnConfirmDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed == true && mounted) {
@@ -162,16 +164,18 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
       final success = await notifier.deleteSession(sessionId: widget.sessionId);
 
       if (success && mounted) {
+        final s = S.of(context)!;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('课时已删除')),
+          SnackBar(content: Text(s.sessionDeleted)),
         );
       }
     } catch (e) {
       if (mounted) {
+        final s = S.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('删除失败：$e'),
+            content: Text(s.deleteSessionFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -190,24 +194,27 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
 
     final result = await showDialog<SessionStatus>(
       context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('更改状态'),
-        children: statuses.map((status) {
-          return SimpleDialogOption(
-            onPressed: () => Navigator.pop(context, status),
-            child: Row(
-              children: [
-                Icon(
-                  status == _session!.status ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(status.label),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
+      builder: (context) {
+        final s = S.of(context)!;
+        return SimpleDialog(
+          title: Text(s.changeStatusTitle),
+          children: statuses.map((status) {
+            return SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, status),
+              child: Row(
+                children: [
+                  Icon(
+                    status == _session!.status ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(status.loc(context)),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
 
     if (result != null && result != _session!.status && mounted) {
@@ -222,7 +229,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
           await _loadSession();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('更新失败'), backgroundColor: Colors.red),
+            SnackBar(content: Text(S.of(context)!.updateFailed), backgroundColor: Colors.red),
           );
         }
       }
@@ -253,9 +260,10 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     if (_session == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('课时详情')),
+        appBar: AppBar(title: Text(s.sessionDetailTitle)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -265,18 +273,18 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('第 ${_session!.sessionNumber} 节课'),
+        title: Text(s.sessionNumberDetail(_session!.sessionNumber)),
         actions: [
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             onPressed: _showStatusChangeDialog,
-            tooltip: '更改状态',
+            tooltip: s.changeStatusTitle,
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
             color: Colors.red,
             onPressed: () => _showDeleteSessionDialog(),
-            tooltip: '删除课时',
+            tooltip: s.deleteSessionTooltip,
           ),
         ],
       ),
@@ -286,12 +294,12 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSection(
-              title: '基本信息',
+              title: s.basicInfoSection,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildInfoRow('课时序号', '${_session!.sessionNumber}'),
-                  _buildInfoRow('状态', _getStatusText(_session!.status)),
+                  _buildInfoRow(s.sessionNumberLabelDetail, '${_session!.sessionNumber}'),
+                  _buildInfoRow(s.statusLabel, _getStatusText(_session!.status)),
                 ],
               ),
             ),
@@ -304,6 +312,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
   }
 
   Widget _buildContentBlocksSection(List<ContentBlock> contentBlocks, int maxOrder) {
+    final s = S.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -311,7 +320,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '教学内容',
+              s.teachingContentSection,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -319,7 +328,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
             ElevatedButton.icon(
               onPressed: _addContentBlock,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('添加'),
+              label: Text(s.addContentButton),
             ),
           ],
         ),
@@ -331,7 +340,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8.0),
             ),
-            child: const Center(child: Text('暂无教学内容')),
+            child: Center(child: Text(s.noTeachingContentMessage)),
           )
         else
           Column(
@@ -404,14 +413,7 @@ class _SessionDetailPageState extends ConsumerState<SessionDetailPage> {
   }
 
   String _getStatusText(SessionStatus status) {
-    switch (status) {
-      case SessionStatus.pending:
-        return '未开始';
-      case SessionStatus.completed:
-        return '已完成';
-      case SessionStatus.skipped:
-        return '已跳过';
-    }
+    return status.loc(context);
   }
 
   String _formatDateTime(DateTime dateTime) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/providers/content_field_provider.dart';
 import 'package:student_manager/providers/states.dart';
 import 'content_field_form_page.dart';
@@ -22,22 +23,24 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
     });
   }
 
-  String _fieldTypeLabel(FieldType type) {
+  String _fieldTypeLabel(BuildContext context, FieldType type) {
+    final s = S.of(context)!;
     switch (type) {
-      case FieldType.select: return '下拉选择';
-      case FieldType.number: return '数字';
-      case FieldType.text: return '文本';
-      case FieldType.multiline: return '多行文本';
+      case FieldType.select: return s.fieldTypeSelect;
+      case FieldType.number: return s.fieldTypeNumber;
+      case FieldType.text: return s.fieldTypeText;
+      case FieldType.multiline: return s.fieldTypeMultiline;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     final fields = ref.watch(contentFieldNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('教学内容字段'),
+        title: Text(s.contentFieldPageTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -49,12 +52,12 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
               );
               ref.read(contentFieldNotifierProvider.notifier).loadFields();
             },
-            tooltip: '新增字段',
+            tooltip: s.addFieldTooltip,
           ),
         ],
       ),
       body: fields.isEmpty
-          ? const Center(child: Text('暂无内容字段'))
+          ? Center(child: Text(s.noContentFieldsMessage))
           : ListView.builder(
               itemCount: fields.length,
               itemBuilder: (context, index) {
@@ -66,6 +69,7 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
   }
 
   Widget _buildFieldTile(ContentField field, int index) {
+    final s = S.of(context)!;
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: field.isDeprecated
@@ -96,7 +100,7 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              _fieldTypeLabel(field.fieldType),
+              _fieldTypeLabel(context, field.fieldType),
               style: TextStyle(
                 fontSize: 11,
                 color: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -112,7 +116,7 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                '必填',
+                s.requiredLabel,
                 style: TextStyle(
                   fontSize: 11,
                   color: Theme.of(context).colorScheme.onErrorContainer,
@@ -138,25 +142,28 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
                 );
                 ref.read(contentFieldNotifierProvider.notifier).loadFields();
               },
-              tooltip: '管理选项',
+              tooltip: s.manageOptionsTooltip,
             ),
           PopupMenuButton<String>(
             onSelected: (value) => _handleMenuAction(value, field, index),
-            itemBuilder: (context) => [
-              if (index > 0)
-                const PopupMenuItem(value: 'up', child: Text('上移')),
-              if (index < ref.read(contentFieldNotifierProvider).length - 1)
-                const PopupMenuItem(value: 'down', child: Text('下移')),
-              const PopupMenuItem(value: 'edit', child: Text('编辑')),
-              PopupMenuItem(
-                value: 'toggle',
-                child: Text(field.isDeprecated ? '启用' : '弃用'),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text('删除', style: TextStyle(color: Colors.red)),
-              ),
-            ],
+            itemBuilder: (context) {
+              final s = S.of(context)!;
+              return [
+                if (index > 0)
+                  PopupMenuItem(value: 'up', child: Text(s.moveUpTooltip)),
+                if (index < ref.read(contentFieldNotifierProvider).length - 1)
+                  PopupMenuItem(value: 'down', child: Text(s.moveDownTooltip)),
+                PopupMenuItem(value: 'edit', child: Text(s.edit)),
+                PopupMenuItem(
+                  value: 'toggle',
+                  child: Text(field.isDeprecated ? s.activateTooltip : s.deprecateTooltip),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(s.btnDelete, style: const TextStyle(color: Colors.red)),
+                ),
+              ];
+            },
           ),
         ],
       ),
@@ -188,28 +195,31 @@ class _ContentFieldListPageState extends ConsumerState<ContentFieldListPage> {
       case 'delete':
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('确认删除'),
-            content: Text('确定要删除字段「${field.name}」吗？'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('取消'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('删除'),
-              ),
-            ],
-          ),
+          builder: (context) {
+            final s = S.of(context)!;
+            return AlertDialog(
+              title: Text(s.btnConfirmDelete),
+              content: Text('${s.confirm} ${s.btnDelete}「${field.name}」？'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(s.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: Text(s.btnDelete),
+                ),
+              ],
+            );
+          },
         );
         if (confirmed == true) {
           await notifier.deleteField(field.id);
           notifier.loadFields();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('字段已删除')),
+              SnackBar(content: Text(S.of(context)!.fieldDeleted)),
             );
           }
         }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/settings_provider.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 class WorkingHoursSettingsPage extends ConsumerStatefulWidget {
   const WorkingHoursSettingsPage({super.key});
@@ -85,13 +86,14 @@ class _WorkingHoursSettingsPageState
       );
     }
 
+    final s = S.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('课表设置')),
+      appBar: AppBar(title: Text(s.scheduleSettingsTitle)),
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('自定义工作时间'),
-            subtitle: const Text('启用后日视图仅显示配置的时段'),
+            title: Text(s.customWorkingHoursToggle),
+            subtitle: Text(s.customWorkingHoursDescription),
             value: _enabled,
             onChanged: _onEnabledChanged,
           ),
@@ -102,7 +104,7 @@ class _WorkingHoursSettingsPageState
               child: Row(
                 children: [
                   Text(
-                    '工作时段',
+                    s.workingHoursSectionTitle,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
@@ -112,7 +114,7 @@ class _WorkingHoursSettingsPageState
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed: _segments.length < 5 ? _addSegment : null,
-                    tooltip: '添加时段',
+                    tooltip: s.addTimeSlotTooltip,
                   ),
                 ],
               ),
@@ -122,9 +124,9 @@ class _WorkingHoursSettingsPageState
               return _buildSegmentRow(context, index, seg);
             }),
             if (_segments.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(32),
-                child: Text('暂无时段，点击 + 添加', textAlign: TextAlign.center),
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(s.noTimeSlotsMessage, textAlign: TextAlign.center),
               ),
             const SizedBox(height: 16),
           ],
@@ -134,6 +136,7 @@ class _WorkingHoursSettingsPageState
   }
 
   Widget _buildSegmentRow(BuildContext context, int index, TimeSegment seg) {
+    final s = S.of(context)!;
     return Dismissible(
       key: ValueKey('segment_$index'),
       direction: DismissDirection.endToStart,
@@ -148,7 +151,7 @@ class _WorkingHoursSettingsPageState
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Row(
           children: [
-            Text('时段 ${index + 1}', style: const TextStyle(fontSize: 14)),
+            Text(s.timeSlotNumberLabel(index + 1), style: const TextStyle(fontSize: 14)),
             const SizedBox(width: 12),
             Expanded(
               child: DropdownButton<int>(

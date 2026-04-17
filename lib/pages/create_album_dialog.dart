@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:student_manager/l10n/app_localizations.dart';
 
 /// 创建相册弹窗
 class CreateAlbumDialog extends StatefulWidget {
@@ -50,8 +51,9 @@ class _CreateAlbumDialogState extends State<CreateAlbumDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return AlertDialog(
-      title: const Text('新建相册'),
+      title: Text(s.createAlbumTitle),
       content: SizedBox(
         width: 350,
         child: Column(
@@ -60,18 +62,18 @@ class _CreateAlbumDialogState extends State<CreateAlbumDialog> {
             TextField(
               controller: _nameController,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: '相册名称',
-                hintText: '请输入相册名称',
+              decoration: InputDecoration(
+                labelText: s.albumNameLabel,
+                hintText: s.nameLabel,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _notesController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: '备注',
-                hintText: '选填',
+              decoration: InputDecoration(
+                labelText: s.notesLabel,
+                hintText: s.albumNotesOptionalHint,
               ),
             ),
           ],
@@ -80,7 +82,7 @@ class _CreateAlbumDialogState extends State<CreateAlbumDialog> {
       actions: [
         TextButton(
           onPressed: _isCreating ? null : () => Navigator.of(context).pop(),
-          child: const Text('取消'),
+          child: Text(s.btnCancel),
         ),
         ElevatedButton(
           onPressed: _isCreating || _nameController.text.trim().isEmpty
@@ -92,7 +94,7 @@ class _CreateAlbumDialogState extends State<CreateAlbumDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('创建'),
+              : Text(s.createButton),
         ),
       ],
     );
