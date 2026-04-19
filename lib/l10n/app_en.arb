@@ -517,5 +517,13 @@
   "nextStep": "Next",
   "prevStep": "Back",
 
-  "applyingTemplate": "Applying template..."
+  "applyingTemplate": "Applying template...",
+
+  "classCountUnit": "{count} classes",
+  "classCountSessions": "{count} classes",
+  "currencyAmount": "${amount}",
+  "sessionProgressDisplay": "{completed}/{total} sessions",
+  "photoCountDisplay": "{count} photos",
+  "coursePlanOptionalLabel": "Course Plan (optional)",
+  "noCoursePlansAvailable": "No course plans for this student"
 }

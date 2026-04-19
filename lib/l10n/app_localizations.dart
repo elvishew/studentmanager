@@ -2718,6 +2718,48 @@ abstract class S {
   /// In zh, this message translates to:
   /// **'正在应用模板...'**
   String get applyingTemplate;
+
+  /// No description provided for @classCountUnit.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 节'**
+  String classCountUnit(int count);
+
+  /// No description provided for @classCountSessions.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 节课'**
+  String classCountSessions(int count);
+
+  /// No description provided for @currencyAmount.
+  ///
+  /// In zh, this message translates to:
+  /// **'¥{amount}'**
+  String currencyAmount(String amount);
+
+  /// No description provided for @sessionProgressDisplay.
+  ///
+  /// In zh, this message translates to:
+  /// **'{completed}/{total} 节课'**
+  String sessionProgressDisplay(int completed, int total);
+
+  /// No description provided for @photoCountDisplay.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 张照片'**
+  String photoCountDisplay(int count);
+
+  /// No description provided for @coursePlanOptionalLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'课程规划（可选）'**
+  String get coursePlanOptionalLabel;
+
+  /// No description provided for @noCoursePlansAvailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'该学员暂无课程规划'**
+  String get noCoursePlansAvailable;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

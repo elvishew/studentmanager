@@ -1437,4 +1437,35 @@ class SEn extends S {
 
   @override
   String get applyingTemplate => 'Applying template...';
+
+  @override
+  String classCountUnit(int count) {
+    return '$count classes';
+  }
+
+  @override
+  String classCountSessions(int count) {
+    return '$count classes';
+  }
+
+  @override
+  String currencyAmount(String amount) {
+    return '\$$amount';
+  }
+
+  @override
+  String sessionProgressDisplay(int completed, int total) {
+    return '$completed/$total sessions';
+  }
+
+  @override
+  String photoCountDisplay(int count) {
+    return '$count photos';
+  }
+
+  @override
+  String get coursePlanOptionalLabel => 'Course Plan (optional)';
+
+  @override
+  String get noCoursePlansAvailable => 'No course plans for this student';
 }

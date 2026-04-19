@@ -1422,4 +1422,35 @@ class SZh extends S {
 
   @override
   String get applyingTemplate => '正在应用模板...';
+
+  @override
+  String classCountUnit(int count) {
+    return '$count 节';
+  }
+
+  @override
+  String classCountSessions(int count) {
+    return '$count 节课';
+  }
+
+  @override
+  String currencyAmount(String amount) {
+    return '¥$amount';
+  }
+
+  @override
+  String sessionProgressDisplay(int completed, int total) {
+    return '$completed/$total 节课';
+  }
+
+  @override
+  String photoCountDisplay(int count) {
+    return '$count 张照片';
+  }
+
+  @override
+  String get coursePlanOptionalLabel => '课程规划（可选）';
+
+  @override
+  String get noCoursePlansAvailable => '该学员暂无课程规划';
 }

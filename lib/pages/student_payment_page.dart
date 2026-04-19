@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:student_manager/providers/states.dart';
 import 'package:student_manager/providers/payment_provider.dart';
 import 'package:student_manager/providers/course_type_provider.dart';
+import 'package:student_manager/providers/course_plan_provider.dart';
 import 'package:student_manager/l10n/app_localizations.dart';
 import 'package:student_manager/l10n/enum_localizations.dart';
 
@@ -21,10 +22,37 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
   final _descController = TextEditingController();
   final _notesController = TextEditingController();
   CourseType? _selectedCourseType;
+  CoursePlan? _selectedCoursePlan;
   CommissionType _commissionType = CommissionType.none;
   double _commissionValue = 0;
   DateTime _paidAt = DateTime.now();
   bool _isSubmitting = false;
+  List<CoursePlan> _coursePlans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCoursePlans();
+    });
+  }
+
+  Future<void> _loadCoursePlans() async {
+    await ref.read(coursePlanNotifierProvider.notifier).fetchByStudentId(widget.studentId);
+    if (mounted) {
+      final state = ref.read(coursePlanNotifierProvider);
+      state.when(
+        initial: () {},
+        loading: () {},
+        error: (_, __) {},
+        data: (plans, _, __) {
+          setState(() {
+            _coursePlans = plans.where((p) => p.studentId == widget.studentId).toList();
+          });
+        },
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -74,6 +102,30 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
               );
             }).toList(),
           ),
+          const SizedBox(height: 16),
+
+          // 课程规划选择
+          Text(s.coursePlanOptionalLabel, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          _coursePlans.isEmpty
+              ? Text(s.noCoursePlansAvailable,
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.outline))
+              : Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _coursePlans.map((plan) {
+                    final isSelected = _selectedCoursePlan?.id == plan.id;
+                    return ChoiceChip(
+                      label: Text(plan.goalName ?? s.unknown),
+                      selected: isSelected,
+                      onSelected: (_) {
+                        setState(() {
+                          _selectedCoursePlan = isSelected ? null : plan;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
           const SizedBox(height: 16),
 
           // 金额
@@ -169,6 +221,7 @@ class _StudentPaymentPageState extends ConsumerState<StudentPaymentPage> {
       final id = await notifier.create(
         studentId: widget.studentId,
         courseTypeId: _selectedCourseType?.id,
+        coursePlanId: _selectedCoursePlan?.id,
         amount: amount,
         description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
         commissionType: _commissionType,

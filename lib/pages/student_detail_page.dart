@@ -12,6 +12,7 @@ import 'create_album_dialog.dart';
 import 'course_plan_page.dart';
 import 'album_detail_page.dart';
 import 'student_payment_page.dart';
+import 'scheduled_class_detail_page.dart';
 
 /// 学员详情页
 class StudentDetailPage extends ConsumerStatefulWidget {
@@ -323,7 +324,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${coursePlan.completedSessions ?? 0}/${coursePlan.totalSessions ?? 0} 节课',
+                  s.sessionProgressDisplay(coursePlan.completedSessions ?? 0, coursePlan.totalSessions ?? 0),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(width: 16),
@@ -404,9 +405,10 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
               children: records.map((record) {
                 final startTime = DateTime.parse(record['start_time'] as String);
                 final endTime = DateTime.parse(record['end_time'] as String);
-                final typeName = record['course_type_name'] as String? ?? '未知';
+                final typeName = record['course_type_name'] as String? ?? s.unknown;
                 final status = record['status'] as String? ?? 'scheduled';
                 final attendance = record['my_attendance'] as String?;
+                final classId = record['id'] as int;
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -423,6 +425,13 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                         ? Text(_attendanceLabel(attendance), style: TextStyle(
                             fontSize: 12, color: _attendanceColor(attendance)))
                         : null,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ScheduledClassDetailPage(classId: classId),
+                        ),
+                      ).then((_) => setState(() {}));
+                    },
                   ),
                 );
               }).toList(),
@@ -613,7 +622,7 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${album.photoCount} 张照片',
+                  s.photoCountDisplay(album.photoCount),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -821,52 +830,45 @@ class _StudentDetailPageState extends ConsumerState<StudentDetailPage> {
     return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  /// 根据课程目标获取颜色
+  /// 通用颜色列表（基于目标名称哈希分配，不依赖具体目标名称）
+  static const _goalColors = [
+    Colors.blue,
+    Colors.purple,
+    Colors.teal,
+    Colors.orange,
+    Colors.pink,
+    Colors.green,
+    Colors.red,
+    Colors.amber,
+    Colors.indigo,
+    Colors.cyan,
+  ];
+
+  static const _goalIcons = [
+    Icons.flag,
+    Icons.star,
+    Icons.favorite,
+    Icons.local_fire_department,
+    Icons.emoji_events,
+    Icons.psychology,
+    Icons.trending_up,
+    Icons.lightbulb,
+    Icons.rocket_launch,
+    Icons.diamond,
+  ];
+
+  /// 根据课程目标名称哈希获取颜色
   Color _getGoalColor(String goal) {
-    switch (goal) {
-      case '产后修复':
-        return Colors.pink;
-      case '肩颈理疗':
-        return Colors.blue;
-      case '肩背打造':
-        return Colors.purple;
-      case '腰酸治疗':
-        return Colors.orange;
-      case '腰腹塑形':
-        return Colors.red;
-      case '全身塑形':
-        return Colors.green;
-      case '臀腿打造':
-        return Colors.teal;
-      case '膝盖疼痛':
-        return Colors.amber;
-      default:
-        return Colors.grey;
-    }
+    if (goal.isEmpty) return Colors.grey;
+    final index = goal.hashCode.abs() % _goalColors.length;
+    return _goalColors[index];
   }
 
-  /// 根据课程目标获取图标
+  /// 根据课程目标名称哈希获取图标
   IconData _getGoalIcon(String goal) {
-    switch (goal) {
-      case '产后修复':
-        return Icons.pregnant_woman;
-      case '肩颈理疗':
-        return Icons.accessibility_new;
-      case '肩背打造':
-        return Icons.rowing;
-      case '腰酸治疗':
-        return Icons.healing;
-      case '腰腹塑形':
-        return Icons.monitor_heart;
-      case '全身塑形':
-        return Icons.fitness_center;
-      case '臀腿打造':
-        return Icons.directions_run;
-      case '膝盖疼痛':
-        return Icons.airline_seat_recline_extra;
-      default:
-        return Icons.event_note;
-    }
+    if (goal.isEmpty) return Icons.event_note;
+    final index = goal.hashCode.abs() % _goalIcons.length;
+    return _goalIcons[index];
   }
 
   /// 根据完成率获取颜色

@@ -571,5 +571,23 @@
   "nextStep": "下一步",
   "prevStep": "上一步",
 
-  "applyingTemplate": "正在应用模板..."
+  "applyingTemplate": "正在应用模板...",
+
+  "classCountUnit": "{count} 节",
+  "@classCountUnit": { "placeholders": { "count": { "type": "int" } } },
+
+  "classCountSessions": "{count} 节课",
+  "@classCountSessions": { "placeholders": { "count": { "type": "int" } } },
+
+  "currencyAmount": "¥{amount}",
+  "@currencyAmount": { "placeholders": { "amount": { "type": "String" } } },
+
+  "sessionProgressDisplay": "{completed}/{total} 节课",
+  "@sessionProgressDisplay": { "placeholders": { "completed": { "type": "int" }, "total": { "type": "int" } } },
+
+  "photoCountDisplay": "{count} 张照片",
+  "@photoCountDisplay": { "placeholders": { "count": { "type": "int" } } },
+
+  "coursePlanOptionalLabel": "课程规划（可选）",
+  "noCoursePlansAvailable": "该学员暂无课程规划"
 }

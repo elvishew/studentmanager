@@ -65,8 +65,8 @@ class StatisticsPage extends ConsumerWidget {
       childAspectRatio: 1.5,
       children: [
         _buildStatCard(context, Icons.school, s.teachingHoursLabel, '${stats.totalClasses}', Colors.blue),
-        _buildStatCard(context, Icons.payments, s.studentSpendingLabel, '¥${stats.totalStudentPayment.toStringAsFixed(0)}', Colors.green),
-        _buildStatCard(context, Icons.account_balance_wallet, s.teacherIncomeLabel, '¥${stats.totalTeacherIncome.toStringAsFixed(0)}', Colors.orange),
+        _buildStatCard(context, Icons.payments, s.studentSpendingLabel, s.currencyAmount(stats.totalStudentPayment.toStringAsFixed(0)), Colors.green),
+        _buildStatCard(context, Icons.account_balance_wallet, s.teacherIncomeLabel, s.currencyAmount(stats.totalTeacherIncome.toStringAsFixed(0)), Colors.orange),
         _buildStatCard(context, Icons.check_circle, s.attendanceRateLabel, '${(stats.attendanceRate * 100).toStringAsFixed(1)}%', Colors.purple),
       ],
     );
@@ -120,7 +120,7 @@ class StatisticsPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(d.name, style: const TextStyle(fontSize: 13)),
-                      Text('${d.count} 节', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline)),
+                      Text(s.classCountUnit(d.count), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline)),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -160,8 +160,8 @@ class StatisticsPage extends ConsumerWidget {
               child: Text('${i + 1}', style: const TextStyle(fontSize: 12, color: Colors.white)),
             ),
             title: Text(ranking.studentName),
-            subtitle: Text('${ranking.classCount} 节课'),
-            trailing: Text('¥${ranking.totalAmount.toStringAsFixed(0)}',
+            subtitle: Text(s.classCountSessions(ranking.classCount)),
+            trailing: Text(s.currencyAmount(ranking.totalAmount.toStringAsFixed(0)),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           );
