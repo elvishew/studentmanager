@@ -188,7 +188,6 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
         );
       },
     );
-    controller.dispose();
 
     if (result != null) {
       final id = await _notifier.create(result);
@@ -236,7 +235,6 @@ class _FieldOptionListPageState extends ConsumerState<FieldOptionListPage> {
         );
       },
     );
-    controller.dispose();
 
     if (result != null) {
       final success = await _notifier.update(item.id, result);
